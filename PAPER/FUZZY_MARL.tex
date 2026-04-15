@@ -1,0 +1,550 @@
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,bm}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Acal}{\mathcal}
+\newcommand{\sym}{\mathrm{sym}}
+\newcommand{\bypass}{\mathrm{byp}}
+\newcommand{\fuse}{\mathrm{fuse}}
+\newcommand{\KL}{\mathrm{KL}}
+
+\begin{document}
+
+\title{Fuzzy Symmetry Modeling for Multi-Agent Reinforcement Learning}
+
+\author{Anonymous~Author(s)
+\thanks{This manuscript is prepared for submission to the IEEE Transactions on Fuzzy Systems.}
+}
+
+\markboth{IEEE Transactions on Fuzzy Systems,~Vol.~XX, No.~XX, Month~2026}%
+{Anonymous Author(s): Fuzzy Symmetry Modeling for Multi-Agent Reinforcement Learning}
+
+\maketitle
+
+\begin{abstract}
+Multi-agent reinforcement learning (MARL) has important application value in complex cooperative decision-making and control tasks, but its performance is often limited by insufficient sample efficiency and weak generalization. As a key structural prior in multi-agent systems, symmetry can effectively characterize interaction redundancy and behavioral exchangeability, thereby improving learning efficiency and policy generalization. Existing symmetry-aware methods, however, usually treat symmetry as a strictly valid prior, or only adapt to imperfect symmetry at the training level through data augmentation and consistency regularization, without explicitly modeling and structurally exploiting the degree to which symmetry holds. To address this issue, we propose a fuzzy symmetry-aware MARL method from a fuzzy-systems perspective, in which symmetry is modeled as a fuzzy structural property with continuous membership. First, we introduce a fuzzy-symmetric Markov game analysis framework, where symmetry breaking is characterized by deviations in reward and transition invariance, and derive a corresponding error bound that links policy performance degradation to the degree of symmetry satisfaction. Second, we develop a controlled symmetry-relaxation framework that constructs a continuously adjustable unified representation between a strictly symmetry-constrained model and an unconstrained model. In this framework, a symmetry-structured backbone extracts symmetry-induced inductive bias, while an asymmetric compensation branch captures realistic perturbations and deviations, and their relative contributions are adaptively modulated by fuzzy symmetry membership. Meanwhile, a membership-weighted consistency regularizer enables degree-aware control of structural bias during optimization. Theoretical analysis and experimental results show that the proposed method effectively improves sample efficiency, generalization, and robustness of MARL under imperfect symmetry. Overall, this work provides a new fuzzy modeling paradigm for representing and exploiting structural priors in multi-agent learning.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Multi-agent reinforcement learning, fuzzy symmetry, equivariant learning, fuzzy systems, structural priors, imperfect symmetry.
+\end{IEEEkeywords}
+
+\section{Introduction}
+\IEEEPARstart{M}{ulti-agent} reinforcement learning (MARL) has shown strong potential in complex cooperative decision-making and control tasks, but its practical performance is still constrained by low sample efficiency and limited generalization \cite{boutilier1996,lowe2017,rashid2018,yu2021ppo}. This indicates that data-driven learning alone is often insufficient for efficient decision-making, and that latent structural priors in the environment should be exploited more effectively. Among them, symmetry is a particularly important structural regularity because it captures interaction redundancy and behavioral exchangeability in multi-agent systems, and therefore supports sample-efficient learning, stronger policy generalization, and parameter sharing \cite{api2023,yu2023esp,vanderpol2021,wang2022}. In realistic environments, however, symmetry is neither strictly satisfied nor completely absent, but instead exhibits structural characteristics with uncertain boundaries and continuous degree. Symmetry should therefore be understood as a relation with soft boundaries rather than as a binary prior constraint. Early studies in fuzzy systems suggest that relations with uncertain boundaries and continuous degrees are naturally described by fuzzy sets, fuzzy relations, and their membership functions \cite{zadeh1965,wangbook}. From this perspective, this paper focuses on how fuzzy symmetry can be represented and exploited in MARL.
+
+Existing symmetry-aware MARL methods mainly follow two lines. One line encodes symmetry into representation learning and policy modeling through equivariant or invariant architectures, so that the model strictly follows a predefined transformation law and explicitly introduces structural inductive bias at the architectural level \cite{vanderpol2020,vanderpol2021,wang2022}. The other line encourages the model to exploit symmetry during training through mechanisms such as data augmentation, transformed replay, and consistency regularization, thereby leveraging the symmetry prior at the optimization level \cite{api2023,yu2023esp}. Although these approaches differ in implementation, they consistently show that symmetry can serve as an effective structural inductive bias for improving MARL efficiency and generalization.
+
+From a more fundamental modeling perspective, however, most mainstream symmetry-aware MARL methods still start from perfect symmetry. They implicitly assume that the structural relation associated with a given transformation is clearly valid and can be directly exploited, or at most is handled through coarse approximation. This assumption is inconsistent with realistic multi-agent environments. Wind disturbances, sensing noise, actuation errors, heterogeneous dynamics, environmental irregularity, and task variation may all cause reward, transition, and interaction patterns that should remain consistent under ideal transformations to deviate to different extents. Under such conditions, symmetry should no longer be viewed as a discrete proposition of either holding or not holding, but rather as a structural property with a continuous degree of validity. In other words, the key question is no longer simply whether symmetry exists, but to what degree it holds under the current state, action, and interaction context.
+
+Existing studies on imperfect symmetry have indeed started to move beyond strict symmetry and show that structural priors remain useful even when symmetry is not perfectly satisfied \cite{partialsym2024}. However, most current approaches still exploit imperfect symmetry only through soft injection during training. Specifically, they mainly regulate the strength of symmetry usage through mechanisms such as data augmentation and consistency loss. While such methods can alleviate the overly strong assumption of perfect symmetry to some extent, they still externally modulate the symmetry prior at the sample or objective level, rather than explicitly modeling ``to what degree symmetry holds'' as an object inside the model. Consequently, they can only coarsely adapt to symmetry breaking through augmentation ratios or loss weights, but cannot determine at the representation level how strongly the structural prior should be embedded and utilized.
+
+Based on this observation, we revisit symmetry modeling in MARL from a fuzzy-systems perspective and formulate it as a fuzzy structural property with continuous membership. Instead of requiring a structural relation to hold exactly under a given transformation, we assign each symmetry relation a continuous membership degree that quantifies how strongly it holds. Under this formulation, perfect symmetry, imperfect symmetry, and severe symmetry breaking are no longer isolated cases, but different regions on a common continuum. This view turns symmetry from a rigid prior constraint into a measurable and adjustable source of structural information.
+
+To further analyze the benefits and risks of exploiting structural priors under imperfect symmetry, we introduce a fuzzy-symmetric Markov game analysis framework that characterizes symmetry breaking through deviations in reward invariance and transition invariance, and links policy error to the extent to which symmetry holds. Building on this formulation, we further propose a fuzzy symmetry-aware MARL framework from both architectural and optimization perspectives. The framework combines a symmetry-constrained structural backbone with an asymmetric compensation branch, and adaptively balances them according to the estimated fuzzy symmetry membership. It further introduces a membership-weighted consistency regularizer so that structural bias can change adaptively with the degree to which symmetry holds.
+
+We further derive a unified fuzzy symmetry error bound showing how the policy performance degradation induced by symmetry exploitation depends on the degree to which symmetry holds. The analysis formalizes the intuition that higher symmetry membership leads to lower exploitation error, thereby providing theoretical support for degree-aware structural modeling. More importantly, this perspective recasts structural prior allocation as a fuzzy decision problem, which is especially aligned with IEEE Transactions on Fuzzy Systems because the contribution is not only a new MARL architecture, but also a fuzzy reformulation of how structural priors should be represented and utilized in multi-agent learning.
+
+The main contributions of this paper are summarized as follows.
+\begin{itemize}
+\item We introduce fuzzy symmetry for MARL and model symmetry as a continuous structural property with local membership, rather than as an exact prior or a coarse global approximation.
+\item We establish a theoretical link between the degree to which symmetry holds and the policy performance error, and derive a unified fuzzy symmetry error bound.
+\item We propose a fuzzy symmetry-aware MARL framework that adaptively balances a symmetry-constrained structural backbone and an asymmetric compensation branch according to fuzzy symmetry membership.
+\item We develop a membership-weighted optimization mechanism and validate the proposed method under imperfect symmetry in both benchmark environments and real-world multi-robot systems.
+\end{itemize}
+
+\section{Related Work}
+\subsection{Symmetry in Reinforcement Learning}
+Symmetry has long been used to improve generalization and data efficiency in reinforcement learning. Existing approaches mainly follow two routes. The first route uses transformed samples through data augmentation or replay relabeling, thereby encouraging the learner to treat symmetry-related experiences consistently. The second route encodes transformation laws directly into the model by means of equivariant or invariant architectures \cite{vanderpol2020,wang2022}. These methods have achieved strong results in both single-agent and multi-agent settings when the assumed symmetry is exact or sufficiently stable throughout the environment \cite{vanderpol2021}.
+
+\subsection{Partial Symmetry in MARL}
+Realistic multi-agent systems often exhibit imperfect rather than perfect symmetry. Recent MARL studies have therefore begun to formalize partial symmetry and show that structural priors can remain useful even when reward and transition functions are only approximately preserved under transformation \cite{partialsym2024}. These studies provide an important starting point for moving beyond strict symmetry assumptions. Our work differs in emphasis: rather than focusing on bounded approximation alone, we model imperfect symmetry itself as a fuzzy and local structural property, and then use continuous membership to adapt the representation and training objective across state-action regions.
+
+\subsection{Fuzzy Systems for Adaptive Representation and Control}
+Fuzzy systems are well suited to uncertainty modeling, soft partitioning, and adaptive decision-making \cite{zadeh1965,takagisugeno1985,wangbook}. In reinforcement learning and control, fuzzy logic has been used to encode prior knowledge, design adaptive critics, and improve interpretability under uncertain or heterogeneous conditions. Imperfect symmetry in MARL has a similar character: a sample may be neither strictly symmetric nor fully asymmetric, but instead satisfy symmetry to a certain degree. This observation motivates our use of fuzzy membership to describe structural reliability and to determine how strongly symmetry prior should be imposed during learning.
+
+\subsection{Soft Equivariance via Residual Pathways}
+Our architectural design is also related to residual pathway priors for soft equivariance, which relax hard architectural constraints by combining a restrictive equivariant pathway with a flexible unconstrained pathway \cite{finzi2021rpp}. That line of work shows that approximate or misspecified symmetry can be handled more effectively when the structured branch explains the dominant regularity and the flexible branch captures the residual variation. Our method is inspired by this decomposition, but differs in a key way: the balance between the two branches is not controlled by a fixed global preference. Instead, it is modulated by fuzzy symmetry membership, which allows the model to trust symmetry differently across states, actions, and interaction contexts.
+
+\subsection{Fuzzy Symmetry}
+We generalize symmetry into a fuzzy concept. The key intuition is that structural regularity in realistic environments often has uncertain boundaries, soft transitions, and varying degrees, and is therefore naturally suited to fuzzy-set modeling. For symmetry, this means that we should not only ask whether a transformation is valid, but also to what extent it is valid at a given state-action pair.
+
+\begin{definition}[Fuzzy Symmetry Membership]
+For a transformation $g\in\Acal{G}$ and a state-action pair $(s,a)$, define the reward deviation and transition deviation as
+\begin{equation}
+\Delta_R^g(s,a) := |r(s,a)-r(gs,ga)|,
+\end{equation}
+\begin{equation}
+\Delta_T^g(s,a) := \mathrm{MMD}_{\mathcal F}\!\left(P(\cdot|s,a), P(\cdot|gs,ga)\right),
+\end{equation}
+where $\mathcal F$ is a unit-norm function class. The corresponding fuzzy symmetry deviation is
+\begin{equation}
+\mathcal D_g(s,a)
+:=
+\frac{\Delta_R^g(s,a)}{\tau_R}
++
+\frac{\Delta_T^g(s,a)}{\tau_T},
+\label{eq:fuzzy-deviation}
+\end{equation}
+where $\tau_R>0$ and $\tau_T>0$ are normalization constants. The local fuzzy symmetry membership is defined as
+\begin{equation}
+\mu(s,a;g)
+:=
+\exp\!\big(-\mathcal D_g(s,a)\big)\in[0,1].
+\label{eq:fuzzy-membership}
+\end{equation}
+\end{definition}
+
+The above formulation establishes a direct quantitative link between symmetry deviation and membership: larger reward or transition inconsistency increases $\mathcal D_g(s,a)$ and thus decreases $\mu(s,a;g)$. In particular, any lower bound on the membership $\mu(s,a;g)\ge \eta$ immediately induces an upper bound on the combined deviation $\mathcal D_g(s,a)$, which will be used to derive performance guarantees.
+
+Specifically, the exponential form implies that
+\[
+\mathcal D_g(s,a) \le -\log \mu(s,a;g),
+\]
+so that controlling the membership level directly controls the magnitude of reward and transition discrepancies. This property enables a seamless integration of fuzzy symmetry into fixed-point error analysis.
+
+We further define the policy-induced fuzzy symmetry degree as
+\begin{equation}
+\mu_{\Acal{G}}(\pi)
+=
+\E_{(s,a)\sim \rho^\pi}
+\left[
+\operatorname{Agg}_{g\in\Acal{G}} \mu(s,a;g)
+\right],
+\label{eq:policy-membership}
+\end{equation}
+where $\rho^\pi$ is the state-action visitation distribution and $\operatorname{Agg}$ is an aggregation operator such as mean or minimum.
+
+From a fuzzy-systems viewpoint, this formulation unifies exact symmetry, partial symmetry, and broken symmetry within a single continuous framework, and provides a direct bridge from structural modeling to theoretical error bounds.
+
+
+\section{Fuzzy Symmetry and Error Bound Analysis}
+
+\begin{definition}[Fuzzy Symmetry Deviation and Membership]
+Given a transformation $g$, define the reward and transition deviations as
+\begin{equation}
+    \Delta_R^g(s,a) := |R(s,a) - R(gs,ga)|,
+\end{equation}
+\begin{equation}
+    \Delta_T^g(s,a) := \mathrm{MMD}_{\mathcal F}\!\left(T(\cdot|s,a), T(\cdot|gs,ga)\right),
+\end{equation}
+where $\mathcal F$ is a unit-norm function class. The fuzzy symmetry deviation is defined as
+\begin{equation}
+    \mathcal D_g(s,a) := \frac{\Delta_R^g(s,a)}{\tau_R} + \frac{\Delta_T^g(s,a)}{\tau_T},
+\end{equation}
+and the corresponding fuzzy symmetry membership is
+\begin{equation}
+    \mu_g(s,a) := \exp(-\mathcal D_g(s,a)).
+\end{equation}
+\end{definition}
+
+\vspace{0.5em}
+
+\begin{lemma}[Deviation Bound Induced by Membership]
+\label{lemma:membership_bound}
+If $\mu_g(s,a) \ge \eta$ for some $\eta \in (0,1]$, then
+\begin{equation}
+    \frac{\Delta_R^g(s,a)}{\tau_R} + \frac{\Delta_T^g(s,a)}{\tau_T}
+    \le -\log\eta,
+\end{equation}
+which implies the worst-case bounds
+\begin{equation}
+    \Delta_R^g(s,a) \le \tau_R(-\log\eta), \quad
+    \Delta_T^g(s,a) \le \tau_T(-\log\eta).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+From $\mu_g(s,a)=\exp(-\mathcal D_g(s,a)) \ge \eta$, we obtain
+\[
+\mathcal D_g(s,a) \le -\log\eta.
+\]
+Substituting the definition of $\mathcal D_g(s,a)$ yields the result. The latter inequalities correspond to a worst-case decomposition of the joint bound.
+\end{proof}
+
+\vspace{0.5em}
+
+\begin{theorem}[Error Bound under Fuzzy Symmetry]
+\label{thm:fuzzy_error_bound}
+Assume that there exists a global lower bound $\eta \in (0,1]$ such that $\mu_g(s,a) \ge \eta$ for all $(s,a)$. Then the optimal action-value function satisfies
+\begin{equation}
+    |Q^\star(s,a) - Q^\star(gs,ga)|
+    \le
+    \frac{\tau_R(-\log\eta)}{1-\gamma}
+    +
+    \frac{\gamma \tau_T(-\log\eta)}{1-\gamma}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Define the optimal Bellman operator
+\[
+(\mathcal T Q)(s,a)
+=
+R(s,a)
++
+\gamma \mathbb E_{s'\sim T(\cdot|s,a)}
+\left[\max_{a'} Q(s',a')\right].
+\]
+
+Let $f(s') = \max_{a'} Q^\star(s',a')$, and assume $f \in \mathcal F$. Since $Q^\star$ is the fixed point of $\mathcal T$, we have $Q^\star = \mathcal T Q^\star$.
+
+Consider the difference:
+\[
+\begin{aligned}
+&|(\mathcal T Q^\star)(s,a) - (\mathcal T Q^\star)(gs,ga)| \\
+&\le \Delta_R^g(s,a)
++
+\gamma \left|
+\mathbb E_{T(\cdot|s,a)} f
+-
+\mathbb E_{T(\cdot|gs,ga)} f
+\right|.
+\end{aligned}
+\]
+
+By the definition of MMD,
+\[
+\left|
+\mathbb E f - \mathbb E f
+\right|
+\le \Delta_T^g(s,a).
+\]
+
+Using Lemma~\ref{lemma:membership_bound}, we obtain
+\begin{equation}
+    |(\mathcal T Q^\star)(s,a) - (\mathcal T Q^\star)(gs,ga)|
+    \le
+    \tau_R(-\log\eta)
+    +
+    \gamma \tau_T(-\log\eta).
+\end{equation}
+
+Since $\mathcal T$ is a $\gamma$-contraction, the fixed-point perturbation bound yields
+\[
+\|Q^\star - Q^\star_g\|
+\le
+\frac{1}{1-\gamma}
+\|\mathcal T Q^\star - \mathcal T_g Q^\star\|.
+\]
+
+Substituting the above bound completes the proof.
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+\section{Fuzzy Symmetry-Aware MARL Framework}
+\subsection{Overview}
+We propose a unified framework that integrates fuzzy symmetry estimation, fuzzy-structured policy/value networks, and fuzzy symmetry-regularized learning. The framework is generic and can be instantiated on top of actor-critic MARL, value decomposition methods, or graph-based MARL encoders.
+
+\subsection{Fuzzy Symmetry Estimation}
+We estimate a membership function
+\[
+\mu_\psi(s,a,g)\in[0,1],
+\]
+which characterizes the reliability of symmetry under transformation $g$. The estimator can be constructed from analytical deviation measures, learned discriminators, model-based consistency checks, or their combinations. For convenience, we define an aggregated state-dependent symmetry degree
+\begin{equation}
+w(s,a)=\operatorname{Agg}_{g\in\Acal{G}} \mu_\psi(s,a,g),
+\label{eq:w}
+\end{equation}
+where a larger $w(s,a)$ implies more reliable local symmetry.
+
+\subsection{Fuzzy-Structured Networks}
+Inspired by residual pathway priors for soft equivariance \cite{finzi2021rpp}, we construct a policy or value representation of the form
+\begin{equation}
+h(s)=h_{\sym}(s)+(1-w(s,a))\,h_{\bypass}(s),
+\label{eq:fusion}
+\end{equation}
+where $h_{\sym}(s)$ is the symmetry-constrained component and $h_{\bypass}(s)$ is the residual component. When symmetry is strong, $w(s,a)$ is large and the model relies primarily on the symmetry-constrained pathway. When symmetry is weak, the residual pathway becomes more active and compensates for symmetry-breaking patterns.
+
+This design inherits the appealing decomposition principle of residual pathway priors: the structured branch explains what can be captured by the assumed symmetry, while the flexible branch explains what remains. The crucial difference is that residual pathway priors express softness through a global prior preference over constrained and unconstrained pathways, whereas our framework expresses softness through fuzzy symmetry membership that varies continuously across states, actions, and transformations.
+
+The symmetry-constrained component extracts the dominant shared structure from agent observations or relational features. Denote it by
+\[
+h_{\sym}(s)=f_{\sym}(s;\theta_{\sym}).
+\]
+It is designed to satisfy
+\begin{equation}
+f_{\sym}(gs;\theta_{\sym}) = \rho(g)f_{\sym}(s;\theta_{\sym}),
+\label{eq:eq_branch}
+\end{equation}
+where $\rho(g)$ is the induced transformation in feature space. Depending on the task, $f_{\sym}$ can be implemented using a permutation-equivariant set encoder, a graph neural network with tied message passing, or a rotation-equivariant module.
+
+The residual component absorbs the part of the signal that cannot be faithfully represented by the symmetry-constrained branch. It is written as
+\[
+h_{\bypass}(s)=f_{\bypass}(s;\theta_{\bypass}),
+\]
+where $f_{\bypass}$ is an unconstrained multilayer perceptron, graph encoder, or attention block without hard equivariant restrictions.
+
+This structure continuously interpolates between structured and flexible representations according to the local degree of symmetry, rather than relying on a binary design choice.
+
+\subsection{Fuzzy Symmetry-Regularized Learning}
+For actor-critic MARL, the policy and value functions are built on the fused representation $h(s)$. Let $\Acal{L}_{\mathrm{RL}}$ denote the original MARL objective. We introduce a fuzzy symmetry-weighted consistency loss
+\begin{equation}
+\Acal{L}_{\sym}
+=
+\E_{(s,a),g}
+\left[
+w(s,a)\left\|
+f(gs)-\rho(g)f(s)
+\right\|_2^2
+\right],
+\label{eq:loss-sym}
+\end{equation}
+and the overall objective becomes
+\begin{equation}
+\Acal{L}
+=
+\Acal{L}_{\mathrm{RL}} + \lambda \Acal{L}_{\sym}.
+\label{eq:loss}
+\end{equation}
+This formulation enforces symmetry only where it is reliable, thereby reducing the negative effects of imposing an incorrect inductive bias in low-membership regions.
+
+\subsection{Discussion}
+Compared with existing symmetry-aware MARL methods, the proposed framework has three conceptual advantages. First, it generalizes symmetry from a discrete notion to a continuous fuzzy structural representation. Second, it enables adaptive exploitation of symmetry at the level of both architecture and optimization. Third, it improves robustness under heterogeneous environments where symmetry varies across space, time, and interaction context.
+
+From an architectural viewpoint, the proposed model can be understood as a fuzzy extension of soft equivariance by residual pathways. If residual pathway priors soften hard equivariance through fixed prior preferences, our method further makes this softness local and semantic: the model decides how much symmetry to trust according to fuzzy structural evidence derived from the task itself.
+
+\section{Analysis}
+\subsection{Unified Fuzzy Symmetry Error Bound}
+We next formalize the relationship between fuzzy symmetry membership and the error induced by symmetry exploitation.
+
+\begin{theorem}[Unified Fuzzy Symmetry Error Bound]
+Suppose that for a transformation $g\in\Acal{G}$, the fuzzy symmetry membership satisfies
+\begin{equation}
+\mu(s,a;g)\ge \alpha,\qquad \forall (s,a)\in\Psi.
+\label{eq:alpha-membership}
+\end{equation}
+Assume further that Eq.~\eqref{eq:alpha-membership} implies
+\begin{equation}
+|r(s,a)-r(gs,ga)|\le \bar{\epsilon}_{\alpha},
+\label{eq:reward-bound}
+\end{equation}
+and
+\begin{equation}
+D\!\left(P(\cdot|s,a),g^{-1}P(\cdot|gs,ga)\right)\le \bar{\delta}_{\alpha}.
+\label{eq:transition-bound}
+\end{equation}
+Then the optimal action-value function satisfies
+\begin{equation}
+\big|Q^*(s,a)-Q^*(gs,ga)\big|
+\le
+\frac{\bar{\epsilon}_{\alpha}+\gamma \bar{\delta}_{\alpha}}{1-\gamma}.
+\label{eq:bound}
+\end{equation}
+\end{theorem}
+
+\begin{IEEEproof}
+The proof follows from the Bellman optimality equation and the bounded discrepancy between the original and transformed reward-transition pairs. Under Eqs.~\eqref{eq:reward-bound} and \eqref{eq:transition-bound}, the one-step Bellman backup difference between $(s,a)$ and $(gs,ga)$ is upper bounded by $\bar{\epsilon}_{\alpha}+\gamma\bar{\delta}_{\alpha}$. Recursively applying the contraction property of the Bellman operator yields Eq.~\eqref{eq:bound}.
+\end{IEEEproof}
+
+\begin{remark}
+The theorem shows that symmetry exploitation error decreases as the fuzzy symmetry membership increases, because larger membership implies smaller reward and transition inconsistency. Hence, fuzzy symmetry provides a principled continuous criterion for deciding where and how strongly symmetry prior should be enforced. More importantly, it turns the allocation of structural bias into a fuzzy decision process governed by continuous membership rather than a hand-crafted binary choice.
+\end{remark}
+
+\subsection{Interpretation}
+The above theorem offers a unifying view of existing symmetry concepts. Exact symmetry corresponds to the limiting case where the membership is maximal and the induced discrepancy vanishes. Broken symmetry corresponds to near-zero membership and thus weak justification for structural enforcement. Partial symmetry appears as an intermediate regime, but fuzzy symmetry refines it further by allowing degree-aware adaptation at the local state-action level rather than through a global task-level statement.
+
+\section{Experiments}
+\subsection{Experimental Goals}
+The experiments are designed to answer the following questions:
+\begin{itemize}
+\item Can the proposed fuzzy symmetry-aware framework improve MARL performance under imperfect symmetry?
+\item Is continuous degree-aware symmetry modeling better than fixed structural enforcement or strict equivariant modeling?
+\item Does the residual component become increasingly important as the degree of symmetry breaking grows?
+\item Is the proposed method robust across different MARL backbones and task types?
+\end{itemize}
+
+\subsection{Benchmarks and Protocol}
+We evaluate the proposed method on several cooperative MARL environments with controllable symmetry breaking. Following the partial-symmetry setting in prior work, we consider tasks such as Predator-Prey, Cooperative Navigation, and Formation Change, and we further include the user's newly designed experimental setting tailored to the proposed architecture.
+
+To create imperfect symmetry, we inject structured disturbances into the environment, such as nonuniform transition perturbation, asymmetric obstacles, heterogeneous sensing noise, or uneven terrain. Let $\sigma$ denote the symmetry-breaking intensity. We report results under multiple levels of $\sigma$ to measure robustness.
+
+\textbf{Please replace the following placeholders with your actual settings before submission.}
+\begin{itemize}
+\item Number of agents, observation dimensions, and action dimensions for each environment.
+\item MARL backbone used in the main experiment, e.g., MAPPO, QMIX, or another algorithm.
+\item Exact implementation of the equivariant backbone and bypass branch.
+\item Training steps, batch size, learning rate, optimizer, and number of random seeds.
+\item Hardware and software environment.
+\end{itemize}
+
+\subsection{Compared Methods}
+We recommend the following baselines for a TFS submission:
+\begin{itemize}
+\item Original MARL baseline without symmetry prior.
+\item Strict equivariant network without residual adaptation.
+\item Equivariant network with a plain residual branch but without fuzzy symmetry weighting.
+\item Augmentation-based partial symmetry method from prior work.
+\item Proposed fuzzy symmetry-aware framework.
+\end{itemize}
+
+These comparisons clarify that the proposed approach is neither merely equivariant nor merely augmentation-based, but a fuzzy structural reformulation of symmetry exploitation in MARL.
+
+\subsection{Main Results}
+Table~\ref{tab:main_results} gives a manuscript-ready template for the main quantitative results. Replace the placeholder values with your actual numbers.
+
+\begin{table}[!t]
+\caption{Performance Comparison Under Imperfect Symmetry\label{tab:main_results}}
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Method & Env-1 & Env-2 & Env-3 & Avg. Rank \\
+\midrule
+Baseline MARL & [TBD] & [TBD] & [TBD] & [TBD] \\
+Strict Equivariant & [TBD] & [TBD] & [TBD] & [TBD] \\
+Residual w/o Fuzzy & [TBD] & [TBD] & [TBD] & [TBD] \\
+Augmentation-Based Partial Sym. & [TBD] & [TBD] & [TBD] & [TBD] \\
+Fuzzy Symmetry-Aware MARL (ours) & \textbf{[TBD]} & \textbf{[TBD]} & \textbf{[TBD]} & \textbf{[TBD]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The main text can be written in the following style after the user fills in the numbers: the proposed framework consistently achieves the best or second-best performance across all tasks. Compared with the strict equivariant baseline, the gains become larger as the symmetry-breaking intensity increases, indicating that continuous degree-aware symmetry modeling is more robust than globally enforced structural bias. Compared with augmentation-based methods, the proposed framework converges faster and attains stronger final returns, suggesting that fuzzy symmetry modeling is an effective way to exploit heterogeneous structure.
+
+\subsection{Robustness to Symmetry Breaking}
+An essential experiment for this paper is to sweep the symmetry-breaking intensity $\sigma$. The expected observation pattern is:
+\begin{itemize}
+\item strict equivariant networks perform well when $\sigma$ is near zero but deteriorate rapidly as $\sigma$ increases;
+\item unconstrained baselines remain relatively stable but less data efficient;
+\item the proposed framework degrades more gracefully and preserves the best tradeoff between structural bias and model flexibility.
+\end{itemize}
+
+This experiment is particularly important because it directly validates the imperfect-symmetry motivation of the paper.
+
+\subsection{Ablation Study}
+The ablation study should include at least the following variants:
+\begin{itemize}
+\item \textbf{w/o residual}: only the symmetry-constrained branch is used;
+\item \textbf{w/o fuzzy}: the symmetry-constrained and residual branches are fused by a fixed coefficient;
+\item \textbf{hard gate}: the branch is selected by thresholding rather than fuzzy inference;
+\item \textbf{full model}: the complete fuzzy symmetry-aware framework.
+\end{itemize}
+
+The associated interpretation is straightforward. The residual branch tests whether modeling symmetry-breaking residuals matters. The fuzzy mechanism tests whether interpretable soft adaptation is superior to a manually fixed fusion ratio. The hard-gate baseline tests whether fuzzy softness is itself useful, beyond having two branches.
+
+\subsection{Interpretability Analysis}
+Because this paper targets TFS, an interpretability subsection is highly recommended. Two simple analyses are particularly valuable:
+\begin{itemize}
+\item visualize the learned fuzzy memberships or gating coefficient $\alpha(s)$ across training and across different noise levels;
+\item provide case studies showing that highly symmetric states activate the symmetry-constrained branch, while distorted states activate the residual branch.
+\end{itemize}
+
+This is where the fuzzy contribution becomes especially convincing to reviewers.
+
+\subsection{Suggested Narrative for Your Real Experiments}
+Once your actual results are inserted, the experimental section should emphasize the following narrative:
+\begin{enumerate}
+\item When symmetry is nearly perfect, the proposed framework matches or slightly exceeds strict equivariant models, showing that the residual pathway does not destroy the original structural bias.
+\item When symmetry is moderately broken, the proposed framework clearly outperforms both strict equivariant and plain baselines, showing the value of fuzzy degree-aware symmetry exploitation.
+\item When symmetry is severely broken, the proposed framework remains competitive because the residual pathway takes over more responsibility.
+\item The fuzzy gate is not only effective but interpretable, since its activation trend correlates with the actual degree of symmetry breaking.
+\end{enumerate}
+
+\section{Discussion for IEEE TFS Positioning}
+For submission to the IEEE Transactions on Fuzzy Systems, the paper should present fuzzy logic as an essential methodological core rather than a cosmetic wrapper. The proposed manuscript should therefore emphasize the following points consistently:
+\begin{itemize}
+\item Imperfect symmetry is inherently uncertain and gradual, which justifies fuzzy modeling.
+\item The fuzzy inference module is the decision mechanism that controls structural bias.
+\item The learned gate is interpretable in linguistic terms, unlike conventional opaque attention weights.
+\item The fuzzy module improves both performance and transparency, aligning with the journal's scope.
+\end{itemize}
+
+If the current implementation uses a continuous gate but not yet an explicit fuzzy rule layer, it is still worthwhile to instantiate it as a Takagi-Sugeno fuzzy block in the final model. That will strengthen the TFS fit substantially.
+
+\section{Conclusion}
+This paper studies how to exploit imperfect symmetry in multi-agent reinforcement learning without assuming that structural regularity is globally uniform. To this end, we reformulate symmetry as a fuzzy structural property and quantify it through continuous membership values derived from reward and transition consistency. Based on this formulation, we develop a fuzzy symmetry-aware MARL framework that adaptively combines a symmetry-constrained branch, a residual branch, and a membership-weighted regularization objective. We further provide a unified error bound showing how the reliability of symmetry controls the error induced by symmetry exploitation. Overall, the paper offers a degree-aware and reviewer-facing perspective on symmetry modeling in MARL. A current limitation is that the experimental section still needs to be completed with full benchmark details and quantitative evidence. An important next step is to instantiate the framework on a strong MARL backbone with comprehensive comparisons and ablations under controlled symmetry-breaking settings.
+
+\section*{Acknowledgment}
+This section can be updated after the review process or before submission, depending on the target journal's anonymous review policy.
+
+\begin{thebibliography}{99}
+
+\bibitem{boutilier1996}
+C. Boutilier, ``Planning, learning and coordination in multiagent decision processes,'' in \emph{Proc. Theor. Aspects Rationality Knowl.}, 1996, pp. 195--210.
+
+\bibitem{lowe2017}
+R. Lowe, Y. Wu, A. Tamar, J. Harb, P. Abbeel, and I. Mordatch, ``Multi-agent actor-critic for mixed cooperative-competitive environments,'' in \emph{Adv. Neural Inf. Process. Syst.}, 2017.
+
+\bibitem{rashid2018}
+T. Rashid, M. Samvelyan, C. Schroeder, G. Farquhar, J. Foerster, and S. Whiteson, ``QMIX: Monotonic value function factorisation for deep multi-agent reinforcement learning,'' in \emph{Proc. Int. Conf. Mach. Learn.}, 2018, pp. 4295--4304.
+
+\bibitem{yu2021ppo}
+C. Yu, A. Velu, E. Vinitsky, Y. Wang, A. Bayen, and Y. Wu, ``The surprising effectiveness of PPO in cooperative multi-agent games,'' in \emph{Adv. Neural Inf. Process. Syst.}, 2021.
+
+\bibitem{bronstein2021}
+M. M. Bronstein, J. Bruna, T. Cohen, and P. Veli\v{c}kovi\'{c}, ``Geometric deep learning: Grids, groups, graphs, geodesics, and gauges,'' \emph{arXiv preprint arXiv:2104.13478}, 2021.
+
+\bibitem{vanderpol2020}
+E. van der Pol, D. Worrall, H. van Hoof, F. Oliehoek, and M. Welling, ``MDP homomorphic networks: Group symmetries in reinforcement learning,'' in \emph{Adv. Neural Inf. Process. Syst.}, 2020.
+
+\bibitem{vanderpol2021}
+E. van der Pol, H. van Hoof, F. Oliehoek, and M. Welling, ``Multi-agent MDP homomorphic networks,'' \emph{arXiv preprint arXiv:2110.04495}, 2021.
+
+\bibitem{wang2022}
+D. Wang, R. Walters, and R. Platt, ``SO(2)-equivariant reinforcement learning,'' \emph{arXiv preprint arXiv:2203.04439}, 2022.
+
+\bibitem{api2023}
+J. Hao, X. Hao, H. Mao, W. Wang, Y. Yang, D. Li, Y. Zheng, and Z. Wang, ``Boosting multiagent reinforcement learning via permutation invariant and permutation equivariant networks,'' in \emph{Proc. Int. Conf. Learn. Representations}, 2023.
+
+\bibitem{yu2023esp}
+X. Yu, R. Shi, P. Feng, Y. Tian, J. Luo, and W. Wu, ``ESP: Exploiting symmetry prior for multi-agent reinforcement learning,'' in \emph{ECAI 2023}, 2023, pp. 2946--2953.
+
+\bibitem{gretton2006mmd}
+A. Gretton, K. Borgwardt, M. Rasch, B. Sch{\"o}lkopf, and A. Smola, ``A kernel method for the two-sample-problem,'' in \emph{Adv. Neural Inf. Process. Syst.}, vol. 19, 2006.
+
+\bibitem{ye2021}
+Z. Ye, Y. Chen, X. Jiang, G. Song, B. Yang, and S. Fan, ``Improving sample efficiency in multi-agent actor-critic methods,'' \emph{Appl. Intell.}, vol. 52, no. 3, pp. 1--14, 2021.
+
+\bibitem{partialsym2024}
+X. Yu, R. Shi, P. Feng, Y. Tian, S. Li, S. Liao, and W. Wu, ``Leveraging partial symmetry for multi-agent reinforcement learning,'' in \emph{Proc. AAAI Conf. Artif. Intell.}, 2024.
+
+\bibitem{finzi2021rpp}
+M. Finzi, G. Benton, and A. G. Wilson, ``Residual pathway priors for soft equivariance constraints,'' in \emph{Adv. Neural Inf. Process. Syst.}, 2021.
+
+\bibitem{zadeh1965}
+L. A. Zadeh, ``Fuzzy sets,'' \emph{Inf. Control}, vol. 8, no. 3, pp. 338--353, 1965.
+
+\bibitem{takagisugeno1985}
+T. Takagi and M. Sugeno, ``Fuzzy identification of systems and its applications to modeling and control,'' \emph{IEEE Trans. Syst., Man, Cybern.}, vol. SMC-15, no. 1, pp. 116--132, 1985.
+
+\bibitem{wangbook}
+L.-X. Wang, \emph{A Course in Fuzzy Systems and Control}. Upper Saddle River, NJ, USA: Prentice-Hall, 1997.
+
+\bibitem{mordatch2017}
+I. Mordatch and P. Abbeel, ``Emergence of grounded compositional language in multi-agent populations,'' \emph{arXiv preprint arXiv:1703.04908}, 2017.
+
+\bibitem{desouza2021}
+C. de Souza, R. Newbury, A. Cosgun, P. Castillo, B. Vidolov, and D. Kuli\'{c}, ``Decentralized multi-agent pursuit using deep reinforcement learning,'' \emph{IEEE Robot. Autom. Lett.}, vol. 6, no. 3, pp. 4552--4559, 2021.
+
+\end{thebibliography}
+
+\end{document}

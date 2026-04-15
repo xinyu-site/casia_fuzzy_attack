@@ -1,0 +1,8 @@
+$out_dir = 'build';
+$aux_dir = 'build';
+
+# Generate SyncTeX for editor jump support.
+$pdflatex = 'pdflatex -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
+
+# Common cleanup extensions.
+$clean_ext .= ' %R.synctex.gz %R.run.xml %R.bbl %R.blg';

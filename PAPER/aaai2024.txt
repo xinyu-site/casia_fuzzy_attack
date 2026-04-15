@@ -1,0 +1,697 @@
+                                        The Thirty-Eighth AAAI Conference on Artificial Intelligence (AAAI-24)
+
+
+
+
+        Leveraging Partial Symmetry for Multi-Agent Reinforcement Learning
+
+       Xin Yu1 , Rongye Shi2 * , Pu Feng1 , Yongkai Tian1 , Simin Li1 , Shuhao Liao1 , Wenjun Wu2
+                         1
+                         School of Computer Science and Engineering, Beihang University, Beijing, China
+                              2
+                                Institute of Artificial Intelligence, Beihang University, Beijing, China
+                         {nlsdeyuxin, shirongye, fengpu, tianyk, lisiminsimon, lsh iai, wwj}@buaa.edu.cn
+
+
+
+                             Abstract
+
+
+
+
+                                                                                              Perfect symmetry
+                                                                                                                   Agent
+  Incorporating symmetry as an inductive bias into multi-agent                                                                        rotate            Agent
+
+  reinforcement learning (MARL) has led to improvements
+  in generalization, data efficiency, and physical consistency.                                                                                Target
+                                                                                                                           Target
+  While prior research has succeeded in using perfect symme-
+  try prior, the realm of partial symmetry in the multi-agent do-
+  main remains unexplored. To fill in this gap, we introduce
+
+
+
+
+                                                                                              Imperfect symmetry
+  the partially symmetric Markov game, a new subclass of the
+  Markov game. We then theoretically show that the perfor-                                                         Agent              rotate            Agent
+  mance error introduced by utilizing symmetry in MARL is
+  bounded, implying that the symmetry prior can still be use-                                                                                  Target
+  ful in MARL even in partial symmetry situations. Motivated                                                                 Target
+
+  by this insight, we propose the Partial Symmetry Exploita-
+  tion (PSE) framework that is able to adaptively incorporate
+  symmetry prior in MARL under different symmetry-breaking
+                                                                               Figure 1: Illustration of symmetry disruption in a non-
+  conditions. Specifically, by adaptively adjusting the exploita-              uniform field: despite the spatial symmetry of the multi-
+  tion of symmetry, our framework is able to achieve superior                  agent system, the introduction of a non-uniform field, such
+  sample efficiency and overall performance of MARL algo-                      as uneven terrain or a wind field, disrupts this symmetry and
+  rithms. Extensive experiments are conducted to demonstrate                   the symmetry assumption does not strictly hold everywhere.
+  the superior performance of the proposed framework over                      Colors denote varying intensities of the field.
+  baselines. Finally, we implement the proposed framework in
+  real-world multi-robot testbed to show its superiority.
+                                                                               the advantage of employing permutation invariance. Permu-
+                     1       Introduction                                      tation invariance asserts that the systemic behavior remains
+                                                                               unaffected by any changes in the order of agent consider-
+Multi-Agent Reinforcement Learning (MARL) is increas-                          ation (Jianye et al. 2023). The application of permutation
+ingly gaining attention due to its capabilities in handling                    invariance encourages extensive parameter sharing among
+complex tasks(Li et al. 2023). Such tasks often necessitate                    agents, thereby augmenting data efficiency. Additionally, the
+strategic interaction and rivalry among various entities (Yu                   most common symmetry in multi-agent systems is rotation
+et al. 2021b; Feng et al. 2023). However, a notorious lim-                     symmetry, as illustrated in Figure 1. In this context, rotat-
+itation of most MARL approaches is their substantial data                      ing the global state results in a rotation of the optimal joint
+dependency, necessitating vast amounts of data to build an                     policy. Some studies have ameliorated data efficiency by de-
+efficient model. This limitation severely narrows the scope                    signing inherent network structures that satisfy this prop-
+of MARL’s practical application in real-life settings (Shi,                    erty (van der Pol et al. 2021).
+Steenkiste, and Veloso 2021). How to develop strategies to
+                                                                                  Current techniques often assume the existence of perfect
+improve MARL’s sample efficiency has become an impor-
+                                                                               permutation invariance or perfect spatial symmetry. How-
+tant and long-standing research topic.
+                                                                               ever, such ideal conditions are rare in real-world scenarios.
+   Strategies to augment sample efficiency often involve in-
+                                                                               For instance, again in Figure 1, multiple agents attempt to
+tegrating external knowledge to accelerate MARL’s training.
+                                                                               approach a target point where each agent can sense the en-
+Various methods incorporating extra knowledge have been
+                                                                               vironment, including information about other agents, obsta-
+proposed in recent literature (Shi, Mo, and Di 2021; Shi et al.
+                                                                               cles, and the target point. Such problems, conditioned on the
+2022). In the realm of MARL, prior research has highlighted
+                                                                               perfect symmetry transition function and symmetry reward
+    * Corresponding author: Rongye Shi.                                        function, are defined as symmetric Markov game in (van der
+Copyright © 2024, Association for the Advancement of Artificial                Pol et al. 2021; Yu et al. 2023). Unfortunately, in the real
+Intelligence (www.aaai.org). All rights reserved.                              world, there might exist imperfections in the environment,
+
+
+
+
+                                                                       17583
+                                     The Thirty-Eighth AAAI Conference on Artificial Intelligence (AAAI-24)
+
+                                                                                                          Reward for Different Networks in Wildlife Monitoring
+e.g., uneven ground, wind, and other non-uniform fields act-                                            EQ-MPN, Noise 0
+                                                                                              2.2
+ing on the agents. The non-uniform fields can deviate the                                               EQ-MPN, Noise 4
+                                                                                              2.0       EQ-MPN, Noise 8
+system’s transition dynamics or reward functions from per-                                    1.8       MPN, Noise 0
+fect spatial symmetry to a certain extent. Specifically, when                                 1.6
+                                                                                                        MPN, Noise 4
+
+
+
+
+                                                                                     reward
+                                                                                                        MPN, Noise 8
+we rotate the state-action pairs of our agents, we cannot ro-                                 1.4
+tate the non-uniform fields, accordingly. As a result, despite                                1.2
+
+the multi-agent system having a spatially symmetrical struc-                                  1.0
+
+ture, its response to the non-uniform fields can no longer                                    0.8
+
+employ perfect symmetry. Furthermore, slight variations in                                          0         200          400              600       800        1000
+                                                                                                                                 timestep
+elements such as power supply or physical structures could
+make the agents slightly heterogeneous, thus violating the
+                                                                            Figure 2: Performance of the EQ-MPN and MPN under
+principle of perfect permutation invariance. This violation
+                                                                            varying noise levels. As the noise intensity (the degree of
+poses a significant challenge to real-world implementations
+                                                                            symmetry-breaking) increases, the perfect symmetry net-
+of symmetry-prior-based reinforcement learning methods.
+                                                                            work, EQ-MPN, exhibits a declining trend.
+   Regrettably, existing studies, either single-agent or multi-
+agent ones, have seldomly explored such scenarios of par-
+tial symmetry, neither from a theoretical nor from a prac-
+tical point of view. To emphasize the necessity of such a                                                    2      Related Work
+study, we evaluated the performance of the perfect sym-                     2.1     Symmetries in Single-Agent RL
+metry network proposed in (van der Pol et al. 2021) under
+various symmetry-breaking conditions. As depicted in Fig-                   The methods for exploiting symmetry in RL can be broadly
+ure 2, the performance of their EQ-MPN and MPN meth-                        classified into two major categories: data augmentation and
+ods is evaluated under three distinct noise levels, which sig-              network structure design. Data augmentation in single-agent
+nifies the extent of symmetry-breaking introduced into the                  RL is to generate additional data through image transforma-
+system. We found that as symmetry breaks, the performance                   tions during the training phase of the model (Laskin et al.
+of the network with embedded symmetry, EQ-MPN, dete-                        2020; Yarats, Kostrikov, and Fergus 2020; Lin et al. 2020;
+riorates. Motivated by these challenges, we delve into the                  Amadio, Colomé, and Torras 2019). Alternatively, symme-
+partial symmetry scenarios, targeting at a new methodology                  try can be introduced through a contrastive learning frame-
+that relaxes the requirement of strict symmetry with a theo-                work by enforcing consistencies between an image and its
+retical performance bound guaranteed.                                       augmented version (Laskin, Srinivas, and Abbeel 2020).
+   In this paper, we first define the partially symmetric                   The network design method is to design specialized archi-
+Markov game. It gives rise to a new class of symmetry                       tectures that implicitly embed prior knowledge relevant to
+Markov game with slack symmetry constraints while par-                      the task (Ravindran and Barto 2001). For instance, symme-
+tially maintaining favorable inductive biases for learning.                 tries in the joint state-action space can be expressed through
+We theoretically show that the performance errors intro-                    the implementation of policy networks (van der Pol et al.
+duced by leveraging symmetry under partially symmetric                      2020; Wang, Walters, and Platt 2022). Our paper explores
+Markov game are bounded. Our theoretical analysis can be                    the realm of partial symmetry, extending beyond the scope
+seamlessly applied to a variety of symmetries, including                    of the approaches commonly employed.
+permutation invariance, rotational equivariance, etc. Upon
+this setting, we introduce a Partial Symmetry Exploitation                  2.2     Symmetries in Multi-Agent RL
+framework (PSE). PSE first quantifies the extent/level of                   In the realm of multi-agent systems, fewer studies have
+symmetry in the environment using a dedicated symmetry                      explored the use of data augmentation techniques. To our
+quantification module and then selects an appropriate train-                knowledge, the most related work to our work is the data
+ing pipeline according to that symmetry level. The PSE in-                  augmentation method proposed in (Ye et al. 2021). This
+volves several technical components to adaptively incorpo-                  method generates additional data by implementing permu-
+rate symmetry into the training process. Our main contribu-                 tation transformations for homogeneous agents, interpret-
+tions are listed as follows:                                                ing data augmentation from the perspective of permuta-
+  • Formally define the concept of partial equivariance and                 tion invariance. In a similar vein, the need for more exten-
+    generalize symmetry Markov game to partially symmet-                    sive integration of prior knowledge into MARL is appar-
+    ric Markov game;                                                        ent. Multi-Agent MDP Homomorphic Networks have been
+  • For partially symmetric Markov game, theoretically                      developed to embed symmetries, thus enhancing data effi-
+    show that the performance error introduced by utilizing                 ciency (van der Pol et al. 2021). However, these methods
+    symmetry in MARL is bounded;                                            impose strict constraints on symmetry, which hinders their
+  • Motivated by the error bound, propose a novel PSE                       applicability in real-world scenarios characterized by partial
+    framework to adaptively incorporate and leverage sym-                   symmetry. In contrast, we treat symmetry as an additional
+    metry prior in MARL;                                                    objective and incorporate it through soft constraints such as
+                                                                            data augmentation and regularization. Our approach is able
+  • Demonstrate our framework’s superiority over baselines                  to adjust to different symmetry levels, thereby improving al-
+    in both simulated tasks and real-world robot experiments.               gorithmic performance in scenarios with partial symmetry.
+
+
+
+
+                                                                    17584
+                                      The Thirty-Eighth AAAI Conference on Artificial Intelligence (AAAI-24)
+
+
+                    3    Preliminaries                                             4     Defining and Characterizing Partially
+3.1   Cooperative Markov Game                                                                  Symmetric Markov Game
+An n-agent cooperative Markov game (Boutilier 1996) can                      4.1       Partial Equivariance and Invariance
+                                      n
+be defined as a tuple (N, S, {Ai }i=1 , R, T, Ψ), where N de-                Real-world dynamics may not satisfy the strict equivariance
+notes the set of agents, S is the state space, and Ai is the ac-             though such a strict assumption has been commonly used
+tion space of agent i = 1, . . . , n. Let A = A1 ×A2 ×· · ·×An               for simplicity in literature (Wang, Walters, and Platt 2022;
+be the joint action space, and T : S × A × S → [0, 1]                        van der Pol et al. 2020). In this paper, we introduce a defini-
+be the transition function. Ψ is the set of admissible state-                tion of partial equivariance and invariance to fill the gap.
+action pairs. At time step t, the agents are at state st (which
+                                                                             Definition 1 (Partial Equivariance and Invariance). Given a
+may not be fully observable) and take independent action
+                                                                             transformation operator Lg : X → X and a mapping func-
+(a1 , ..., aN ) relying on their policy. Then, the environment
+                                                                             tion f : X → Y, if there exists a second transformation
+emits the bounded joint reward R and moves to the next state
+                                                                             operator Kg : Y → Y in the output space of f such that:
+st+1 . The agents  Paim  to maximize the expected joint return,
+                     ∞
+defined as Eπ [ t=0 γ t R (st , at )], where 0 < γ < 1 is the                                      kKg [f (x)] − f (Lg [x])k ≤ ,
+discount factor, by selecting actions according to the policy                where g ∈ G and G is a mathematical group, we say f is
+πi : S × Ai → [0, 1]. The initial states are determined by a                 -partially equivariant to the transformation Lg and Kg . A
+distribution η : S → [0, 1].                                                 related notion to -partial equivariance is the -partial in-
+                                                                             variance: If for any choice of g ∈ G we have Kg = I,
+3.2   Groups and Transformations
+                                                                             then function f is -partially invariant to transformation Lg .
+This section offers an overview of the concepts of groups                    Note that strict equivariance or invariance are special cases
+and transformations (Bronstein et al. 2021). A group G is a                  of partial ones with  = 0.
+set equipped with a binary operator that has four mathemat-
+ical properties: identity, inverse, closure, and associativity.              4.2       Partially Symmetric Markov Game
+Our discussion primarily revolves around the group SO(2)                     In this subsection, we formally define the partially sym-
+and its cyclic subgroup Cn . Specifically, SO(2) repre-                      metric Markov game, a subclass of the cooperative Markov
+sents the group of continuous rotations {Rθ : 0 ≤ θ < 2π}.                   game characterized by partial symmetry.
+Meanwhile,    Cn stands   for the discrete subgroup, defined as
+Cn = Rθ : θ ∈ 2πi
+                                                                           Definition 2 (Partially Symmetric Markov game).
+                       n |0≤i<n           . A rotation matrix il-
+lustrates the act of rotating within Euclidean space (Fillmore               The partially symmetric Markov game Mg                      =
+                                                                                         n
+1984). For a specific rotation set {0◦ , 90◦ , 180◦ , 270◦ }, the            (N, S, {Ai }i=1 , R, T, Ψ, g, , δ) is a cooperative Markov
+rotation matrix is formulated as:                                            game that satisfies the conditions of partial reward invari-
+                                                                           ance and partial transition invariance. The state and action
+                             cos θ − sin θ                                   transformation are defined as Lg : S → S and Kg : A → A,
+                 R(θ) =                         .
+                             sin θ    cos θ                                  respectively. For state-action pairs (s, a) ∈ Ψ, we denote the
+The four group axioms are satisfied in the case of a rotation                transformed state-action pairs as (gs, ga). Here, gs = Lg (s)
+transformation.                                                              and ga = Kg (a) for short. The partial reward invariance is
+                                                                             characterized with:
+3.3   Equivariance and Invariance                                                                   |R(s, a) − R(gs, ga)| ≤ .                    (1)
+In multi-agent systems, the symmetries are commonly re-                      The partial transition invariance is characterized using the
+ferred to as equivariance and invariance(Yu et al. 2023).                    Maximum Mean Discrepancy (MMD) between the distribu-
+Given a transformation operator Lg : X → X and a map-                        tions T (s0 |s, a) and T (gs0 |gs, ga):
+ping function f : X → Y, if there exists a second transfor-
+mation operator Kg : Y → Y in the output space of f such                                      MMDF (T (s0 |s, a), T (gs0 |gs, ga)) ≤ δ.           (2)
+that:                                                                                                    0
+                                                                             Please note that T (gs |gs, ga) is also a distribution of s with 0
+                    Kg [f (x)] = f (Lg [x]) ,                                the sampling process s0 ∼ T (gs0 |gs, ga) being defined as
+where g ∈ G and G is a mathematical group, then, function                    1) gs0 ∼ T (gs0 |gs, ga) and then 2) s0 = L−1        0
+                                                                                                                           g (gs ).
+f is equivariant to the transformation Lg . The operators Lg                    The MMD is defined as a measure of distance used to
+and Kg can be used to describe the same transformation, but                  quantify the discrepancy between two distributions under a
+in different spaces. A related notion to equivariance is invari-             general class of bounded mapping functions f ∈ F (Gretton
+ance. If for any choice of g ∈ G, we have that Kg = I, the                   et al. 2006). Eq.(2) can be expressed as:
+identity function, then we say function f is invariant to trans-                MMDF (T (s0 |s, a), T (gs0 |gs, ga))
+formation Lg . Figure 1 (upper half) shows the equivariance
+of the optimal policy, rotating the state globally results in a                  = sup Es0 ∼T (s0 |s,a) [f (s0 )] − Es0 ∼T (gs0 |gs,ga) [f (s0 )] .
+                                                                                       f ∈F
+transformation of the optimal policy. Given two states s and
+Lg [s], the optimal policy π ∗ is equivariant to its transforma-                We believe that the symmetry property is a common oc-
+tion which is denoted by Kg [π ∗ (s)] = π ∗ (Lg [s]). Without                currence in many real-world multi-agent tasks. Our formal
+special notice, the transformations Lg , Kg are assumed to be                definition of this issue holds theoretical and practical signif-
+bijective in this paper.                                                     icance.
+
+
+
+
+                                                                     17585
+                                         The Thirty-Eighth AAAI Conference on Artificial Intelligence (AAAI-24)
+
+                                             Partial Symmetry Exploiting Framework
+                                                 C1 : Partial Symmetry           C2 : Non Symmetry
+                                       Sample
+                                                        Store     Symmetry                     Symemtry
+              Environment
+                                           Buffer                Augmentation                Consistency Loss           Policy Netwroks
+                                                                       Sec 5.3                      Sec 5.4
+
+
+                                        Symmetry      C1                                       Multi-agent
+              Agent
+                                                                Adaptive Tuning               Reinforcement
+                                       Quantification                  Sec 5.2
+                                          Sec 5.1                                                Learning
+                      Target                             C2
+
+
+Figure 3: The overall framework of the proposed PSE. The framework is composed of four key modules: 1) Symmetry Quantifi-
+cation, which measures the level of symmetry in the environment, 2) Adaptive Tuning, which serves as the annealing coefficient
+modulating the continuous degree of symmetry utilization. 3) Symmetry Augmentation, which manipulates the data based on
+the quantified symmetry, and 4) Symmetry Loss, a specially crafted function that optimizes the policy network with respect to
+the symmetry.
+
+
+4.3   Performance Error Analysis                                                       5     Framework of the Partial Symmetry
+We show that if a problem can be formulated as a partially                                            Exploitation
+symmetric Markov game, the performance error introduced
+                                                                                 This paper focuses on solving the following problem: In the
+by using symmetry-augmented data in training is bounded.
+                                                                                 context of partially symmetric Markov game Mg , how can
+In the following, variables without a subscript i denote the
+                                                                                 we appropriately leverage the symmetry prior to improv-
+concatenation of all variables for all agents (e.g., a denotes
+                                                                                 ing sample efficiency and performance of MARL? On top of
+the joint actions of all agents). Based on the definition in
+                                                                                 Prop 1, we propose a general framework, called Partial Sym-
+(Ravindran and Barto 2001), the m-step optimal discounted
+                                                                                 metry Exploitation (PSE), for exploiting the symmetry prior,
+action value function recursively for all (s, a) ∈ Ψ and for
+                                                                                 properly. The PSE framework is designed to adaptively uti-
+all non-negative integers m is defined as follows:
+                          X                                                      lize symmetry and is composed of four key modules: Sym-
+Qm (s, a) = R(s, a) + γ       [T (s0 |s, a) max
+                                             0
+                                                Qm−1 (s0 , a0 )].                metry Quantification, Adaptive Tuning, Symmetry Augmen-
+                                                a ∈A
+                               s0 ∈S                                             tation, and Symmetry Consistency Loss.
+The optimal action-value function Q∗ (s, a) is the limit of
+Qm (s, a) as m approaches infinity. We now define the per-                       5.1       Symmetry Quantification
+formance error for Mg , which measures the error of a Q-                         We propose a quantification method to measure the sym-
+function trained on symmetry-augmented data.                                     metry in Mg . This method is applicable to various symme-
+Definition 3 (Performance Error for Mg when using sym-                           tries inherent in multi-agent systems, including permutation
+metry-augmented data). Let Q∗ (s, a) be the optimal action-                      invariance, rotational equivariance, and translational invari-
+value function, g be the transformation associated with Mg .                     ance. We employ a transformed environment to assess the
+Then, the performance error of Mg is defined as:                                 degree of symmetry by comparing the system’s responses in
+            ErrorMg = |Q? (s, a) − Q? (gs, ga)|,                                 both the original and transformed environments. For a par-
+         ?
+where Q (gs, ga) is the action-value function trained by the                     tially symmetric Markov game Mg , consider (s, a, s0 ) with
+symmetry-augmented data.                                                         an associated transformation g. In the transformed environ-
+                                                                                 ment, action ga is applied to the state gs, leading to a new
+Proposition 1 (Performance Error Bound). If a partially                          state s̄0 . We define a function D(gs0 , s̄0 ) to measure the de-
+symmetric Markov game Mg satisfies the conditions in                             gree of symmetry in MARL:
+equations (1) and (2) for all (s, a) ∈ Ψ, then the perfor-
+mance error ErrorMg = |Q? (s, a)−Q? (gs, ga)| is bounded                                                             1 kgs0 − s̄0 k22
+     
+by 1−γ      γδ
+        + 1−γ  .                                                                               D(gs0 , s̄0 ) = 1 −                         ,   (3)
+                                                                                                                     2 kgs0 k22 + ks̄0 k22
+   As stated in Prop 1, for the Partially Symmetric Markov
+game Mg , the error introduced by incorporating symme-                           where the numerator represents the Euclidean norm of the
+try samples is bounded. The proof of Prop 1 can be found                         difference between the vectors, and the denominator is the
+in Section 1 of the Appendix1 . Prop 1 implies that the                          sum of individual Euclidean norms. GivenpP a vector v, its Eu-
+                                                                                 clidean norm is defined as kvk2 =                2
+symmetry-augmented data are useful in MARL to a bounded                                                                        i vi . D is a scalar
+extent even in partial symmetry situations like Mg .                             and its values lie within the interval [0, 1]. A value of 1 indi-
+                                                                                 cates perfect symmetry and the lower bound of D is attained
+   1
+     Video demonstrations and Supplementary materials are avail-                 when gs0 = −s̄0 . While we utilize the Euclidean norm in
+able at the project website https://xinyu-site.github.io/PSE/.                   this context, other norms can also be employed.
+
+
+
+
+                                                                        17586
+                                     The Thirty-Eighth AAAI Conference on Artificial Intelligence (AAAI-24)
+
+
+  Upon obtaining the measure of symmetry, we can intro-
+duce threshold values to determine the level of symmetry,
+categorizing the environment into Partial Symmetry (C1)
+and Non-Symmetry (C2). It’s worth noting that perfect sym-
+metry is a special case of partial symmetry. The threshold
+can be tuned according to the specific requirements of the
+problem and the performance trade-offs acceptable.
+
+5.2   Adaptive Tuning                                                           (a) Predator-Prey         (b) Navigation   (c) Formation change
+In the early stages of training in Mg , symmetry can as-                      Figure 4: The simulated tasks considered in the experiments.
+sist the model to converge more swiftly and reduce the loss
+faster. However, as the model progressively adapts to the
+training environment and starts to capture more nuanced fea-                  to the symmetry prior. Assume that Vψ (s) represents an ap-
+tures of the data, an over-reliance on symmetry might have a                  proximate value for state s, the symmetry consistency loss
+negative effect on the model’s training. To tackle this issue,                for value function is designed as
+as training advances, our PSE gradually reduces the depen-                                            h                   i
+dence on symmetry. To this end, we present the following                                   SV = Es (Vψ (s) − Vψ (gs)) ,
+                                                                                                                        2
+                                                                                                                                      (6)
+function:
+                      λ(D, k) = De−βk ,                      (4)              designed to minimize the discrepancy between the outputs
+which serves as the annealing coefficient at the k th iteration,              of the value function when provided with the original input
+with D signifying the degree of symmetry in Eq. (3) and β                     and the symmetry-transformed input. Therefore, we regard
+denoting the decay rate. In the follow-up stage, as will be                   Eqs. (5) and (6) as the symmetry consistency loss.
+discussed later, the coefficient λ(D, k) serves as both 1) a                     MARL with Symmetry Consistency Loss. Rather than
+probability to decide on whether the symmetry-augmented                       having a fixed coefficient in the loss function, we utilize
+data is used and 2) a coefficient in the objective function to                λ2 = De−β2 k calculated by Eq. (4) to dynamically adjust
+weigh the component of symmetry constraints. This auto-                       the coefficient of symmetric loss. For the MAPPO, our PSE
+tuning approach strikes an adaptive balance on the extent to                  method optimizes the following loss objective:
+which the symmetry is leveraged in different training phases.
+                                                                                           JP SE = JM AP P O − λ2 (Sπ + SV ).               (7)
+5.3   Symmetry Augmentation                                                   The JM AP P O is the objective function for MAPPO and can
+One straightforward way to leverage symmetry is through                       be found in Section 2 of the Appendix.
+data augmentation. Motivated by Prop 1, we present a data
+augmentation strategy designed to adaptively leverage sym-                                           6    Experiments
+metry. Based on Eq. (4), we obtain a coefficient λ1 =
+De−β1 k that starts with a value equal to the degree of sym-                  This section demonstrates our PSE’s superiority via experi-
+metry and decreases over training iterations. Specifically, the               ments in both simulated tasks and real-world robot systems.
+coefficient λ1 acts as a probabilistic threshold. If a random
+number r drawn from a uniform distribution between [0,1]                      6.1   Environmental Settings
+is less than λ1 , data augmentation is applied in that iteration              We conducted experiments in several tasks, including
+of training. This strategy ensures an expedited training pro-                 Predator-Prey (PP), Cooperative Navigation (CN), Wildlife
+cess in the early phases. As training progresses, reliance on                 Monitoring, and Formation Change (FC). CN and PP is a
+symmetry-augmented samples is reduced, thereby mitigat-                       classic scenario implemented in multi-agent particle envi-
+ing potential performance errors they might introduce.                        ronment (Mordatch and Abbeel 2017). The wildlife mon-
+                                                                              itoring is a grid-world-based environment, where a set of
+5.4   Symmetry Consistency Loss                                               drones has to coordinate to accomplish the task (van der Pol
+In multi-agent settings, using data augmentation to improve                   et al. 2020). The goal is to trap poachers by having one drone
+sample efficiency can be challenging. The reason is that                      hover above them while the other assists from the side. The
+when multiple agents are considered, more sources of vari-                    details of FC are provided in Section 3 of the Appendix. Fig-
+ance are introduced, making the training unstable. The pro-                   ure 4 shows parts of the tasks.
+posed symmetry consistency loss provides mitigation to this                      Symmetry Breaking. The original classic setups of these
+challenge (see Section 2 in the Appendix for more details).                   four tasks were designed to have perfect spatial symmetry.
+For a clean presentation, the MAPPO is used as an example                     We deliberately modified these tasks to incorporate partial
+to introduce symmetry consistency loss.                                       symmetry by integrating noise into the transition dynamics.
+   Symmetry Consistency Loss. The policy consistency                          The multi-robot FC task was conducted in the high-precision
+loss term Sπ (θ) is defined as                                                robot simulation environment Webots. As shown in Figure
+                                                                              4c, robots were required to learn to avoid each other as well
+            Sπ = KL [πθ (ga | gs) | πθ (a | s)] ,               (5)           as the obstacles and coordinate to reach their destinations.
+aiming to constrain distribution πθ (ga | gs) to be close to                  We set an uneven terrain for this task to simulate partial
+πθ (a | s). This helps guide the training process according                   symmetry. The severity of these uneven conditions can be
+
+
+
+
+                                                                      17587
+                                                            The Thirty-Eighth AAAI Conference on Artificial Intelligence (AAAI-24)
+
+
+
+         80                                                                    −120                                                                  150
+
+                                                                               −140
+         60                                                                                                                                          100
+
+                                                                               −160
+reward
+
+
+
+
+                                                                                                                                            reward
+                                                                      reward
+                                                                                                                                                      50
+         40
+                                                    MADDPG-PSE                 −180                                          MADDPG-PSE                                                               MADDPG-PSE
+                                                    MADDPG                                                                   MADDPG                                                                   MADDPG
+                                                                                                                                                       0
+         20                                         MAPPO-PSE                  −200                                          MAPPO-PSE                                                                MAPPO-PSE
+                                                    MAPPO                                                                    MAPPO                                                                    MAPPO
+                                                    QMIX-PSE                   −220                                          QMIX-PSE                −50                                              QMIX-PSE
+          0                                         QMIX                                                                                                                                              QMIX
+                                                                                                                             QMIX
+
+               0.0     0.5   1.0     1.5      2.0     2.5     3.0                     0.0     0.5    1.0      1.5      2.0     2.5    3.0                  0.0       0.2         0.4          0.6      0.8        1.0
+                                   timestep                   1e6                                          timestep                   1e6                                          timestep                       1e6
+
+
+                         (a) Predator-Prey                                                (b) Cooperative Navigation                                               (c) Formation Change
+
+               Figure 5: Learning curves of the baseline and their versions with the PSE framework on the three multi-agent tasks.
+
+                                                                                                                                                     1.4
+         2.2
+                                                                               2.0
+                                                                                                                                                     1.3
+         2.0
+                                                                               1.8
+         1.8                                                                                                                                         1.2
+                                                                               1.6
+         1.6
+reward
+
+
+
+
+                                                                      reward
+
+
+
+
+                                                                                                                                            reward
+                                                                                                                                                     1.1
+                                                                               1.4
+         1.4                                                                                                                                         1.0
+                                                                               1.2
+         1.2
+                                                                                                                                                     0.9
+                                                                               1.0
+         1.0                                            MPN                                                                     MPN                                                                          MPN
+                                                        EQ-MPN                                                                  EQ-MPN               0.8                                                     EQ-MPN
+         0.8                                                                   0.8
+                                                        MPN-PSE                                                                 MPN-PSE                                                                      MPN-PSE
+                                                                                                                                                     0.7
+               0       200   400     600      800    1000    1200                     0     200     400      600      800     1000   1200                  0       200     400         600      800    1000      1200
+                                   timestep                                                                timestep                                                                timestep
+
+
+                     (a) Noise Intensity Level 0                                          (b) Noise Intensity Level 4                                            (c) Noise Intensity Level 8
+
+Figure 6: The learning curve of MPN, EQ-MPN and MPN-PSE under different symmetry-breaking in the Wildlife Monitoring.
+
+
+modified, allowing us to explore the influences of environ-                                                        cles) cooperated to reach 3 landmarks (crosses) under a min-
+mental uncertainties on MARL in depth. For more details on                                                         imum number of collisions. Similarly, as shown in Figure
+symmetry breaking, please see Section 4 of the Appendix.                                                           5b, the results show that the proposed framework can im-
+   Baselines. The proposed PSE framework was applied to                                                            prove data efficiency and performance in this task.
+several baselines, including Multi-Agent Deep Determinis-                                                             Formation Change. To evaluate the proposed method in
+tic Policy Gradient (MADDPG), Monotonic Value Function                                                             complex tasks, experiments were conducted on the multi-
+Factorisation for Deep MARL (QMIX), and Multi-Agent                                                                robot formation change task in the Webots simulator, as
+Proximal Policy Optimization (MAPPO), which are main-                                                              shown in Figure 4c. In this scenario, 8 robots started in a
+stream MARL approaches (Rashid et al. 2018; Lowe et al.                                                            square formation and had their destinations set on the op-
+2017; Yu et al. 2021a).                                                                                            posite side. The experimental results show that the MAD-
+                                                                                                                   DPG and QMIX could not learn a useful policy in this
+6.2             Main Results                                                                                       task, whereas the agents trained by the MAPPO-PSE and
+This section presents the experimental results obtained using                                                      MAPPO could reach the destination while avoiding colli-
+the setup described in Section 6.1. The performance of each                                                        sions with each other and obstacles. As presented in Figure
+algorithm was evaluated with 10 different random seeds, and                                                        5c, the algorithms enhanced by the proposed framework ob-
+the final experimental results under partial symmetry are                                                          tained higher rewards than the original versions. This indi-
+shown in Figure 5. The results show that the MARL algo-                                                            cates that the proposed PSE can further improve the perfor-
+rithms adopting the PSE framework achieved different de-                                                           mance of MARL algorithms in challenging environments.
+grees of advantage over their original versions.                                                                      Wildlife Monitoring. We conducted a comparison of
+   Predator-Prey. In this scenario, there were three preda-                                                        three graph network-based methods: the Message Passing
+tors and one prey. As shown in Figure 5a, the proposed                                                             Network (MPN, a classic graph convolutional network), the
+PSE framework outperformed the baseline methods signif-                                                            EQ-MPN (an advanced baseline network embedding perfect
+icantly. The results indicated that the proposed framework                                                         symmetry as proposed in (van der Pol et al. 2021)) and MPN
+could improve the data efficiency, convergence speed, and                                                          with the PSE framework (MPN-PSE). The Wildlife Mon-
+performance in terms of evaluation rewards.                                                                        itoring is specially analyzed here because it is the chosen
+   Cooperative Navigation. The cooperative navigation                                                              environment in the literature well suited to the EQ-MPN,
+was a fully cooperative environment, where 3 agents (cir-                                                          featuring pixel-based and grid-world states. Advanced re-
+
+
+
+
+                                                                                                     17588
+                                                                       The Thirty-Eighth AAAI Conference on Artificial Intelligence (AAAI-24)
+
+
+                       MADDPG-PSE                   MADDPG-SE                 MADDPG                      MAPPO-PSE                    MAPPO-SE               MAPPO                        QMIX-PSE               QMIX-SE                 QMIX
+
+                                        Predator-Prey                                                                  Cooperative Navigation                                                              Formation Change
+
+                                                                                           −110                                                                               150
+         80
+
+                                                                                                                                                                              125
+         70                                                                                −120
+                                                                                                                                                                              100
+reward
+
+
+
+
+                                                                                  reward
+
+
+
+
+                                                                                                                                                                     reward
+         60
+                                                                                           −130                                                                                75
+
+
+         50                                                                                                                                                                    50
+                                                                                           −140
+                                                                                                                                                                               25
+         40
+                                                                                                                                                                                0
+                                                                                           −150
+         30
+
+              0.00     0.25   0.50   0.75    1.00     1.25   1.50   1.75   2.00                   0.00   0.25   0.50    0.75    1.00     1.25   1.50   1.75   2.00                  0.00     0.25   0.50   0.75    1.00     1.25   1.50    1.75   2.00
+                                        noise intensity                                                                    noise intensity                                                                    noise intensity
+
+
+
+                     Figure 7: Convergence reward under varying noise intensities of various models across PP, CN, and FC scenarios.
+
+
+sults are achieved by EQ-MPN when the perfect symme-
+try in the environment holds. Here, we assessed the three
+models’ performance across varying degrees of symmetry-
+breaking. Under conditions of perfect symmetry (see Figure
+6a), the EQ-MPN with the perfect symmetry prior embedded
+in its network structure demonstrates superior performance
+compared to the classic MPN. However, our PSE framework                                                                                      (a) Start points                       (b) Trajectories                       (c) End points
+surpasses both EQ-MPN and MPN in terms of convergence
+                                                                                                                                       Figure 8: Real-world formation change on a swarm of
+speed and the quality of the final convergence. As shown in
+                                                                                                                                       robots. The robots successfully switched their positions to
+Figure 6b, under partial symmetry, the performance of the
+                                                                                                                                       the antipodal points by achieving collision avoidance.
+EQ-MPN deteriorates, even to a level worse than the classic
+MPN. In contrast, our PSE-based method continues to en-
+hance the performance of MPN. In Figure 6c, where the en-
+                                                                                                                                       experiments are also conducted based on QMIX and MAD-
+vironment is completely devoid of any symmetry, all three
+                                                                                                                                       DPG, which are included in Figure 7, and similar observa-
+methods face challenges in learning an acceptable policy.
+                                                                                                                                       tions and conclusions can be obtained. The exception is that
+Yet, our PSE framework still maintains a discernible advan-
+                                                                                                                                       the MADDPG does not perform well in the FC task.
+tage.
+
+6.3              Impact of Different Degrees of Symmetry and                                                                           6.4       Real World Experiments
+                 Ablation Analysis                                                                                                     As shown in Figure 8, the real-world version of forma-
+                                                                                                                                       tion change presented in Section 6.1 was considered in
+We analyzed four distinct algorithm variations in our study:
+                                                                                                                                       this experiment. The trained policies were deployed on the
+1) MAPPO, which stands for the most primitive version of
+                                                                                                                                       Epuck, which is a small, lightweight robot platform. We fol-
+the algorithm. 2) MAPPO-SE, which retains only our sym-
+                                                                                                                                       lowed a direct sim2real paradigm to deploy the policy net-
+metry augmentation and loss function components within
+                                                                                                                                       work (De Souza et al. 2021). By incorporating our PSE ap-
+the original MAPPO, and where the coefficient of the loss
+                                                                                                                                       proach into the MAPPO algorithm, the agents are able to
+function is fixed to 0.5. 3) the MAPPO-PSE, our com-
+                                                                                                                                       complete tasks with fewer risky states. Risky states are de-
+prehensive framework representing the entirety of our pro-
+                                                                                                                                       fined as those in which the distance between agents is less
+posed enhancements. Figure 7 denotes each algorithm type
+                                                                                                                                       than 5 centimeters, and the rate of risky states is the propor-
+with a distinct color, and different algorithm variations are
+                                                                                                                                       tion of risky states to all states. The rate of risky states for
+highlighted by varying line types. It is observed that the
+                                                                                                                                       MAPPO-PSE is 2.1%, while the rate for MAPPO is 5.6%.
+PSE framework consistently excels across different degrees
+                                                                                                                                       Details are provided in Section 5 of the Appendix.
+of symmetry-breaking. Interestingly, MAPPO-SE, which
+sticks to leveraging the perfect symmetry, experiences a sub-
+stantial performance decline as noise intensity increases,                                                                                                                     7       Conclusion
+even deteriorating to a level worse than the classic MAPPO.                                                                            In this paper, we newly introduce the partially symmet-
+   The results provide two insights: 1) a strong dependency                                                                            ric Markov game. We then theoretically show that the cor-
+on embedding perfect symmetry may seriously hamper the                                                                                 responding performance error is bounded. Based on the
+training and the final performance when the symmetry keeps                                                                             bounded property, we propose a novel PSE framework to
+breaking, and 2) our PSE framework can adapt to vari-                                                                                  adaptively leverage symmetry prior in MARL. Experimen-
+ous symmetry-breaking conditions and consistently enhance                                                                              tal results support the superiority of PSE over baselines. In
+the performance of mainstream multi-agent algorithms. The                                                                              the future, we plan to extend the PSE to systems with hetero-
+PSE enjoys this advantage due to the framework’s symmetry                                                                              geneous agents, whose sensitivity to the symmetry-breaking
+quantification and adaptive tuning components. The same                                                                                conditions is different.
+
+
+
+
+                                                                                                                         17589
+                                  The Thirty-Eighth AAAI Conference on Artificial Intelligence (AAAI-24)
+
+
+                 Acknowledgments                                         Mordatch, I.; and Abbeel, P. 2017. Emergence of Grounded
+This work was supported by the National Key Re-                          Compositional Language in Multi-Agent Populations. arXiv
+search and Development Program of China (Grant No.                       preprint arXiv:1703.04908.
+2022ZD0117801), and the National Natural Science Foun-                   Rashid, T.; Samvelyan, M.; Schroeder, C.; Farquhar, G.; Fo-
+dation of China (Grant No. 62306023).                                    erster, J.; and Whiteson, S. 2018. Qmix: Monotonic value
+                                                                         function factorisation for deep multi-agent reinforcement
+                      References                                         learning. In International Conference on Machine Learn-
+Amadio, F.; Colomé, A.; and Torras, C. 2019. Exploiting                 ing, 4295–4304. PMLR. ISBN 2640-3498.
+symmetries in reinforcement learning of bimanual robotic                 Ravindran, B.; and Barto, A. G. 2001. Symmetries and
+tasks. IEEE Robotics and Automation Letters, 4(2): 1838–                 Model Minimization in Markov Decision Processes. Tech-
+1845.                                                                    nical report, University of Massachusetts, Amherst, MA,
+Boutilier, C. 1996. Planning, learning and coordination in               United States.
+multiagent decision processes. In TARK, volume 96, 195–                  Shi, R.; Mo, Z.; and Di, X. 2021. Physics-informed deep
+210. Citeseer.                                                           learning for traffic state estimation: A hybrid paradigm in-
+Bronstein, M. M.; Bruna, J.; Cohen, T.; and Veličković,                formed by second-order traffic models. In Proceedings of
+P. 2021. Geometric deep learning: Grids, groups, graphs,                 the AAAI Conference on Artificial Intelligence, volume 35,
+geodesics, and gauges. arXiv preprint arXiv:2104.13478.                  540–547.
+De Souza, C.; Newbury, R.; Cosgun, A.; Castillo, P.; Vi-                 Shi, R.; Mo, Z.; Huang, K.; Di, X.; and Du, Q. 2022. A
+dolov, B.; and Kulić, D. 2021. Decentralized multi-agent                physics-informed deep learning paradigm for traffic state
+pursuit using deep reinforcement learning. IEEE Robotics                 and fundamental diagram estimation. IEEE Transactions on
+and Automation Letters, 6(3): 4552–4559.                                 Intelligent Transportation Systems, 23: 11688–11698.
+Feng, P.; Yu, X.; Liang, J.; Wu, W.; and Tian, Y. 2023.                  Shi, R.; Steenkiste, P.; and Veloso, M. M. 2021. Improv-
+MACT: Multi-agent Collision Avoidance with Continuous                    ing the on-vehicle experience of passengers through SC-M*:
+Transition Reinforcement Learning via Mixup. In Interna-                 A scalable multi-passenger multi-criteria mobility planner.
+tional Conference on Swarm Intelligence, 74–85. Springer.                IEEE Transactions on Intelligent Transportation Systems,
+                                                                         22(2): 1026–1040.
+Fillmore, J. P. 1984. A Note on Rotation Matrices. IEEE
+Computer Graphics and Applications, 4(2): 30–33.                         van der Pol, E.; van Hoof, H.; Oliehoek, F. A.; and Welling,
+                                                                         M. 2021. Multi-Agent MDP Homomorphic Networks.
+Gretton, A.; Borgwardt, K.; Rasch, M.; Schölkopf, B.; and               arXiv preprint arXiv:2110.04495.
+Smola, A. 2006. A kernel method for the two-sample-
+problem. Advances in neural information processing sys-                  van der Pol, E.; Worrall, D.; van Hoof, H.; Oliehoek, F.; and
+tems, 19.                                                                Welling, M. 2020. MDP homomorphic networks: Group
+                                                                         symmetries in reinforcement learning. Advances in Neural
+Jianye, H.; Hao, X.; Mao, H.; Wang, W.; Yang, Y.; Li, D.;
+                                                                         Information Processing Systems, 33.
+Zheng, Y.; and Wang, Z. 2023. Boosting Multiagent Rein-
+forcement Learning via Permutation Invariant and Permuta-                Wang, D.; Walters, R.; and Platt, R. 2022.            SO(2)-
+tion Equivariant Networks. In The Eleventh International                 Equivariant Reinforcement Learning.          arXiv preprint
+Conference on Learning Representations.                                  arXiv:2203.04439.
+Laskin, M.; Lee, K.; Stooke, A.; Pinto, L.; Abbeel, P.; and              Yarats, D.; Kostrikov, I.; and Fergus, R. 2020. Image aug-
+Srinivas, A. 2020. Reinforcement Learning with Augmented                 mentation is all you need: Regularizing deep reinforcement
+Data. Advances in Neural Information Processing Systems,                 learning from pixels. In International Conference on Learn-
+33.                                                                      ing Representations.
+Laskin, M.; Srinivas, A.; and Abbeel, P. 2020. Curl:                     Ye, Z.; Chen, Y.; Jiang, X.; Song, G.; Yang, B.; and Fan, S.
+Contrastive unsupervised representations for reinforcement               2021. Improving sample efficiency in Multi-Agent Actor-
+learning. In International Conference on Machine Learning,               Critic methods. Applied Intelligence, 1–14.
+5639–5650. PMLR.                                                         Yu, C.; Velu, A.; Vinitsky, E.; Wang, Y.; Bayen, A.; and Wu,
+Li, S.; Guo, J.; Xiu, J.; Yu, X.; Wang, J.; Liu, A.; Yang,               Y. 2021a. The Surprising Effectiveness of PPO in Coopera-
+Y.; and Liu, X. 2023. Byzantine Robust Cooperative Multi-                tive, Multi-Agent Games. arXiv preprint arXiv:2103.01955.
+Agent Reinforcement Learning as a Bayesian Game. arXiv                   Yu, X.; Shi, R.; Feng, P.; Tian, Y.; Luo, J.; and Wu, W.
+preprint arXiv:2305.12872.                                               2023. ESP: Exploiting Symmetry Prior for Multi-Agent
+Lin, Y.; Huang, J.; Zimmer, M.; Guan, Y.; Rojas, J.; and                 Reinforcement Learning. In ECAI 2023, 2946–2953. IOS
+Weng, P. 2020. Invariant transform experience replay:                    Press.
+Data augmentation for deep reinforcement learning. IEEE                  Yu, X.; Wu, W.; Feng, P.; and Tian, Y. 2021b. Swarm
+Robotics and Automation Letters, 5(4): 6615–6622.                        inverse reinforcement learning for biological systems. In
+Lowe, R.; Wu, Y.; Tamar, A.; Harb, J.; Abbeel, P.; and                   2021 IEEE International Conference on Bioinformatics and
+Mordatch, I. 2017. Multi-agent actor-critic for mixed                    Biomedicine (BIBM), 274–279. IEEE.
+cooperative-competitive environments.       arXiv preprint
+arXiv:1706.02275.
+
+
+
+
+                                                                 17590
+

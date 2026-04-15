@@ -1,0 +1,20 @@
+# LaTeX build outputs
+build/
+
+# Common LaTeX intermediate files in case a tool ignores outdir settings
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.xdv
+*.lof
+*.lot

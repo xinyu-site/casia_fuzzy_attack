@@ -1,0 +1,231 @@
+I am writing a paper targeting IEEE Transactions on Fuzzy Systems (TFS).
+The topic is about modeling and exploiting fuzzy symmetry in multi-agent reinforcement learning (MARL).
+
+
+The key idea of the paper is:
+
+Existing symmetry-aware MARL methods treat symmetry as either exact or partially violated with bounded deviations.
+However, in real-world environments, symmetry is inherently heterogeneous, context-dependent, and holds to varying degrees.
+Therefore, symmetry should be modeled as a fuzzy structural property with continuous membership, rather than a binary or globally bounded condition.
+
+Concept
+Introduce fuzzy symmetry in MARL
+Define symmetry using continuous membership functions based on reward and transition consistency
+Theory
+Derive a performance error bound showing that the error induced by symmetry exploitation decreases as the symmetry membership increases
+Method
+Propose a fuzzy symmetry-aware framework
+Combine a symmetry-constrained (equivariant) component with a residual component
+Adaptively balance them based on the symmetry degree
+Use symmetry consistency loss weighted by fuzzy membership
+🔹 Writing Requirements
+Abstract:
+6–8 sentences
+Clearly include:
+Importance of symmetry in MARL
+Limitation of existing methods (exact / partial symmetry assumption)
+Key observation: symmetry has degree (heterogeneous, context-dependent)
+Proposed idea: fuzzy symmetry (continuous membership)
+Theoretical contribution (error bound related to membership)
+Method overview (adaptive framework)
+Experimental improvement (robustness + sample efficiency)
+Introduction:
+
+Write a full Introduction section (around 6–8 paragraphs) with strong logical flow:
+
+Paragraph structure:
+
+Importance of symmetry in MARL
+Existing approaches (hard equivariant vs soft regularization)
+Their common limitation: symmetry treated as discrete or globally specified
+Real-world symmetry is non-uniform and degree-varying
+Partial symmetry is useful but still global and not degree-aware
+Our idea: fuzzy symmetry as a continuous structural prior
+Overview of theory and method
+Contributions (bullet points)
+🔹 Important Style Requirements
+Formal academic tone (TFS style)
+Avoid exaggerated claims
+Clear logical transitions between paragraphs
+No unnecessary jargon
+Emphasize problem reformulation, not just method
+🔹 Key Message to Convey
+
+The main contribution is not just a new method,
+but a new way to model symmetry in MARL:
+from discrete / bounded → continuous fuzzy structural property.
+
+
+\section{Problem Formulation}
+
+
+
+
+
+\subsection{Background}
+
+Symmetry has been widely recognized as an effective structural prior in multi-agent reinforcement learning (MARL), enabling improved generalization and sample efficiency. Existing approaches typically exploit symmetry either through hard architectural constraints (e.g., equivariant networks) or soft regularization techniques (e.g., data augmentation and consistency losses). These methods, however, implicitly assume that symmetry is either strictly satisfied or uniformly violated within bounded deviations.
+
+In practical multi-agent systems, symmetry is rarely homogeneous. Environmental disturbances, agent heterogeneity, and task-dependent asymmetries introduce non-uniform and context-dependent symmetry violations. As a result, symmetry cannot be adequately characterized as a binary or globally bounded property.
+
+To address this limitation, we propose to model symmetry in MARL as a \emph{fuzzy structural property}, characterized by a continuous degree of satisfaction.
+
+\subsection{Preliminaries}
+
+We consider a Markov game defined as
+\begin{equation}
+\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, P, r, G \rangle,
+\end{equation}
+where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the joint action space, $P$ is the transition function, $r$ is the reward function, and $G$ is a group acting on the state-action space.
+
+For $g \in G$, the group action is denoted as
+\begin{equation}
+g \cdot (s, a) = (g \cdot s, g \cdot a).
+\end{equation}
+
+Classical symmetry requires:
+\begin{equation}
+P(g \cdot s' \mid g \cdot s, g \cdot a) = P(s' \mid s, a), \quad
+r(g \cdot s, g \cdot a) = r(s, a).
+\end{equation}
+
+\subsection{Fuzzy Symmetry}
+
+We generalize symmetry into a fuzzy concept.
+
+\begin{definition}[Fuzzy Symmetry Membership]
+For a transformation $g \in G$, the fuzzy symmetry at a state-action pair $(s,a)$ is defined as a membership function
+\begin{equation}
+\mu(s,a; g) \in [0,1],
+\end{equation}
+which quantifies the degree to which symmetry is satisfied under transformation $g$.
+\end{definition}
+
+A practical construction is given by
+\begin{equation}
+\mu(s,a; g) =
+\phi_r\!\left(|r(s,a) - r(g \cdot s, g \cdot a)|\right)
+\cdot
+\phi_p\!\left(D\big(P(\cdot|s,a),\, g^{-1}P(\cdot|g \cdot s, g \cdot a)\big)\right),
+\end{equation}
+where $\phi_r(\cdot)$ and $\phi_p(\cdot)$ are monotonically decreasing mappings, and $D(\cdot,\cdot)$ is a divergence measure.
+
+We further define the fuzzy symmetry of a policy-induced distribution as
+\begin{equation}
+\mu_G(\pi) = \mathbb{E}_{(s,a) \sim \rho^\pi} \left[ \operatorname{Agg}_{g \in G} \mu(s,a; g) \right],
+\end{equation}
+where $\rho^\pi$ denotes the state-action visitation distribution, and $\operatorname{Agg}$ is an aggregation operator (e.g., mean or minimum).
+
+This formulation generalizes classical notions:
+\begin{itemize}
+\item Exact symmetry: $\mu = 1$
+\item Broken symmetry: $\mu \approx 0$
+\item Partial symmetry: corresponds to bounded $\mu$
+\end{itemize}
+
+\subsection{Problem Statement}
+
+Given a Markov game with unknown and non-uniform symmetry structure, our goal is to learn a policy $\pi$ that maximizes expected return while adaptively exploiting fuzzy symmetry:
+\begin{equation}
+\max_\pi \; J(\pi),
+\end{equation}
+where symmetry exploitation is modulated by $\mu(s,a;g)$.
+
+This introduces a fundamental trade-off: enforcing symmetry in regions with low symmetry leads to bias, while ignoring symmetry in regions with high symmetry leads to inefficiency. The objective is to balance this trade-off in a continuous manner.
+
+\section{Fuzzy Symmetry-Aware MARL Framework}
+
+\subsection{Overview}
+
+We propose a unified framework that integrates fuzzy symmetry estimation, adaptive structural modeling, and symmetry-aware learning. The framework consists of three components:
+\begin{enumerate}
+\item Fuzzy symmetry estimation
+\item Fuzzy-structured policy/value networks
+\item Fuzzy symmetry-regularized learning objective
+\end{enumerate}
+
+\subsection{Fuzzy Symmetry Estimation}
+
+We estimate the membership function
+\begin{equation}
+\mu_\psi(s,a,g) \in [0,1],
+\end{equation}
+which characterizes the reliability of symmetry under transformation $g$.
+
+The estimator can be constructed using:
+\begin{itemize}
+\item analytical deviation measures based on reward and transition
+\item learned discriminators via contrastive learning
+\item model-based consistency evaluation
+\end{itemize}
+
+\subsection{Fuzzy-Structured Networks}
+
+Inspired by residual pathway priors, we construct a policy or value function of the form
+\begin{equation}
+f_\theta(x) =
+f_{\text{sym}}(x)
++
+\big(1 - w(x)\big)\, f_{\text{res}}(x),
+\end{equation}
+where
+\begin{equation}
+w(x) = \operatorname{Agg}_{g \in G} \mu_\psi(x,g).
+\end{equation}
+
+Here:
+\begin{itemize}
+\item $f_{\text{sym}}$ is a symmetry-constrained (equivariant) component
+\item $f_{\text{res}}$ is an unconstrained residual component
+\end{itemize}
+
+This structure allows the model to continuously interpolate between structured and flexible representations based on the degree of symmetry.
+
+\subsection{Fuzzy Symmetry-Regularized Learning}
+
+We introduce a symmetry consistency loss weighted by fuzzy symmetry:
+\begin{equation}
+\mathcal{L}_{sym} =
+\mathbb{E}_{(s,a)} \left[
+w(s,a) \cdot
+\| f(g \cdot x) - \rho(g)f(x) \|^2
+\right].
+\end{equation}
+
+The overall objective becomes
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{RL} + \lambda \mathcal{L}_{sym}.
+\end{equation}
+
+This formulation enforces symmetry only when it is reliable, avoiding the negative effects of incorrect inductive bias.
+
+\subsection{Discussion}
+
+Compared with existing approaches, the proposed framework:
+\begin{itemize}
+\item generalizes symmetry from discrete to continuous representations
+\item enables adaptive exploitation of structural priors
+\item provides robustness under heterogeneous and partially symmetric environments
+\end{itemize}
+
+
+\begin{theorem}[Unified Fuzzy Symmetry Error Bound]
+Suppose that for a transformation $g \in G$, the fuzzy symmetry membership satisfies
+\begin{equation}
+\mu(s,a;g)\ge \alpha,\qquad \forall (s,a)\in\Psi.
+\end{equation}
+Assume further that this implies
+\begin{equation}
+|r(s,a)-r(g\!\cdot\! s,g\!\cdot\! a)|\le \bar{\varepsilon}_\alpha,
+\end{equation}
+and
+\begin{equation}
+D\!\left(P(\cdot|s,a),\,g^{-1}P(\cdot|g\!\cdot\! s,g\!\cdot\! a)\right)\le \bar{\delta}_\alpha.
+\end{equation}
+Then
+\begin{equation}
+\big|Q^*(s,a)-Q^*(g\!\cdot\! s,g\!\cdot\! a)\big|
+\le
+\frac{\bar{\varepsilon}_\alpha+\gamma \bar{\delta}_\alpha}{1-\gamma}.
+\end{equation}
+\end{theorem}

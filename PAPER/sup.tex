@@ -1,0 +1,349 @@
+%File: anonymous-submission-latex-2024.tex
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage[submission]{aaai24}  % DO NOT CHANGE THIS
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{times}  % DO NOT CHANGE THIS
+\usepackage{helvet}  % DO NOT CHANGE THIS
+\usepackage{courier}  % DO NOT CHANGE THIS
+\usepackage[hyphens]{url}  % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm}  % DO NOT CHANGE THIS
+\usepackage{natbib}  % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\usepackage{caption} % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\frenchspacing  % DO NOT CHANGE THIS
+\setlength{\pdfpagewidth}{8.5in} % DO NOT CHANGE THIS
+\setlength{\pdfpageheight}{11in} % DO NOT CHANGE THIS
+%
+% These are recommended to typeset algorithms but not required. See the subsubsection on algorithms. Remove them if you don't have algorithms in your paper.
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\usepackage{subcaption}
+\usepackage{amssymb}
+
+%
+% These are are recommended to typeset listings but not required. See the subsubsection on listing. Remove this block if you don't have listings in your paper.
+\usepackage{newfloat}
+\usepackage{listings}
+\DeclareCaptionStyle{ruled}{labelfont=normalfont,labelsep=colon,strut=off} % DO NOT CHANGE THIS
+\lstset{%
+	basicstyle={\footnotesize\ttfamily},% footnotesize acceptable for monospace
+	numbers=left,numberstyle=\footnotesize,xleftmargin=2em,% show line numbers, remove this entire line if you don't want the numbers.
+	aboveskip=0pt,belowskip=0pt,%
+	showstringspaces=false,tabsize=2,breaklines=true}
+\floatstyle{ruled}
+\newfloat{listing}{tb}{lst}{}
+\floatname{listing}{Listing}
+%
+% Keep the \pdfinfo as shown here. There's no need
+% for you to add the /Title and /Author tags.
+\pdfinfo{
+/TemplateVersion (2024.1)
+}
+
+% DISALLOWED PACKAGES
+% \usepackage{authblk} -- This package is specifically forbidden
+% \usepackage{balance} -- This package is specifically forbidden
+% \usepackage{color (if used in text)
+% \usepackage{CJK} -- This package is specifically forbidden
+% \usepackage{float} -- This package is specifically forbidden
+% \usepackage{flushend} -- This package is specifically forbidden
+% \usepackage{fontenc} -- This package is specifically forbidden
+% \usepackage{fullpage} -- This package is specifically forbidden
+% \usepackage{geometry} -- This package is specifically forbidden
+% \usepackage{grffile} -- This package is specifically forbidden
+% \usepackage{hyperref} -- This package is specifically forbidden
+% \usepackage{navigator} -- This package is specifically forbidden
+% (or any other package that embeds links such as navigator or hyperref)
+% \indentfirst} -- This package is specifically forbidden
+% \layout} -- This package is specifically forbidden
+% \multicol} -- This package is specifically forbidden
+% \nameref} -- This package is specifically forbidden
+% \usepackage{savetrees} -- This package is specifically forbidden
+% \usepackage{setspace} -- This package is specifically forbidden
+% \usepackage{stfloats} -- This package is specifically forbidden
+% \usepackage{tabu} -- This package is specifically forbidden
+% \usepackage{titlesec} -- This package is specifically forbidden
+% \usepackage{tocbibind} -- This package is specifically forbidden
+% \usepackage{ulem} -- This package is specifically forbidden
+% \usepackage{wrapfig} -- This package is specifically forbidden
+% DISALLOWED COMMANDS
+% \nocopyright -- Your paper will not be published if you use this command
+% \addtolength -- This command may not be used
+% \balance -- This command may not be used
+% \baselinestretch -- Your paper will not be published if you use this command
+% \clearpage -- No page breaks of any kind may be used for the final version of your paper
+% \columnsep -- This command may not be used
+% \newpage -- No page breaks of any kind may be used for the final version of your paper
+% \pagebreak -- No page breaks of any kind may be used for the final version of your paperr
+% \pagestyle -- This command may not be used
+% \tiny -- This is not an acceptable font size.
+% \vspace{- -- No negative value may be used in proximity of a caption, figure, table, section, subsection, subsubsection, or reference
+% \vskip{- -- No negative value may be used to alter spacing above or below a caption, figure, table, section, subsection, subsubsection, or reference
+
+\setcounter{secnumdepth}{1} %May be changed to 1 or 2 if section numbers are desired.
+
+% The file aaai24.sty is the style file for AAAI Press
+% proceedings, working notes, and technical reports.
+%
+
+% Title
+
+% Your title must be in mixed case, not sentence case.
+% That means all verbs (including short verbs like be, is, using,and go),
+% nouns, adverbs, adjectives should be capitalized, including both words in hyphenated terms, while
+% articles, conjunctions, and prepositions are lower case unless they
+% directly follow a colon or long dash
+\title{Supplementary materials for Leveraging Imperfect Symmetry for Multi-Agent Reinforcement Learning}
+\author{
+    %Authors
+    % All authors must be in the same font size and format.
+    Written by AAAI Press Staff\textsuperscript{\rm 1}\thanks{With help from the AAAI Publications Committee.}\\
+    AAAI Style Contributions by Pater Patel Schneider,
+    Sunil Issar,\\
+    J. Scott Penberthy,
+    George Ferguson,
+    Hans Guesgen,
+    Francisco Cruz\equalcontrib,
+    Marc Pujol-Gonzalez\equalcontrib
+}
+\affiliations{
+    %Afiliations
+    \textsuperscript{\rm 1}Association for the Advancement of Artificial Intelligence\\
+    % If you have multiple authors and multiple affiliations
+    % use superscripts in text and roman font to identify them.
+    % For example,
+
+    % Sunil Issar\textsuperscript{\rm 2},
+    % J. Scott Penberthy\textsuperscript{\rm 3},
+    % George Ferguson\textsuperscript{\rm 4},
+    % Hans Guesgen\textsuperscript{\rm 5}
+    % Note that the comma should be placed after the superscript
+
+    1900 Embarcadero Road, Suite 101\\
+    Palo Alto, California 94303-3310 USA\\
+    % email address must be in roman text type, not monospace or sans serif
+    proceedings-questions@aaai.org
+%
+% See more examples next
+}
+
+%Example, Single Author, ->> remove \iffalse,\fi and place them surrounding AAAI title to use it
+\iffalse
+\title{My Publication Title --- Single Author}
+\author {
+    Author Name
+}
+\affiliations{
+    Affiliation\\
+    Affiliation Line 2\\
+    name@example.com
+}
+\fi
+
+\iffalse
+%Example, Multiple Authors, ->> remove \iffalse,\fi and place them surrounding AAAI title to use it
+\title{My Publication Title --- Multiple Authors}
+\author {
+    % Authors
+    First Author Name\textsuperscript{\rm 1},
+    Second Author Name\textsuperscript{\rm 2},
+    Third Author Name\textsuperscript{\rm 1}
+}
+\affiliations {
+    % Affiliations
+    \textsuperscript{\rm 1}Affiliation 1\\
+    \textsuperscript{\rm 2}Affiliation 2\\
+    firstAuthor@affiliation1.com, secondAuthor@affilation2.com, thirdAuthor@affiliation1.com
+}
+\fi
+
+
+% REMOVE THIS: bibentry
+% This is only needed to show inline citations in the guidelines document. You should not need it and can safely delete it.
+\usepackage{bibentry}
+% END REMOVE bibentry
+
+\begin{document}
+
+\maketitle
+
+
+\section{Proof of the Proposition 1}
+
+We first recap that the Partially Symmetric Markov game $\mathcal{M}_g$, which has the following two defined properties:
+
+%\begin{definition}[Partially Symmetric Markov game]
+%The partial Symmetry Markov game $\mathcal{M}_g=(N, S,  \left\{A_{i}\right\}_{i=1}^{n}, R, T, \Psi, g, \epsilon,  \delta )$ is a cooperative Markov game that satisfies the conditions of partial reward invariance and partial transition invariance. The state and action transformation are defined as $L_{g}: S \rightarrow S$ and $K_{g}: A \rightarrow A$, respectively. For state-action pairs $(s,a) \in \Psi$, we denote the transformed state-action pairs as $(gs,ga)$. Here, $gs=L_{g}(s)$ and $ga=K_{g}(a)$ for short. 
+The partial reward invariance is characterized with
+\begin{equation}
+    |R(s, a) - R(gs, ga)| \leq \epsilon \label{rewardequ}.
+\end{equation}
+The partial transition invariance is characterized using the Maximum Mean Discrepancy (MMD) between the distributions of transitions $T(s'|s, a)$ and $T(gs'|gs, ga)$: 
+\begin{equation}
+    \text{MMD}_{\mathcal{F}}\left(T(s'|s, a), T(gs'|gs, ga)\right)\leq \delta \label{transequ}.
+\end{equation}
+Please note that $T(gs'|gs, ga)$ is also a distribution of $s'$ with the sampling process $s' \sim T(gs'|gs, ga)$ being defined as 1)~$gs' \sim T(gs'|gs, ga)$ and then 2) $s'=L_g^{-1}(gs')$.
+
+The MMD is a measure of distance used to quantify the discrepancy between two distributions under a general class of  bounded mapping functions $f \in \mathcal{F}$. Eq.(2) can be expressed as:
+\begin{equation*}
+\begin{aligned}
+    &\text{MMD}_{\mathcal{F}}\left(T(s'|s, a), T(gs'|gs, ga)\right) \\
+    &= \sup_{f \in \mathcal{F}} \left| \mathbb{E}_{s' \sim T(s'|s, a)}[f(s')] - \mathbb{E}_{s' \sim T(gs'|gs, ga)}[f(s')] \right| \\   
+\end{aligned}.
+\end{equation*}
+%\end{definition}
+
+
+
+
+
+%After recapping the Partially Symmetric Markov game, we provide the proof of proposition 1 in the following. We will use mathematical induction to prove this proposition.
+\begin{proposition}[Performance Error Bound]
+\label{prop1}
+\textit{If a Partial Symmetry Markov game $\mathcal{M}_g$  satisfies the conditions in equations \eqref{rewardequ} and \eqref{transequ} for all $(s, a) \in \Psi$, then the performance error $\textit{Error}_{\mathcal{M}_g}=|Q^{\star}(s, a) - Q^{\star}(gs, ga)|$ is bounded by $\frac{\epsilon}{1-\gamma} + \frac{\gamma \delta}{1-\gamma}$.}
+\end{proposition} \label{prop1}
+
+
+\begin{proof} We will apply the mathematical induction method for the proof. We define the $m$-step optimal discounted action value function recursively for all $(s, a) \in \Psi$ and for all non-negative integers $m$ as follows:
+\begin{equation}  
+\begin{aligned} 
+    &Q_{m}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S}[T(s'|s, a) \max _{a^{\prime} \in A} Q_{m-1}(s^{\prime}, a^{\prime})], \label{eq1}
+\end{aligned}
+\end{equation}
+where we set $ Q_{-1}\left(s^{\prime}, a^{\prime}\right)=0 $. Please note that because the reward $R$ is bounded, $Q_{m}(s, a)$ is bounded for any natural number $m$, and so do the functions of $\max_{a'} Q_m(s', a')$ and $\max_{a'} Q_m(gs', ga')$. Therefore, they are all elements of $\mathcal{F}$.
+
+%We can rewrite the equation $Q_m(s,a)$ as follows:
+%\begin{equation*} 
+%    Q_{m}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S}[T(s'|s, a) V_{m-1}(s^{\prime})].
+%\end{equation*}
+
+%Because the reward is bounded, there exists a constant $\Delta$ such that $R(s,a)+\Delta>0$. Therefore, we can assume the reward $R(s,a)$ to be positive and conduct the proof without the loss of generality. This implies that $Q_m$ are $V_m$ are all positive by default.
+\noindent
+\textbf{Step 1 (base step)}: For the base case of $m=0$, we have
+{\scriptsize
+\begin{equation*}
+|Q_{0}(s, a) - Q_{0}(gs, ga)|  = |R(s,a) - R(gs,ga)|  \leq \epsilon
+\end{equation*}}
+
+\textbf{Step 2 (base step)}: For the base case of $m=1$, we have
+{\scriptsize
+\begin{equation*}
+\begin{aligned} 
+& \left|Q_1(s, a) - Q_1(gs, ga)\right| \\
+& = \Biggl |R(s, a) + \gamma \sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime}) \\
+& \quad - R(gs, ga) - \gamma \sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime}) \Biggl | \\
+& \leq \Biggl |R(s, a)- R(gs, ga) \Biggl | + \gamma \Biggl |\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime}) \\
+& \quad  -  \sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime}) \Biggl | \\
+& \leq \epsilon + \gamma \Biggl |\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime}) \\
+& \quad - \sum_{s^{\prime}}  T(gs'|gs, ga) \max_{a'} Q_0(gs', ga')\Biggl | \\
+\end{aligned}
+\end{equation*}}
+
+If $\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime})$  is greater than or equal to $\sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime})$, then we have:
+{\scriptsize
+\begin{equation*}
+\begin{aligned}
+&   \Biggl |\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime})  -  \sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime}) \Biggl | \\
+& \leq \Biggl |\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} (Q_0(gs^{\prime}, ga^{\prime})+\epsilon) \\
+& \quad - \sum_{s^{\prime}}  T(gs'|gs, ga) \max_{a'} Q_0(gs', ga')\Biggl | \\
+& \leq \epsilon  + \Biggl |\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime}) \\
+& \quad - \sum_{s^{\prime}}  T(gs'|gs, ga) \max_{a'} Q_0(gs', ga')\Biggl | \\
+& = \epsilon + \Biggl | \mathbb{E}_{T(s'|s, a)}[f(s')] - \mathbb{E}_{T(gs'|gs, ga)}[f(s')] \Biggl |_{f(s')=\max_{a'} Q_0(gs', ga')}\\
+& \leq \epsilon + \text{MMD}_{\mathcal{F}} \left(T(s'|s, a), T(gs'|gs, ga)\right) \\
+& \leq \epsilon + \delta
+\end{aligned}
+\end{equation*}}
+
+If $\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime})$  is smaller than $\sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime})$, then we have:
+
+{\scriptsize
+\begin{equation*}
+\begin{aligned}
+&   \Biggl |\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime})  -  \sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime}) \Biggl | \\
+& = \Biggl | \sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_0(gs^{\prime}, ga^{\prime})  -  \sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime}) \Biggl | \\
+& \leq \Biggl | \sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} (Q_0(s^{\prime}, a^{\prime}) +\epsilon) \\
+& \quad  -  \sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime}) \Biggl | \\
+& \leq \epsilon  + \Biggl | \sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime}) \\
+& \quad  -  \sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_0(s^{\prime}, a^{\prime}) \Biggl | \\
+& = \epsilon + \Biggl | \mathbb{E}_{T(gs'|gs, ga)}[f(s')] - \mathbb{E}_{T(s'|s, a)}[f(s')]  \Biggl |_{f(s')=\max_{a'} Q_0(s', a')}\\
+& \leq \epsilon + \text{MMD}_{\mathcal{F}} \left(T(s'|s, a), T(gs'|gs, ga)\right) \\
+& \leq \epsilon + \delta
+\end{aligned}
+\end{equation*}}
+
+Taking the above discussions into account, we conclude that
+{\scriptsize
+\begin{equation*}
+\begin{aligned}
+& \left|Q_1(s, a) - Q_1(gs, ga)\right| \leq \epsilon +\gamma (\epsilon + \delta) = (1+\gamma)\epsilon+\gamma \delta
+\end{aligned}
+\end{equation*}}
+\noindent
+\textbf{Step 3 (induction step)}: As we have the base cases, let's assume that
+{\scriptsize
+\begin{equation*}
+|Q_j(s, a) - Q_j(gs, ga)| \leq \sum_{i=0}^{j} \gamma^i\epsilon +\sum_{i=1}^{j}\gamma^i \delta
+\end{equation*}}
+holds for all non-negative integer $j<m$ and all state-action pairs $(s,a) \in\Psi$. Now we prove by induction on $m$ that the proposition is true. For the case $m$, we have: 
+{\scriptsize
+\begin{equation*}
+\begin{aligned}
+& \left|Q_m(s, a) - Q_m(gs, ga)\right| \\
+& = \left| R(s, a) + \gamma \sum_{s'} T(s'|s, a)  \max_{a^{\prime}} Q_{m-1}(s', a') \right.\\
+& \quad \left. - R(gs, ga) - \gamma \sum_{s'} T(gs'|gs, ga)  \max_{a^{\prime}} Q_{m-1}(gs^{\prime}, ga^{\prime}) \right| \\
+& \leq \left| R(s, a) -  R(gs, ga) \right| +\gamma \biggl |\sum_{s'} T(s'|s, a) \max_{a^{\prime}} Q_{m-1}(s', a')  \\
+& \quad - \sum_{s'} T(gs^{\prime}|gs, ga) \max_{a^{\prime}} Q_{m-1}(gs^{\prime}, ga^{\prime}) \biggl | \\
+& \leq \epsilon + \gamma \biggl |\sum_{s'} T(s'|s, a) \max_{a^{\prime}} Q_{m-1}(s', a')  \\
+& \quad - \sum_{s'} T(gs^{\prime}|gs, ga) \max_{a^{\prime}} Q_{m-1}(gs^{\prime}, ga^{\prime}) \biggl | \\
+\end{aligned}
+\end{equation*}}
+By repeating the same discussions in Step 2 regarding two situations of 
+$\sum_{s^{\prime}} T(s'|s, a)  \max_{a^{\prime}} Q_{m-1}(s^{\prime}, a^{\prime})$  and $\sum_{s^{\prime}} T(gs'|gs, ga)  \max_{a^{\prime}} Q_{m-1}(gs^{\prime}, ga^{\prime})$, we can obtain that:
+
+
+{\scriptsize
+\begin{equation*}
+\begin{aligned}
+&  \biggl |\sum_{s'} T(s'|s, a) \max_{a^{\prime}} Q_{m-1}(s', a')  \\
+& \quad - \sum_{s'} T(gs^{\prime}|gs, ga) \max_{a^{\prime}} Q_{m-1}(gs^{\prime}, ga^{\prime}) \biggl | \\
+& \leq \left( \sum_{i=0}^{m-1} \gamma^i\epsilon + \sum_{i=1}^{m-1}\gamma^i \delta \right) + \delta
+\end{aligned}
+\end{equation*}}
+
+Therefore, we have
+
+{\scriptsize
+\begin{equation*}
+\begin{aligned}
+& \left|Q_m(s, a) - Q_m(gs, ga)\right| \\
+& \leq \epsilon +\gamma \left(\sum_{i=0}^{m-1} \gamma^i\epsilon + \sum_{i=1}^{m-1}\gamma^i \delta\right) +\gamma \delta\\
+& = \sum_{i=0}^{m} \gamma^i\epsilon + \sum_{i=1}^{m}\gamma^i \delta
+\end{aligned}
+\end{equation*}}
+
+Based on mathematical induction, since the statement of the proposition in both the base step and  induction step has been proved as true, $|Q_{m}(s, a) - Q_{m}(gs, ga)|$ is bounded for all $m$. When $0<\gamma <1$ and $m$ approaches infinity, we have:
+
+{\scriptsize
+\begin{equation*}
+\begin{aligned}
+& \textit{Error}_{\mathcal{M}_g}=|Q^{\star}(s, a) - Q^{\star}(gs, ga)| \\
+& = \lim_{{m \to \infty}} \Biggl |Q^{m}(s, a) - Q^{m}(gs, ga)\Biggl | \\
+    &\leq\lim_{{m \to \infty}} \left(\sum_{{i=0}}^{m} \gamma^i\epsilon + \sum_{{i=1}}^{m}\gamma^i \delta\right) \\
+    & = \frac{\epsilon}{1-\gamma}+\frac{\gamma \delta}{1-\gamma}
+\end{aligned}
+\end{equation*}}
+
+The proof of proposition 1 is completed.
+\end{proof}
+
+
+
+
+
+
+\end{document}
