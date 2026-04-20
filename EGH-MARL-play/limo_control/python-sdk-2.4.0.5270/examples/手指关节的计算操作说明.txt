@@ -1,0 +1,14 @@
+贴点：选取1个手指，选取一个指关节，指尖，指关节，手指根各贴一个点
+
+动作:手指弯曲
+
+动捕软件操作：为手指创建markerset，一个手指对应一个markerset，包含3个marker点，分别对应指尖，指关节，手指根，可同时创建多个markerset对应多个手指
+
+采集数据：
+
+通过python实时获取每个点的坐标,指尖点的加速度，指关节的角度变化（三点连线），运行Nokvo_SDK_Client_With_Vel_Acc_Degree.py，定位到第41行代码，如下，这里以第一个markerset作为示例，注释此行可同时获取多根手指的数据
+
+if (0 == iMarkerSet and 3 == markerset.nMarkers):
+
+
+

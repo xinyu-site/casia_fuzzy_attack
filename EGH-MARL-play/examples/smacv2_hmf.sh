@@ -1,0 +1,5 @@
+CUDA_VISIBLE_DEVICES=4 python train.py --algo hmf --env smacv2 --exp_name test --seed 0 --use_eval True --eval_episodes 40 --map_name terran_5_vs_5 --n_rollout_threads 20 --num_env_steps 10000000 --lr 0.0005 --critic_lr 0.0005
+CUDA_VISIBLE_DEVICES=4 python train.py --algo hmf --env smacv2 --exp_name test --seed 1 --use_eval True --eval_episodes 40 --map_name terran_5_vs_5 --n_rollout_threads 20 --num_env_steps 10000000 --lr 0.0005 --critic_lr 0.0005
+CUDA_VISIBLE_DEVICES=4 python train.py --algo hmf --env smacv2 --exp_name test --seed 2 --use_eval True --eval_episodes 40 --map_name terran_5_vs_5 --n_rollout_threads 20 --num_env_steps 10000000 --lr 0.0005 --critic_lr 0.0005
+CUDA_VISIBLE_DEVICES=4 python train.py --algo hmf --env smacv2 --exp_name test --seed 3 --use_eval True --eval_episodes 40 --map_name terran_5_vs_5 --n_rollout_threads 20 --num_env_steps 10000000 --lr 0.0005 --critic_lr 0.0005
+CUDA_VISIBLE_DEVICES=4 python train.py --algo hmf --env smacv2 --exp_name test --seed 4 --use_eval True --eval_episodes 40 --map_name terran_5_vs_5 --n_rollout_threads 20 --num_env_steps 10000000 --lr 0.0005 --critic_lr 0.0005

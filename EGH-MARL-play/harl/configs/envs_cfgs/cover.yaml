@@ -1,0 +1,24 @@
+scenario: cover
+obs_mode: global  # choose from 'global_obs_mode', 'fix_acc', 'local_obs_mode'
+dynamics: direct
+nr_agents: 5
+int_points_num: 30
+# 通信距离 
+comm_radius: 282.84
+world_size: 100
+distance_bins: 8
+bearing_bins: 8
+# 之前训练效果最好的一个版本用的是True
+torus: False
+state_type: EP
+equ_nf: 4
+windows_size: 3
+use_history: False
+local_mode: True
+use_hpn: False # True时使用HPN网络模块
+hpn_hidden: [16, 3]
+critic_use_local_module: False # True时使用模块，否则不使用（local_mode=True时才生效）
+obs_radius: 141.5
+local_info_input: [3, 3]
+local_info_output: [8, 16]
+structural_entropy: False

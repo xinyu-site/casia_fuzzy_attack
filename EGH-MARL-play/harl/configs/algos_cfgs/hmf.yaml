@@ -1,0 +1,52 @@
+# Configuration file for HMF (Hierarchical Mean-Field, off-policy discrete)
+seed:
+  seed_specify: True
+  seed: 1
+device:
+  cuda: True
+  cuda_deterministic: True
+  torch_threads: 4
+train:
+  train_flag: True
+  n_rollout_threads: 10
+  num_env_steps: 1000000
+  episode_length: 200
+  warmup_steps: 5120
+  train_interval: 50
+  update_per_train: 1
+  log_interval: 5
+  eval_interval: 25
+  use_linear_lr_decay: True
+  use_proper_time_limits: True
+  model_dir: ~
+eval:
+  use_eval: True
+  n_eval_rollout_threads: 10
+  eval_episodes: 20
+render:
+  use_render: False
+  render_episodes: 10
+model:
+  # HMF uses its own Q networks; these fields are kept for compatibility.
+  hidden: 128
+  attn_hidden: 64
+  base_activation_func: relu
+  lr: 0.0003
+  critic_lr: 0.0003
+algo:
+  gamma: 0.95
+  buffer_size: 1000000
+  batch_size: 1000
+  polyak: 0.005
+  epsilon: 0.05
+  expl_noise: 0.1        # continuous exploration noise
+  n_step: 1
+  share_param: True
+  fixed_order: False
+  single_actor: True
+  # HMF specific
+  n_groups: 3
+  reg_alpha: 0.0
+  ipc_beta: 0.0
+logger:
+  log_dir: "./results_eswa"

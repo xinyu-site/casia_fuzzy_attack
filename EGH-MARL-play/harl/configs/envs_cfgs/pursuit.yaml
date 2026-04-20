@@ -1,0 +1,25 @@
+scenario: pursuit
+obs_mode: hepn_local  # choose from 'eghn_acc', 'fix_acc', 'local_obs_mode', 'temp_obs_mode'
+dynamics: direct
+evader_policy: tac
+nr_agents: 10
+nr_evaders: 1
+int_points_num: 0
+comm_radius: 282.8427
+world_size: 100
+distance_bins: 8
+bearing_bins: 8
+torus: True
+state_type: EP
+equ_nf: 4
+dimension: 2
+structural_entropy: False
+windows_size: 2
+use_history: False
+local_mode: False
+use_hpn: False # True时使用HPN网络模块
+hpn_hidden: [16, 3]
+critic_use_local_module: False # True时使用模块，否则不使用（local_mode=True时才生效）
+obs_radius: 32 # 141.4
+local_info_input: [3, 3]
+local_info_output: [16, 3]

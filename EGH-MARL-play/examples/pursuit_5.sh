@@ -1,0 +1,20 @@
+# python train.py --algo mappo_data_aug --env pursuit --exp_name aaai_5_global --obs_mode hepn_local --local_mode False --nr_agents 5 --world_size 100 --obs_radius 141.5 --use_recurrent_policy False --seed 3 --num_env_steps 10000000
+# python train.py --algo egnn_mappo --env pursuit --exp_name aaai_5_global --obs_mode hepn_local --local_mode False --nr_agents 5 --world_size 100 --obs_radius 141.5 --use_recurrent_policy False --seed 3 --num_env_steps 10000000
+# python train.py --algo egnnv3_mappo --env pursuit --exp_name test_5 --obs_mode hepn_local --local_mode True --nr_agents 5 --world_size 100 --obs_radius 57 --use_recurrent_policy False --seed 3 --num_env_steps 10000000
+# python train.py --algo egnnv2_mappo --env pursuit --exp_name test_5 --obs_mode hepn_local --local_mode True --nr_agents 5 --world_size 100 --obs_radius 57 --use_recurrent_policy False --seed 3 --num_env_steps 10000000
+
+# python train.py --algo mappo --env pursuit --exp_name aaai_5_global --obs_mode hepn_local --local_mode False --nr_agents 5 --world_size 100 --obs_radius 141.5 --use_recurrent_policy False --seed 3 --num_env_steps 10000000
+# python train.py --algo mappo --env pursuit --exp_name aaai_5_global --obs_mode hepn_local --local_mode False --nr_agents 5 --world_size 100 --obs_radius 141.5 --use_recurrent_policy True --seed 3 --num_env_steps 10000000 --single_actor False
+
+# python train.py --algo hepn_mappo --env pursuit --exp_name test5 --obs_mode hepn_local --local_mode False --nr_agents 5 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --seed 0 --num_env_steps 10000000 --structural_entropy True
+
+# CUDA_VISIBLE_DEVICES=2 python train.py --algo mappo --env pursuit --exp_name test40 --obs_mode hepn_local --local_mode False --nr_agents 40 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --seed 22 --num_env_steps 5000000 --structural_entropy False --use_eval False
+# CUDA_VISIBLE_DEVICES=0 python train.py --algo gat_mappo --env pursuit --exp_name test40 --obs_mode hepn_local --local_mode False --nr_agents 40 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --seed 22 --num_env_steps 5000000 --structural_entropy False --use_eval False
+# CUDA_VISIBLE_DEVICES=2 python train.py --algo graphsage_mappo --env pursuit --exp_name test40 --obs_mode hepn_local --local_mode False --nr_agents 40 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --seed 22 --num_env_steps 5000000 --structural_entropy False --use_eval False
+# CUDA_VISIBLE_DEVICES=2 python train.py --algo mappo_data_aug --env pursuit --exp_name test40 --obs_mode hepn_local --local_mode False --nr_agents 40 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --seed 22 --num_env_steps 5000000 --structural_entropy False --use_eval False
+
+
+# CUDA_VISIBLE_DEVICES=3 python train.py --algo eghnv2_mappo --env pursuit --exp_name s_lr --obs_mode hepn_local --local_mode True --nr_agents 10 --world_size 100 --obs_radius 43 --use_recurrent_policy False --seed 11 --num_env_steps 5000000 --n_cluster 3 --lr 0.0001 --critic_lr 0.0001 --hidden_sizes [128]
+# CUDA_VISIBLE_DEVICES=3 python train.py --algo eghnv2_mappo --env pursuit --exp_name s_lr --obs_mode hepn_local --local_mode True --nr_agents 10 --world_size 100 --obs_radius 43 --use_recurrent_policy False --seed 11 --num_env_steps 5000000 --n_cluster 3 --lr 0.0002 --critic_lr 0.0002 --hidden_sizes [128]
+# CUDA_VISIBLE_DEVICES=3 python train.py --algo eghnv2_mappo --env pursuit --exp_name s_lr --obs_mode hepn_local --local_mode True --nr_agents 10 --world_size 100 --obs_radius 43 --use_recurrent_policy False --seed 11 --num_env_steps 5000000 --n_cluster 3 --lr 0.0005 --critic_lr 0.0005 --hidden_sizes [128]
+# CUDA_VISIBLE_DEVICES=3 python train.py --algo eghnv2_mappo --env pursuit --exp_name s_lr --obs_mode hepn_local --local_mode True --nr_agents 10 --world_size 100 --obs_radius 43 --use_recurrent_policy False --seed 12 --num_env_steps 5000000 --n_cluster 3 --lr 0.001 --critic_lr 0.001 --hidden_sizes [128]

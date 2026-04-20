@@ -1,0 +1,5 @@
+scenario: asymmetric_advantages
+horizon: 100
+windows_size: 2
+use_history: False
+use_hpn: False  # True时使用HPN网络模块

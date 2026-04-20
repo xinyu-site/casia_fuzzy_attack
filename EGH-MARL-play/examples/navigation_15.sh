@@ -1,0 +1,9 @@
+# python train.py --algo mappo --env navigation --exp_name aaai_15_global --obs_mode hepn_local --local_mode False --nr_agents 15 --world_size 100 --obs_radius 141.5 --use_recurrent_policy False --seed 19 --num_env_steps 3000000
+# python train.py --algo mappo_data_aug --env navigation --exp_name aaai_15_global --obs_mode hepn_local --local_mode False --nr_agents 15 --world_size 100 --obs_radius 141.5 --use_recurrent_policy False --seed 19 --num_env_steps 3000000
+# python train.py --algo egnn_mappo --env navigation --exp_name aaai_15_global --obs_mode hepn_local --local_mode False --nr_agents 15 --world_size 100 --obs_radius 141.5 --use_recurrent_policy False --seed 19 --num_env_steps 3000000
+# python train.py --algo mappo --env navigation --exp_name aaai_15_global --obs_mode hepn_local --local_mode False --nr_agents 15 --world_size 100 --obs_radius 141.5 --use_recurrent_policy True --seed 19 --num_env_steps 3000000 --single_actor False
+
+# python train.py --algo hepn_mappo --env navigation --exp_name test15 --obs_mode hepn_local --local_mode False --nr_agents 15 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --seed 1 --num_env_steps 3000000 --structural_entropy True
+
+CUDA_VISIBLE_DEVICES=5 python train.py --algo gat_mappo --env navigation --exp_name test15 --obs_mode hepn_local --local_mode False --nr_agents 15 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --seed 0 --lr 0.0008 --critic_lr 0.0008 --num_env_steps 3000000 --structural_entropy False --use_eval False
+CUDA_VISIBLE_DEVICES=5 python train.py --algo gcn_mappo --env navigation --exp_name test15 --obs_mode hepn_local --local_mode False --nr_agents 15 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --seed 1 --lr 0.0008 --critic_lr 0.0008 --num_env_steps 3000000 --structural_entropy False --use_eval False
