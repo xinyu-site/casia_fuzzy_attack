@@ -108,9 +108,9 @@ def main():
         "obs_noise_single",
         "obs_grd_all",
         "obs_noise_all",
-        "act_greedy_single",
+        "act_rotation_single",
         "act_noise_single",
-        "act_greedy_all",
+        "act_rotation_all",
         "act_noise_all"
     ]
 

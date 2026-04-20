@@ -388,9 +388,9 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
             #print(f'eval_actions shape1: {eval_actions.shape}')  
             eval_rnn_states = _t2n(temp_rnn_state).transpose(1, 0, 2, 3)
             #print(f'orin eval_actions: {eval_actions[3][3]}')
-            if attack_method == 'act_greedy_all':
+            if attack_method == 'act_rotation_all':
                 eval_actions = add_rotation_noise_all(eval_actions, noise_level)
-            if attack_method == 'act_greedy_single':
+            if attack_method == 'act_rotation_single':
                 eval_actions = add_rotation_noise_to_first_robot(eval_actions, noise_level) 
             
             #print(f'after attack eval_actions: {eval_actions[3][3]}')
