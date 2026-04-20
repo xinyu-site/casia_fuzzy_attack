@@ -1,404 +1,160 @@
-# 实验方案：对称嵌入 MARL 在几何一致型观测扰动下的鲁棒性评估
+# 3. 单 Agent 局部扰动与协同传播实验
 
+## 3.1 实验目的
 
-## 对比基线
-mlp sage esp 鲁棒基线2 
-### 1. 普通策略基线
-- MLP / RNN policy
-- 普通 GNN policy
+本实验作为整体 Trans 论文实验部分中的一个小节，用于验证 EGNN MARL 在单个智能体受到局部观测扰动时，是否能够减弱局部误差向团队协同的传播。与前面的结构化观测扰动实验不同，本实验不再关注所有 agent 同时受到扰动时的整体鲁棒性，而是专门分析“只扰动一个 agent，会不会影响其他未被扰动 agent 的动作和团队表现”。
 
-### 2. 对称嵌入方法
-- ESP
+该实验希望支撑一个简洁结论：EGNN 的几何关系建模不仅能提升扰动下的任务性能，也能降低单点观测误差对团队协同的放大效应。
 
+## 3.2 实验设置
 
-### 3. 鲁棒训练基线
-- 2 个轻量 robust training baseline
+### 3.2.1 局部扰动设定
 
-## 1. 实验目标
+每次测试只选择一个 agent 作为 attacked agent，并只修改该 agent 的局部观测。其他 agent 的观测、环境真实状态、动作执行器和奖励函数保持不变。
 
-验证“对称嵌入 MARL”是否在**几何一致型观测扰动**下比普通 MARL 更稳。
+被扰动的局部观测可以包括：
 
-重点回答三个问题：
+- attacked agent 看到的邻居相对位置；
+- attacked agent 看到的目标相对位置；
+- attacked agent 的局部坐标系方向；
+- attacked agent 的局部速度、距离或角度特征。
 
-1. 对称嵌入方法在几何一致型观测扰动下，是否比普通方法有更高的任务性能。
-2. 对称嵌入方法在扰动下，是否能更好保持对称一致的决策结构。
-3. 当只扰动单个 agent 时，对称嵌入方法是否能减轻局部误差向全局协同失稳的传播。
+这个设定可以区分直接观测扰动和协同传播效应：如果未被攻击 agent 的动作也发生明显变化，则说明局部误差已经通过策略耦合、图消息传递或联合决策机制传播到团队层面。
 
----
+### 3.2.2 扰动类型
 
-## 2. 实验总原则
+建议选择 2-3 类局部扰动即可，不需要全部展开：
 
-- 训练阶段使用**干净环境**，不加入这些几何扰动。
-- 测试阶段再加入扰动，评估结构鲁棒性。
-- 主实验只聚焦**观测侧几何扰动**，不要一开始做动作篡改或通信攻击。
-- 所有方法使用尽量一致的训练预算、随机种子、网络规模和优化设置。
-- 输出结果时，不只看 reward，还要看“对称一致性误差”和“协同稳定性”。
+- **Single-agent geometric noise**：只对 attacked agent 的局部几何观测加入高斯噪声。
+- **Local relative position corruption**：只扰动 attacked agent 看到的邻居相对位置。
+- **Local coordinate rotation**：只旋转 attacked agent 的局部坐标系。
 
----
+其中，最小可执行版本可以只做 `single-agent relative position noise`。
 
-## 3. 比较方法
+### 3.2.3 扰动强度
 
-至少实现并比较以下四类方法：
+建议使用三档扰动强度：
 
-### Baseline-1: 普通 MLP MARL
-- 普通策略网络，不使用图结构，不使用对称嵌入。
+- Mild
+- Medium
+- Severe
 
-### Baseline-2: 普通 GNN MARL
-- 使用图结构建模多智能体关系，但不显式使用几何等变/不变结构。
+如果需要连续曲线，可以设置：
 
-### Method-1: 对称嵌入 MARL
-- 使用对称嵌入策略主干，例如 EGNN 或其他等变图网络。
-- 这是主方法。
+- $\sigma \in \{0.01, 0.03, 0.05, 0.1\}$，用于局部高斯噪声；
+- $\theta \in \{10^\circ, 20^\circ, 45^\circ, 90^\circ\}$，用于局部坐标旋转。
 
-### Method-2: 对称嵌入 MARL + 对称一致性正则
-- 在 Method-1 基础上，加入 symmetry consistency loss。
-- 用来验证“结构约束”是否进一步提高鲁棒性。
+### 3.2.4 被攻击 Agent 选择
 
-如果计算资源足够，可增加：
+主实验中可以每个 episode 随机选择一个 attacked agent。若篇幅允许，可以补充一个简单对照：比较 random agent 和 central agent 两种情况，用于说明攻击关键节点是否更容易造成团队退化。
 
-### Optional Baseline-3: 普通网络 + 数据增强
-- 普通 GNN 或 MLP，但训练时加入几何变换数据增强。
-- 用于比较“结构嵌入”与“数据增强”是否等价。
+## 3.3 对比方法
 
----
+本实验沿用整体实验方案中的主要方法，不额外扩展过多新 baseline：
 
-## 4. 任务与环境要求
+- MLP / RNN MARL
+- GraphSAGE / 普通 GNN MARL
+- EGNN MARL
+- EGNN MARL + symmetry consistency regularization
 
-优先选择具有明确空间结构、适合对称性分析的 cooperative MARL 任务。
+如果空间有限，表格中只保留这 4 类方法即可。额外鲁棒训练方法可以放到通用观测扰动对照实验中统一讨论。
 
-优先级建议如下：
+## 3.4 评价指标
 
-1. cooperative navigation
-2. coverage control
-3. flocking / rendezvous
-4. UAV swarm coverage / tracking
+本实验只保留能直接回答“局部扰动是否传播”的关键指标。
 
-环境要求：
+### 3.4.1 团队性能下降
 
-- 观测中包含几何量，如位置、相对位置、速度、朝向等。
-- 任务在旋转、平移等几何变换下具有自然等价性或近似等价性。
-- 尽量避免一开始选择强非对称地图、强异质 agent、复杂障碍环境。
+报告扰动后的团队任务性能，例如 Episodic Return、Success Rate 和 Performance Drop：
 
-如果任务存在固定边界或障碍，需谨慎使用全局旋转和平移；此时优先做相对位置噪声和局部几何扰动。
+$$
+\text{Drop}=\frac{J_{\text{clean}}-J_{\text{attack}}}{|J_{\text{clean}}|+\epsilon}.
+$$
 
----
+其中，$J_{\text{clean}}$ 表示无扰动测试性能，$J_{\text{attack}}$ 表示只扰动一个 agent 后的测试性能。
 
-## 5. 扰动类型
+### 3.4.2 Non-attacked Agents Action Shift
 
-主实验做 3 类扰动，另加 1 类可选扰动。
+该指标衡量未被攻击 agent 是否被局部扰动带偏：
 
-### 5.1 Rotation perturbation
-对所有空间相关观测统一旋转角度 \theta。
+$$
+D_{\text{others}}=
+\frac{1}{N-1}\sum_{j\neq i}
+\left\|\pi_j(\tilde{o}^{(i)})-\pi_j(o)\right\|.
+$$
 
-作用对象包括但不限于：
-- agent 位置
-- target 位置
-- 相对位移
-- 速度向量
-- 朝向向量
+其中，$i$ 是 attacked agent，$\tilde{o}^{(i)}$ 表示只扰动第 $i$ 个 agent 后的联合观测。该指标越低，说明局部扰动越不容易传播到其他 agent。
 
-建议角度集合：
-- 10°
-- 20°
-- 45°
-- 90°
+### 3.4.3 Team Action Divergence
 
-目的：
-- 测试模型对旋转等变性的保持能力。
+该指标衡量团队整体动作偏移：
 
----
+$$
+D_{\text{team}}=
+\frac{1}{N}\sum_{j=1}^{N}
+\left\|\pi_j(\tilde{o}^{(i)})-\pi_j(o)\right\|.
+$$
 
-### 5.2 Translation perturbation
-对所有位置坐标整体加同一个平移向量 b。
+如果 EGNN 能稳定团队协同，则在相同攻击强度下应具有更低的 $D_{\text{team}}$。
 
-建议平移尺度：
-- 场景尺度的 1%
-- 场景尺度的 3%
-- 场景尺度的 5%
-- 场景尺度的 10%
 
-目的：
-- 测试模型是否过度依赖绝对坐标。
+## 3.5 输出图表
 
----
+建议本小节最多放 2 张图和 1 张表。
 
-### 5.3 Relative position noise
-对相对位置加入小高斯噪声：
+### 图 1：扰动强度 vs. 团队性能
 
-\[
-\tilde p_{ij} = p_{ij} + \epsilon_{ij}, \quad \epsilon_{ij}\sim \mathcal N(0,\sigma^2 I)
-\]
+- 横轴：扰动强度。
+- 纵轴：Episodic Return、Success Rate 或 Performance Drop。
+- 曲线：不同方法。
 
-建议噪声强度：
-- 0.01
-- 0.03
-- 0.05
-- 0.1
+该图用于展示单 agent 局部扰动下，EGNN MARL 的团队性能是否下降更慢。
 
-目的：
-- 测试模型对近似几何扰动的稳定性。
+### 图 2：扰动强度 vs. 协同传播指标
 
----
+- 横轴：扰动强度。
+- 纵轴：$D_{\text{others}}$ 或 $D_{\text{team}}$。
+- 曲线：不同方法。
 
-### 5.4 Single-agent local geometric corruption（可选但强烈推荐）
-只对一个 agent 的局部几何观测加扰动，例如：
+该图用于展示 EGNN 是否能降低局部扰动对未攻击 agent 和团队动作的影响。
 
-- 只旋转该 agent 看到的相对位置
-- 只对该 agent 的邻居坐标加偏移
-- 只对该 agent 的局部几何观测加噪声
+### 表 1：单 Agent 局部扰动结果汇总
 
-目的：
-- 测试局部误差是否会传播成全局协同失稳。
+表格列建议包括：
 
----
+- Method
+- Clean Return
+- Attack Return
+- Performance Drop (%)
+- $D_{\text{others}}$
+- $D_{\text{team}}$
 
-## 6. 训练设置
+该表同时汇总任务性能和协同传播指标，足以支撑本小节的主要结论。
 
-### 6.1 训练阶段
-- 所有模型在无扰动环境中训练。
-- 每个方法使用相同训练步数。
-- 每个方法使用相同随机种子数量，建议 3 到 5 个。
-- 尽量对齐 hidden size、batch size、optimizer、learning rate 等主要超参数。
-- 如果主方法和基线参数量差异过大，需要报告参数量并尽量控制在同一量级。
+## 3.6 预期现象
 
-### 6.2 测试阶段
-- 在训练完成后，固定模型参数。
-- 对每种扰动单独测试，不混合多种扰动。
-- 对每种扰动做多个强度等级测试。
-- 每个测试配置运行多个 episode，计算均值和标准差。
+本实验预期观察到以下现象：
 
----
+1. 只扰动一个 agent 时，普通 MLP / GNN 方法的团队性能会明显下降。
+2. 普通 GNN 可能因为消息传递机制放大局部错误，使未被攻击 agent 的动作也发生偏移。
+3. EGNN MARL 在相同扰动强度下具有更低的 Performance Drop、$D_{\text{others}}$ 和 $D_{\text{team}}$。
+4. 加入 symmetry consistency regularization 后，协同传播指标应进一步降低。
 
-## 7. 评估指标
+## 3.7 结果分析重点
 
-至少输出以下三类指标。
+写作时不要把本实验展开成独立大实验，只需要回答三个问题：
 
-### 7.1 任务性能指标
-根据具体任务选择，但至少包括：
+1. 单 agent 局部扰动是否会造成团队性能下降？
+2. 未被攻击 agent 是否也出现动作偏移？
+3. EGNN 是否比普通 MLP / GNN 更能减弱这种协同传播？
 
-- episodic reward
-- success rate
+推荐表述为：单点局部扰动不仅影响 attacked agent，也会通过 MARL 协同机制影响团队决策；EGNN 的几何等变结构能够降低未攻击 agent 的动作偏移，从而减轻局部误差向全局协同失稳的传播。
 
-如任务适合，也可补充：
-- coverage ratio
-- tracking error
-- collision rate
-- formation error
+## 3.8 Claim-Evidence 对齐
 
----
-
-### 7.2 对称一致性误差
-这是核心指标。
-
-#### 对旋转扰动
-定义旋转一致性误差：
-
-\[
-E_{\text{rot}} = \mathbb E_{o,\theta}\left[\|\pi(T_\theta(o)) - T_\theta(\pi(o))\|\right]
-\]
-
-其中：
-- \(T_\theta(o)\) 表示对观测做旋转
-- \(T_\theta(\pi(o))\) 表示对原动作做相应旋转
-
-#### 对平移扰动
-如果任务应对平移不变，则定义：
-
-\[
-E_{\text{trans}} = \mathbb E_{o,b}\left[\|\pi(T_b(o)) - \pi(o)\|\right]
-\]
-
-#### 对噪声扰动
-可定义：
-
-\[
-E_{\text{noise}} = \mathbb E_o\left[\|\pi(\tilde o) - \pi(o)\|\right]
-\]
-
-目标：
-- 对称嵌入方法应具有更低的一致性误差。
-
----
-
-### 7.3 协同稳定性指标
-特别用于 single-agent local geometric corruption。
-
-至少计算：
-
-- attacked agent action shift
-- non-attacked agents action shift
-- team action divergence
-
-如果环境支持，也建议计算：
-- formation distortion
-- coverage fragmentation
-- non-attacked agents performance drop
-
-目标：
-- 评估局部误差是否传播到其他 agent，进而破坏协同。
-
----
-
-## 8. 对称一致性正则（Method-2）
-
-对于 Method-2，在训练时加入 symmetry consistency loss。
-
-### 8.1 建议形式
-对原始观测 o 和几何变换后的观测 g(o)，约束策略输出满足：
-
-- 旋转等变任务：
-\[
-\pi(g(o)) \approx g(\pi(o))
-\]
-
-- 平移不变任务：
-\[
-\pi(g(o)) \approx \pi(o)
-\]
-
-### 8.2 可实现的损失形式
-例如：
-
-\[
-L_{\text{sym}} = \mathbb E_o \left[\|\pi(g(o)) - \Gamma_g(\pi(o))\|^2\right]
-\]
-
-其中：
-- \(g\) 是几何变换
-- \(\Gamma_g\) 是对应的动作空间变换
-
-将其加到原始 RL 损失中：
-
-\[
-L = L_{\text{RL}} + \lambda_{\text{sym}} L_{\text{sym}}
-\]
-
-需要测试多个 \(\lambda_{\text{sym}}\) 值，例如：
-- 0.1
-- 0.5
-- 1.0
-
----
-
-## 9. 输出图表要求
-
-### 图 1：扰动强度 vs 任务性能
-每种扰动各画一张图：
-
-- 横轴：扰动强度
-- 纵轴：reward 或 success rate
-- 曲线：不同方法
-
-至少画：
-- rotation
-- translation
-- relative position noise
-
----
-
-### 图 2：扰动强度 vs 对称一致性误差
-每种扰动各画一张图：
-
-- 横轴：扰动强度
-- 纵轴：symmetry consistency error
-- 曲线：不同方法
-
-目标：
-- 对称嵌入方法曲线应更低、更平稳。
-
----
-
-### 图 3：单 agent 扰动下的协同稳定性
-如果实现了 single-agent local geometric corruption，画：
-
-- 横轴：扰动强度
-- 纵轴：team divergence / non-attacked agents action shift / non-attacked agents performance drop
-- 曲线：不同方法
-
-目标：
-- 对称嵌入方法传播更弱，协同更稳。
-
----
-
-### 表 1：干净环境性能
-报告各方法在无扰动环境下的正常性能，避免只看鲁棒性而忽略基础性能。
-
-### 表 2：各扰动下的平均性能下降百分比
-按扰动类型汇总：
-
-- rotation
-- translation
-- relative position noise
-- single-agent corruption
-
-### 表 3：各扰动下的平均对称一致性误差
-用于体现结构层优势。
-
----
-
-## 10. 需要验证的主要假设
-
-实验需要明确验证以下假设：
-
-### H1
-对称嵌入 MARL 在几何一致型观测扰动下，任务性能下降更慢。
-
-### H2
-对称嵌入 MARL 在几何一致型观测扰动下，具有更低的对称一致性误差。
-
-### H3
-当只扰动单个 agent 的局部几何观测时，对称嵌入 MARL 引起的全局协同传播更弱。
-
-### H4
-加入 symmetry consistency regularization 后，上述优势会进一步增强。
-
----
-
-## 11. 结果分析要求
-
-结果分析时，不要只汇报“哪个 reward 更高”，而要回答：
-
-1. 哪类扰动下对称嵌入收益最明显。
-2. 这种收益是否主要体现在结构一致性上。
-3. 当只扰动一个 agent 时，是否出现了协同级联失效。
-4. 对称一致性正则是否比单纯换 backbone 更有效。
-5. 是否存在某些环境或扰动强度下，对称嵌入优势减弱甚至消失。
-
----
-
-## 12. 最小可执行版本
-
-如果资源有限，先做下面这套最小版本：
-
-### 环境
-- 1 个 cooperative navigation / coverage 环境
-
-### 方法
-- MLP
-- GNN
-- symmetry-embedded policy
-- symmetry-embedded + symmetry consistency loss
-
-### 扰动
-- rotation: 10°, 20°, 45°, 90°
-- translation: 1%, 3%, 5%, 10%
-- relative position noise: 0.01, 0.03, 0.05, 0.1
-
-### 指标
-- reward
-- success rate
-- symmetry consistency error
-
-如果这一版结果清晰，再加：
-- single-agent local geometric corruption
-- 协同稳定性指标
-
----
-
-## 13. 最终想得到的结论形式
-
-实验完成后，希望支撑如下结论：
-
-1. 对称嵌入 MARL 的收益首先体现在几何一致型观测扰动上。
-2. 这种收益不仅体现在任务性能上，也体现在更低的对称一致性误差上。
-3. 当局部几何扰动只作用于单个 agent 时，对称嵌入 MARL 还能减轻局部误差向全局协同失稳的传播。
+| 实验主张 | 对应证据 | 推荐图表 |
+| --- | --- | --- |
+| 单 agent 局部扰动会影响团队性能 | Attack Return 低于 Clean Return | 图 1；表 1 |
+| 局部扰动会传播到未攻击 agent | $D_{\text{others}}$ 上升 | 图 2；表 1 |
+| EGNN 能减弱协同传播 | $D_{\text{others}}$ 和 $D_{\text{team}}$ 更低 | 图 2；表 1 |
+| 一致性正则进一步提升稳定性 | EGNN + regularization 优于 EGNN | 表 1 |
