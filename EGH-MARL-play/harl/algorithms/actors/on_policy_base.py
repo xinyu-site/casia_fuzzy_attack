@@ -127,9 +127,14 @@ class OnPolicyBase:
                                     (if None, all actions available)
             deterministic: (bool) whether the action should be mode of distribution or should be sampled.
         """
-        actions, _, rnn_states_actor = self.actor(
-            obs, rnn_states_actor, masks, available_actions, deterministic
-        )
+        if deterministic==False:
+            actions, _, rnn_states_actor = self.actor(
+                obs, rnn_states_actor, masks, available_actions, deterministic
+            )
+        else:
+            actions, rnn_states_actor = self.actor.forward_decided(
+                obs, rnn_states_actor, masks, available_actions, deterministic
+            )
         return actions, rnn_states_actor
 
     def act_grd(

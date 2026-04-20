@@ -141,6 +141,52 @@ class EgnnV2Policy(nn.Module):
         action_log_probs = action_log_probs.reshape(self.n_threads, self.n_nodes, -1)
         return actions, action_log_probs, rnn_states
     
+    def forward_decided(
+        self, obs, rnn_states, masks, available_actions=None, deterministic=False
+    ):
+        """Compute actions from the given inputs.
+        Args:
+            obs: (np.ndarray / torch.Tensor) observation inputs into network.
+            rnn_states: (np.ndarray / torch.Tensor) if RNN network, hidden states for RNN.
+            masks: (np.ndarray / torch.Tensor) mask tensor denoting if hidden states should be reinitialized to zeros.
+            available_actions: (np.ndarray / torch.Tensor) denotes which actions are available to agent
+                                                              (if None, all actions available)
+            deterministic: (bool) whether to sample from action distribution or return the mode.
+        Returns:
+            actions: (torch.Tensor) actions to take.
+            action_log_probs: (torch.Tensor) log probabilities of taken actions.
+            rnn_states: (torch.Tensor) updated RNN hidden states.
+        """
+        
+        obs = self.local_tool.trans_info2local_actor(obs)
+        if self.use_history:
+            obs = obs.reshape(-1, (self.local_tool.inv_nf_old + self.local_tool.equ_nf) * self.windows_size)
+            obs = check(obs).to(**self.tpdv)
+            obs = obs.reshape(-1, self.windows_size, (self.local_tool.inv_nf_old + self.local_tool.equ_nf))
+            obs = torch.transpose(obs, 1, 2)
+            obs = self.history_weight(obs)
+        else:
+            obs = obs.reshape(-1, self.local_tool.inv_nf_old + self.local_tool.equ_nf)
+        
+        obs = check(obs).to(**self.tpdv)
+        rnn_states = check(rnn_states).to(**self.tpdv)
+        masks = check(masks).to(**self.tpdv)
+        
+        obs = self.local_tool.local_info_process(obs, self.local_module)
+        
+        equ_fea = obs[:, :self.local_tool.equ_nf]
+        h = obs[:, self.local_tool.equ_nf:]
+        loc = equ_fea[:, :2]
+        vel = equ_fea[:, 2:]
+        rows, cols = self.local_tool.forward_edges
+        if self.in_edge_nf == 0:
+            edge_attr = None
+        else:
+            edge_attr = torch.sum((loc[rows] - loc[cols])**2, 1).unsqueeze(1).detach()
+        loc_pred, vel_pred, _ = self.egnn_model(loc, h, self.local_tool.forward_edges, edge_attr, v=vel)
+
+        return vel_pred, rnn_states
+    
     def forward_grd(
         self, obs, rnn_states, masks, available_actions=None, deterministic=False
     ):

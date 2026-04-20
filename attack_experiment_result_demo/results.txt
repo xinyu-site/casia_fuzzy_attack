@@ -1,0 +1,9 @@
+Attack method: none, Noise level: 0.0, Average reward: -16.920316520841066
+Attack method: obs_grd_single, Noise level: 0.2, Average reward: -17.204119209246272
+Attack method: obs_noise_single, Noise level: 0.2, Average reward: -18.20997608098823
+Attack method: obs_grd_all, Noise level: 0.1, Average reward: -26.877753589770272
+Attack method: obs_noise_all, Noise level: 0.1, Average reward: -20.266866365669255
+Attack method: act_greedy_single, Noise level: 0.2, Average reward: -16.928080787703166
+Attack method: act_noise_single, Noise level: 0.2, Average reward: -16.94868777490535
+Attack method: act_greedy_all, Noise level: 0.1, Average reward: -17.125660937689705
+Attack method: act_noise_all, Noise level: 0.1, Average reward: -17.16773244761065

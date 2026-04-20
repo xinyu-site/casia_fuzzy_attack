@@ -87,28 +87,44 @@ def main():
         default="results",
     )
 
-    parser.add_argument(
-        "--attack_method",
-        type=str,
-        default="obs_grd_single",
-        choices=[
-            "obs_grd_single",
-            "obs_noise_single",
-            "obs_grd_all",
-            "obs_noise_all",
-            "act_greedy_single",
-            "act_noise_single",
-            "act_greedy_all",
-            "act_noise_all"],
-        help="Attack method. Choose from: obs_grd_single, obs_noise_single, obs_grd_all, obs_noise_all, act_greedy_single, act_noise_single, act_greedy_all, act_noise_all.",
-    )
+    # parser.add_argument(
+    #     "--attack_method",
+    #     type=str,
+    #     default="obs_grd_single",
+    #     choices=[
+    #         "obs_grd_single",
+    #         "obs_noise_single",
+    #         "obs_grd_all",
+    #         "obs_noise_all",
+    #         "act_greedy_single",
+    #         "act_noise_single",
+    #         "act_greedy_all",
+    #         "act_noise_all"],
+    #     help="Attack method. Choose from: obs_grd_single, obs_noise_single, obs_grd_all, obs_noise_all, act_greedy_single, act_noise_single, act_greedy_all, act_noise_all.",
+    # )
+    attack_method_list = [
+        "none",
+        "obs_grd_single",
+        "obs_noise_single",
+        "obs_grd_all",
+        "obs_noise_all",
+        "act_greedy_single",
+        "act_noise_single",
+        "act_greedy_all",
+        "act_noise_all"
+    ]
 
-    parser.add_argument(
-        "--noise_level",
-        type=float,
-        default=0.2,
-        help="Noise level for attack method that requires noise. Default 0.2.",
-    )
+    attack_level = [
+        0.0,
+        0.2,
+        0.2,
+        0.1,
+        0.1,
+        0.2,
+        0.2,
+        0.1,
+        0.1,
+    ]
 
     parser.add_argument(
         "--env_num1",
@@ -156,8 +172,8 @@ def main():
     update_args(unparsed_dict, algo_args, env_args)  # update args from command line
     env_args["env_num1"] = args["env_num1"]
     env_args["env_num2"] = args["env_num2"]
-    attack_method = args["attack_method"]
-    noise_level = args["noise_level"]
+    # attack_method = args["attack_method"]
+    # noise_level = args["noise_level"]
 
     # if args["env"] == "dexhands":
     #     import isaacgym  # isaacgym has to be imported before PyTorch
@@ -218,19 +234,25 @@ def main():
         return
     model_path = os.path.join(full_path, selected_folder, "models/")
     print(f"Final model path: {model_path}")
-    runner = ATTACK_RUNNER_REGISTRY[args["algo"]](args, algo_args, env_args, model_path)
+    
     
     # episodes = (
     #     int(algo_args["train"]["num_env_steps"])
     #     // algo_args["train"]["episode_length"]
     #     // algo_args["train"]["n_rollout_threads"]
     # )
-
     episodes = args["episode"]
-    
-    if algo_args["train"]["train_flag"]:
+    results = []
+
+    for i, attack_method in enumerate(attack_method_list):
+        noise_level = attack_level[i]
+        runner = ATTACK_RUNNER_REGISTRY[args["algo"]](args, algo_args, env_args, model_path)
         aver_reward = runner.eval(episodes, attack_method=attack_method, noise_level=noise_level)
-    runner.close()
+        results.append(aver_reward)
+        print(f"Attack method: {attack_method}, Noise level: {noise_level}, Average reward: {aver_reward}")
+        runner.close()
+    for i,result in enumerate(results):
+        print(f"Attack method: {attack_method_list[i]}, Noise level: {attack_level[i]}, Average reward: {result}")
 
 
 if __name__ == "__main__":

@@ -304,7 +304,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
             (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
             dtype=np.float32,
         )
-
+        total_rewards = 0.0
         while True:
             #print(eval_episode)
             self.actor[0].actor.zero_grad()
@@ -363,7 +363,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     obs_grad[:,1:,:] = 0.0  # only the first robot is attacked
 
                 #print(f'obs_tensor: {obs_tensor[3][3][0:4]}')
-                perturbation = 0.1 * noise_level * obs_grad.sign()  # FGSM attack      
+                perturbation = 0.2 * noise_level * obs_grad.sign()  # FGSM attack      
                 obs_perturbed = obs_tensor + perturbation
                 #print(f'obs_perturbed: {obs_perturbed[3][3][0:4]}')
                 obs_perturbed = torch.clamp(obs_perturbed, -1.0, 1.0) 
@@ -464,6 +464,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     eval_rewards = np.sum(self.logger.one_episode_rewards[eval_i], axis=0)
                     #print('-')
                     print(f'episode {eval_episode} reward: {eval_rewards[0][0]}')
+                    total_rewards += eval_rewards[0][0]
                     self.logger.eval_thread_done(
                         eval_i
                     )  # logger callback when an episode is done
@@ -480,5 +481,6 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     eval_episode
                 )  # logger callback at the end of evaluation
                 break
+        return total_rewards / episodes
             
    
