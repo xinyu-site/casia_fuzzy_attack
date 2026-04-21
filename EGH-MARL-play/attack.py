@@ -101,7 +101,8 @@ def main():
             "act_noise_single",
             "act_rotation_all",
             "act_noise_all",
-            "obs_rotation_all"],
+            #"obs_rotation_all"
+            ],
         help="Attack method. Choose from: obs_grd_single, obs_noise_single, obs_grd_all, obs_noise_all, act_rotation_single, act_noise_single, act_rotation_all, act_noise_all.",
     )
 

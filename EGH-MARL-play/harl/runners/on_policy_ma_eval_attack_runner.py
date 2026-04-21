@@ -82,40 +82,40 @@ def add_rotation_noise_to_first_robot(vel_cmd, theta):
     
     return vel_noisy
 
-def add_rotation_to_obs(obs, theta):
-    """
-    对观测的位置和速度进行旋转
-    obs: [batch, agents, 4] 其中前4个元素是 [x, y, vx, vy]
-    theta: 旋转角（弧度），可以是标量或 [batch] 每个样本不同角度
-    """
-    theta = np.array(theta)
+# def add_rotation_to_obs(obs, theta):
+#     """
+#     对观测的位置和速度进行旋转
+#     obs: [batch, agents, 4] 其中前4个元素是 [x, y, vx, vy]
+#     theta: 旋转角（弧度），可以是标量或 [batch] 每个样本不同角度
+#     """
+#     theta = np.array(theta)
     
-    cos_t = np.cos(theta)
-    sin_t = np.sin(theta)
+#     cos_t = np.cos(theta)
+#     sin_t = np.sin(theta)
     
-    # 复制原始观测
-    obs_rotated = obs.copy()
+#     # 复制原始观测
+#     obs_rotated = obs.copy()
     
-    # 分离位置和速度
-    x = obs_rotated[:, :, 0]  # [batch, agents]
-    y = obs_rotated[:, :, 1]  # [batch, agents]
-    vx = obs_rotated[:, :, 2]  # [batch, agents]
-    vy = obs_rotated[:, :, 3]  # [batch, agents]
+#     # 分离位置和速度
+#     x = obs_rotated[:, :, 0]  # [batch, agents]
+#     y = obs_rotated[:, :, 1]  # [batch, agents]
+#     vx = obs_rotated[:, :, 2]  # [batch, agents]
+#     vy = obs_rotated[:, :, 3]  # [batch, agents]
     
 
-    x_rot = x * cos_t - y * sin_t
-    y_rot = x * sin_t + y * cos_t
-    vx_rot = vx * cos_t - vy * sin_t
-    vy_rot = vx * sin_t + vy * cos_t
-    #print(x[0][0], y[0][0],x_rot[0][0],y_rot[0][0])
-    #print(x_rot.shape)
-    # 更新观测
-    obs_rotated[:, :, 0] = x_rot
-    obs_rotated[:, :, 1] = y_rot
-    obs_rotated[:, :, 2] = vx_rot
-    obs_rotated[:, :, 3] = vy_rot
+#     x_rot = x * cos_t - y * sin_t
+#     y_rot = x * sin_t + y * cos_t
+#     vx_rot = vx * cos_t - vy * sin_t
+#     vy_rot = vx * sin_t + vy * cos_t
+#     #print(x[0][0], y[0][0],x_rot[0][0],y_rot[0][0])
+#     #print(x_rot.shape)
+#     # 更新观测
+#     obs_rotated[:, :, 0] = x_rot
+#     obs_rotated[:, :, 1] = y_rot
+#     obs_rotated[:, :, 2] = vx_rot
+#     obs_rotated[:, :, 3] = vy_rot
     
-    return obs_rotated
+#     return obs_rotated
 
 class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
 
@@ -461,11 +461,11 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 noise = np.random.normal(0, noise_level, size=eval_obs[:,0,0:31].shape)
                 eval_obs[:,0,0:31] += noise
                 eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
-            if attack_method == 'obs_rotation_all':
-                eval_obs[:,:,0:4] = add_rotation_to_obs(eval_obs[:,:,0:4], noise_num)
-                noise = np.random.normal(0, noise_level, size=eval_obs[:,0,0:31].shape)
-                eval_obs[:,0,0:31] += noise
-                eval_obs = np.clip(eval_obs, -1.0, 1.0) 
+            # if attack_method == 'obs_rotation_all':
+            #     eval_obs[:,:,0:4] = add_rotation_to_obs(eval_obs[:,:,0:4], noise_num)
+            #     noise = np.random.normal(0, noise_level, size=eval_obs[:,0,0:31].shape)
+            #     eval_obs[:,0,0:31] += noise
+            #     eval_obs = np.clip(eval_obs, -1.0, 1.0) 
 
             eval_data = (
                 eval_obs,
