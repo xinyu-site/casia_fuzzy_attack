@@ -204,7 +204,7 @@ def main():
     episodes = args["episode"]
     
     if algo_args["train"]["train_flag"]:
-        log_list=runner.model_test(0.02)
+        log_list=runner.model_rotation(0.1)
     runner.close()
     with open('test_log.txt', 'w') as f:
         for log in log_list:

@@ -100,15 +100,23 @@ def main():
             "act_rotation_single",
             "act_noise_single",
             "act_rotation_all",
-            "act_noise_all"],
+            "act_noise_all",
+            "obs_rotation_all"],
         help="Attack method. Choose from: obs_grd_single, obs_noise_single, obs_grd_all, obs_noise_all, act_rotation_single, act_noise_single, act_rotation_all, act_noise_all.",
     )
 
     parser.add_argument(
         "--noise_level",
         type=float,
-        default=0.2,
-        help="Noise level for attack method that requires noise. Default 0.2.",
+        default=0.0,
+        help="Noise level for attack method that requires noise. Default 0.0.",
+    )
+
+    parser.add_argument(
+        "--noise_num",
+        type=float,
+        default=0.0,
+        help="Noise number for attack method that requires noise. Default 0.0.",
     )
 
     parser.add_argument(
@@ -158,7 +166,8 @@ def main():
     env_args["env_num1"] = args["env_num1"]
     env_args["env_num2"] = args["env_num2"]
     attack_method = args["attack_method"]
-    noise_level = args["noise_level"]
+    noise_level = args["noise_level"] if "noise_level" in args else 0.0
+    noise_num = args["noise_num"] if "noise_num" in args else 0.0
 
     # if args["env"] == "dexhands":
     #     import isaacgym  # isaacgym has to be imported before PyTorch
@@ -230,7 +239,7 @@ def main():
     episodes = args["episode"]
     
     if algo_args["train"]["train_flag"]:
-        aver_reward = runner.eval(episodes, attack_method=attack_method, noise_level=noise_level)
+        aver_reward = runner.eval(episodes, attack_method=attack_method, noise_level=noise_level, noise_num=noise_num)
     runner.close()
 
 

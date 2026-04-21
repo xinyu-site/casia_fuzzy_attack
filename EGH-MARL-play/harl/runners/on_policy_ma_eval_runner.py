@@ -31,6 +31,41 @@ from harl.utils.configs_tools import init_dir, save_config
 from harl.envs import LOGGER_REGISTRY
 from gymnasium import spaces
 
+def add_rotation_to_obs(obs, theta):
+    """
+    对观测的位置和速度进行旋转
+    obs: [batch, agents, 4] 其中前4个元素是 [x, y, vx, vy]
+    theta: 旋转角（弧度），可以是标量或 [batch] 每个样本不同角度
+    """
+    theta = np.array(theta)
+    
+    cos_t = np.cos(theta)
+    sin_t = np.sin(theta)
+    
+    # 复制原始观测
+    obs_rotated = obs.copy()
+    
+    # 分离位置和速度
+    x = obs_rotated[:, :, 0]  # [batch, agents]
+    y = obs_rotated[:, :, 1]  # [batch, agents]
+    vx = obs_rotated[:, :, 2]  # [batch, agents]
+    vy = obs_rotated[:, :, 3]  # [batch, agents]
+    
+
+    x_rot = x * cos_t - y * sin_t
+    y_rot = x * sin_t + y * cos_t
+    vx_rot = vx * cos_t - vy * sin_t
+    vy_rot = vx * sin_t + vy * cos_t
+    #print(x[0][0], y[0][0],x_rot[0][0],y_rot[0][0])
+    #print(x_rot.shape)
+    # 更新观测
+    obs_rotated[:, :, 0] = x_rot
+    obs_rotated[:, :, 1] = y_rot
+    obs_rotated[:, :, 2] = vx_rot
+    obs_rotated[:, :, 3] = vy_rot
+    
+    return obs_rotated
+
 class OnPolicyMAEvalRunner(OnPolicyBaseRunner):
 
     def __init__(self, args, algo_args, env_args , model_path):
@@ -457,3 +492,86 @@ class OnPolicyMAEvalRunner(OnPolicyBaseRunner):
                 log_list.append(f'{-1.0+plus_x:.2f} {-1.0+plus_y:.2f} {abs(eval_actions[0,0,0]):.2f} {abs(eval_actions[0,0,1]):.2f}\n')
             
         return log_list
+    
+    def model_rotation(self,plus=0.1):
+        print("test the model.")
+        # with open('test_log.txt', 'w') as f:
+        #     pass
+        
+        log_list = []
+
+        path = self.model_path
+        if self.flag:
+            load_name = path + 'actor_agent' + str(0) + '.pt'
+            self.actor[0].actor = torch.load(load_name,weights_only=False)
+            self.actor[0].actor.n_threads = 1
+            #self.actor[0].actor.update_edges()
+        else:
+            for agent_id in range(self.num_agents):
+                load_name = path + 'actor_agent' + str(agent_id) + '.pt'
+                self.actor[agent_id].actor = torch.load(load_name)
+        value_normalizer_state_dict = torch.load(path+'value_normalizer.pt',weights_only=False)
+        self.value_normalizer.load_state_dict(value_normalizer_state_dict)
+        #print(f'type of critic: {type(self.critic)}')
+        critic_state_dict = torch.load(path+'critic_agent.pt',weights_only=False)
+        self.critic.critic.load_state_dict(critic_state_dict)
+
+        eval_obs, eval_share_obs, eval_available_actions = self.eval_envs.reset()
+        #print(f'initial eval_obs shape: {eval_obs.shape}')
+        #print(eval_obs[0][0][:4])
+
+        #return
+
+        # test_rnn_states = np.zeros(
+        #     (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, self.recurrent_n, self.rnn_hidden_size),
+        #     dtype=np.float32
+        # )
+        # test_masks = np.ones((self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1), dtype=np.float32)
+
+        test_rnn_states = np.zeros(
+            (
+                self.algo_args["eval"]["n_eval_rollout_threads"],
+                self.num_agents,
+                self.recurrent_n,
+                self.rnn_hidden_size,
+            ),
+            dtype=np.float32,
+        )
+        test_masks = np.ones(
+            (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
+            dtype=np.float32,
+        )
+        #print(eval_obs.shape)
+        init_loc = eval_obs[:, :, :4].copy()  # 形状 (10, 10, 4)
+
+        for plus_i in np.arange(0, 2.0+plus, plus):
+            eval_obs = add_rotation_to_obs(eval_obs, plus_i)  # 将旋转角度转换为弧度
+            #print(eval_obs[0, 0, :4])
+            eval_obs_list = []
+            eval_rnn_states_list = []
+            eval_masks_list = []
+            eval_available_actions_list = []
+            for agent_id in range(self.num_agents):
+                eval_obs_list.append(eval_obs[:, agent_id])
+                eval_rnn_states_list.append(test_rnn_states[:, agent_id])
+                eval_masks_list.append(test_masks[:, agent_id])
+                if eval_available_actions[0] is not None:
+                    eval_available_actions_list.append(eval_available_actions[:, agent_id])
+            #print(len(eval_obs_list))
+            eval_actions, _ = self.actor[0].act(
+                np.stack(eval_obs_list, axis=0).transpose(1, 0, 2),
+                np.stack(eval_rnn_states_list, axis=0),
+                np.stack(eval_masks_list, axis=0),
+                np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
+                if len(eval_available_actions_list) > 0
+                else None, 
+                deterministic=True,
+            )
+            eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, -1)
+            #print(eval_actions[0,0,0:2])
+            #f.write(f'plus_x: {plus_x}, plus_y: {plus_y}, actions_x: {eval_actions[0,0,0]} actions_y: {eval_actions[0,0,1]}\n')
+            #log_list.append(f'x:{-1.0+plus_x} y:{-1.0+plus_y} ax:{eval_actions[0,0,0]} ay:{eval_actions[0,0,1]}\n')
+            log_list.append(f'{-1.0+plus_i:.2f} {abs(eval_actions[0,0,0]):.2f} {abs(eval_actions[0,0,1]):.2f}\n')
+            
+        return log_list
+
