@@ -90,8 +90,9 @@ def main():
     parser.add_argument(
         "--attack_method",
         type=str,
-        default="obs_grd_single",
+        default="none",
         choices=[
+            "none",
             "obs_grd_single",
             "obs_noise_single",
             "obs_grd_all",
