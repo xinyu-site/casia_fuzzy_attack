@@ -30,94 +30,11 @@ from harl.utils.models_tools import init_device
 from harl.utils.configs_tools import init_dir, save_config
 from harl.envs import LOGGER_REGISTRY
 from gymnasium import spaces
+from harl.train_attack.MADDPG import MADDPG
 
-def add_rotation_noise_all(vel_cmd, theta):
-    """
-    vel_cmd: [batch, robots, 2]
-    theta: 干扰旋转角（弧度），可以是标量（对所有样本相同）
-           或 [batch, robots] 每个机器人不同角度
-    """
-    theta = torch.tensor(theta)
+import yaml
 
-    cos_t = torch.cos(theta)
-    sin_t = torch.sin(theta)
-
-    # 分离 vx, vy
-    vx = vel_cmd[..., 0]
-    vy = vel_cmd[..., 1]
-
-    # 旋转
-    vx_rot = vx * cos_t - vy * sin_t
-    vy_rot = vx * sin_t + vy * cos_t
-
-    # 组合回 [..., 2]
-    vel_noisy = torch.stack([vx_rot, vy_rot], dim=-1)
-    return vel_noisy
-
-def add_rotation_noise_to_first_robot(vel_cmd, theta):
-    """
-    只对每个 batch 中的第一个机器人（索引0）添加旋转干扰
-    vel_cmd: [batch, robots, 2]
-    theta: 干扰旋转角（弧度），可以是标量或 [batch] 每个样本不同角度
-    """
-    # 确保 theta 可以广播到 [batch, 1]
-    theta = torch.tensor(theta)
-    
-    cos_t = torch.cos(theta)
-    sin_t = torch.sin(theta)
-    
-    # 复制原始指令
-    vel_noisy = vel_cmd.clone()
-    
-    # 只对第一个机器人进行旋转
-    vx_first = vel_cmd[:, 0, 0]  # [batch]
-    vy_first = vel_cmd[:, 0, 1]  # [batch]
-    
-    vx_rot = vx_first * cos_t.squeeze() - vy_first * sin_t.squeeze()
-    vy_rot = vx_first * sin_t.squeeze() + vy_first * cos_t.squeeze()
-    
-    # 更新第一个机器人的速度
-    vel_noisy[:, 0, 0] = vx_rot
-    vel_noisy[:, 0, 1] = vy_rot
-    
-    return vel_noisy
-
-# def add_rotation_to_obs(obs, theta):
-#     """
-#     对观测的位置和速度进行旋转
-#     obs: [batch, agents, 4] 其中前4个元素是 [x, y, vx, vy]
-#     theta: 旋转角（弧度），可以是标量或 [batch] 每个样本不同角度
-#     """
-#     theta = np.array(theta)
-    
-#     cos_t = np.cos(theta)
-#     sin_t = np.sin(theta)
-    
-#     # 复制原始观测
-#     obs_rotated = obs.copy()
-    
-#     # 分离位置和速度
-#     x = obs_rotated[:, :, 0]  # [batch, agents]
-#     y = obs_rotated[:, :, 1]  # [batch, agents]
-#     vx = obs_rotated[:, :, 2]  # [batch, agents]
-#     vy = obs_rotated[:, :, 3]  # [batch, agents]
-    
-
-#     x_rot = x * cos_t - y * sin_t
-#     y_rot = x * sin_t + y * cos_t
-#     vx_rot = vx * cos_t - vy * sin_t
-#     vy_rot = vx * sin_t + vy * cos_t
-#     #print(x[0][0], y[0][0],x_rot[0][0],y_rot[0][0])
-#     #print(x_rot.shape)
-#     # 更新观测
-#     obs_rotated[:, :, 0] = x_rot
-#     obs_rotated[:, :, 1] = y_rot
-#     obs_rotated[:, :, 2] = vx_rot
-#     obs_rotated[:, :, 3] = vy_rot
-    
-#     return obs_rotated
-
-class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
+class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
 
     def __init__(self, args, algo_args, env_args , model_path):
         """Initialize the OnPolicyBaseRunner class.
@@ -298,11 +215,12 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
         if self.algo_args["train"]["model_dir"] is not None:  # restore model
             self.restore()
 
-    #@torch.no_grad()
-    def eval(self,episodes,attack_method='none', noise_level=0.1,noise_num=0.1):
-        """Evaluate the model."""
-        print("Evaluate the model.")
         
+
+    #@torch.no_grad()
+    def eval(self,episodes,attack_config, noise_level=0.1,noise_num=0.1):
+        """Evaluate the model."""
+        print("Evaluate the model.")     
         path = self.model_path
         if self.flag:
             load_name = path + 'actor_agent' + str(0) + '.pt'
@@ -339,13 +257,49 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
             (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
             dtype=np.float32,
         )
-        total_rewards = 0.0
-        while True:
-            #print(eval_episode)
-            self.actor[0].actor.zero_grad()
-            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single':
-                obs_tensor = torch.from_numpy(eval_obs).float().to(self.actor[0].device).requires_grad_(True)
 
+        total_rewards = 0.0
+
+        # prepare the attack model
+        # agent_num = self.num_agents
+        agent_num = self.num_agents
+        obs_dim = self.envs.observation_space[0].shape[0]
+
+        dim_info = {}
+        for agent_id in range(self.num_agents):
+            dim_info[f'agent_{agent_id}'] = []  # [obs_dim, act_dim]
+            dim_info[f'agent_{agent_id}'].append(obs_dim)
+            dim_info[f'agent_{agent_id}'].append(obs_dim)
+        
+        maddpg = MADDPG(dim_info, attack_config["buffer_capacity"], attack_config["batch_size"], attack_config["actor_lr"], attack_config["critic_lr"])
+        #print(f'obs_dim: {obs_dim}')
+
+        eval_step = 0
+        while True:
+            eval_step += 1
+            self.actor[0].actor.zero_grad()
+            maddpg_actions_list = []
+            maddpg_obs_list = []
+            maddpg_next_obs_list = []
+            maddpg_reward_list = []
+            maddpg_done_list = []
+            attack_obs = torch.zeros((self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, obs_dim), dtype=torch.float32)
+            for thread in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
+                obsforattack = {f'agent_{agent_id}': eval_obs[thread, agent_id] for agent_id in range(self.num_agents)}
+                maddpg_obs_list.append(obsforattack)
+                if eval_step > attack_config["ramdom_step"]:
+                    attack_actions = maddpg.select_action(obsforattack)
+                    
+                    maddpg_actions_list.append(attack_actions)
+                    for agent_id in range(self.num_agents):
+                        attack_obs[thread, agent_id, :] = attack_actions[f'agent_{agent_id}']
+                else:
+                    attack_obs[thread, :, :] = torch.randn(self.num_agents, 34).clamp(-1, 1)
+                    maddpg_actions_list.append({f'agent_{agent_id}': attack_obs[thread, agent_id, :].numpy() for agent_id in range(self.num_agents)})
+
+            eval_obs = eval_obs + noise_level * attack_obs.numpy()
+            eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
+            
             #self.actor[0].actor.zero_grad()
             self.logger.episode_init(
                 eval_episode
@@ -362,87 +316,22 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_masks_list.append(eval_masks[:, agent_id])
                 if eval_available_actions[0] is not None:
                     eval_available_actions_list.append(eval_available_actions[:, agent_id])
-            #print(len(eval_obs_list))
-            #print(np.stack(eval_obs_list, axis=0).transpose(1, 0, 2).shape)  #10*10*34
-            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single':
-                eval_actions, temp_rnn_state = self.actor[0].act_grd(
-                    obs_tensor,
-                    np.stack(eval_rnn_states_list, axis=0),
-                    np.stack(eval_masks_list, axis=0),
-                    np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
-                    if len(eval_available_actions_list) > 0
-                    else None, 
-                    deterministic=True,
-                )
-            else:
-                eval_actions, temp_rnn_state = self.actor[0].act(
-                    np.stack(eval_obs_list, axis=0).transpose(1, 0, 2),
-                    np.stack(eval_rnn_states_list, axis=0),
-                    np.stack(eval_masks_list, axis=0),
-                    np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
-                    if len(eval_available_actions_list) > 0
-                    else None, 
-                    deterministic=True,
-                )
+           
+            eval_actions, temp_rnn_state = self.actor[0].act(
+                np.stack(eval_obs_list, axis=0).transpose(1, 0, 2),
+                np.stack(eval_rnn_states_list, axis=0),
+                np.stack(eval_masks_list, axis=0),
+                np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
+                if len(eval_available_actions_list) > 0
+                else None, 
+                deterministic=True,
+            )
 
-            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single':
-                if attack_method == 'obs_grd_all':
-                    target_actions = eval_actions
-                elif attack_method == 'obs_grd_single':
-                    target_actions = eval_actions[:,0:1,:]  # only the first robot is attacked
-                action_loss = -torch.norm(target_actions, p=2)  # maximize the L2 norm of the action
-                #action_loss = target_actions.mean()  # maximize the sum of the action values
-                action_loss.backward()
-                obs_grad = obs_tensor.grad.data
-                if attack_method == 'obs_grd_single':
-                    obs_grad[:,1:,:] = 0.0  # only the first robot is attacked
-
-                #print(f'obs_tensor: {obs_tensor[3][3][0:4]}')
-                perturbation = 0.2 * noise_level * obs_grad.sign()  # FGSM attack      
-                obs_perturbed = obs_tensor + perturbation
-                #print(f'obs_perturbed: {obs_perturbed[3][3][0:4]}')
-                obs_perturbed = torch.clamp(obs_perturbed, -1.0, 1.0) 
-                eval_obs_list = []
-                for agent_id in range(self.num_agents):
-                    eval_obs_list.append(obs_perturbed[:, agent_id])
-                eval_actions, temp_rnn_state = self.actor[0].act_grd(
-                    obs_perturbed,
-                    np.stack(eval_rnn_states_list, axis=0),
-                    np.stack(eval_masks_list, axis=0),
-                    np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
-                    if len(eval_available_actions_list) > 0
-                    else None, 
-                    deterministic=True,
-                )
-            
             self.actor[0].actor.zero_grad()
-            #eval_actions.backward()
-            #print(f'eval_actions shape0: {eval_actions.shape}')  
-            #print(self.algo_args["eval"]["n_eval_rollout_threads"])
             eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 2)
-            #print(f'eval_actions shape1: {eval_actions.shape}')  
             eval_rnn_states = _t2n(temp_rnn_state).transpose(1, 0, 2, 3)
-            #print(f'orin eval_actions: {eval_actions[3][3]}')
-            if attack_method == 'act_rotation_all':
-                eval_actions = add_rotation_noise_all(eval_actions, noise_num)
-            if attack_method == 'act_rotation_single':
-                eval_actions = add_rotation_noise_to_first_robot(eval_actions, noise_num) 
-            #####test######
-            # if attack_method == 'obs_rotation_all':
-            #     eval_actions = add_rotation_noise_all(eval_actions, noise_num)
-            ###############
-            
-            #print(f'after attack eval_actions: {eval_actions[3][3]}')
             eval_actions = _t2n(eval_actions)
-            #print(eval_actions[0][0])
-            if attack_method == 'act_noise_all':
-                noise = np.random.normal(0, noise_level, size=eval_actions.shape)
-                eval_actions += noise
-            if attack_method == 'act_noise_single':
-                noise = np.random.normal(0, noise_level, size=eval_actions[:,0].shape)
-                eval_actions[:,0] += noise
                             
-                
             #print(f'eval_actions shape: {eval_actions.shape}')
             (
                 eval_obs,
@@ -453,20 +342,19 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_available_actions,
             ) = self.eval_envs.step(eval_actions)
             #print(eval_obs[0][0])
-            if attack_method == 'obs_noise_all':
-                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,:,0:34].shape)
-                eval_obs[:,:,0:34] += noise
-                eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
-                
-            if attack_method == 'obs_noise_single':
-                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,0,0:34].shape)
-                eval_obs[:,0,0:34] += noise
-                eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
-            # if attack_method == 'obs_rotation_all':
-            #     eval_obs[:,:,0:4] = add_rotation_to_obs(eval_obs[:,:,0:4], noise_num)
-            #     noise = np.random.normal(0, noise_level, size=eval_obs[:,0,0:31].shape)
-            #     eval_obs[:,0,0:31] += noise
-            #     eval_obs = np.clip(eval_obs, -1.0, 1.0) 
+            for thread in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
+                obsforattack = {f'agent_{agent_id}': eval_obs[thread, agent_id] for agent_id in range(self.num_agents)}
+                maddpg_next_obs_list.append(obsforattack)
+                #maddpg_reward_list.append(-eval_rewards[thread][0])
+                maddpg_reward_list.append( {f'agent_{agent_id}': -eval_rewards[thread, agent_id] for agent_id in range(self.num_agents)} )
+                maddpg_done_list.append( {f'agent_{agent_id}': eval_dones[thread,agent_id] for agent_id in range(self.num_agents)} )
+            #print(maddpg_done_list)
+            for thread in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
+                maddpg.add(maddpg_obs_list[thread], maddpg_actions_list[thread], maddpg_reward_list[thread], maddpg_next_obs_list[thread], maddpg_done_list[thread])
+
+            if eval_step >= attack_config["ramdom_step"] and eval_step % attack_config["learn_interval"] == 0:  # learn every few steps
+                maddpg.learn(attack_config["batch_size"],attack_config["gamma"])
+                maddpg.update_target(attack_config["tau"])
 
             eval_data = (
                 eval_obs,
@@ -477,7 +365,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_available_actions,
             )
             self.logger.eval_per_step(eval_data) # logger callback at each step of evaluation                        
-
+            
             eval_dones_env = np.all(eval_dones, axis=1)
 
             eval_rnn_states[
@@ -503,8 +391,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
             for eval_i in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
                 if eval_dones_env[eval_i]:
                     eval_episode += 1
-                    #print(f"Evaluation episode {eval_episode} done.")
-                    #print(np.sum(self.logger.one_episode_rewards[0][0], axis=0))
+                    eval_step = 0
                     eval_rewards = np.sum(self.logger.one_episode_rewards[eval_i], axis=0)
                     #print('-')
                     print(f'episode {eval_episode} reward: {eval_rewards[0][0]}')
@@ -527,9 +414,6 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                         (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
                         dtype=np.float32,
                     )
-
-
-            
 
             if eval_episode >= episodes:
                 self.logger.eval_log(

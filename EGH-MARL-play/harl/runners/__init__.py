@@ -10,6 +10,7 @@ from harl.runners.on_policy_dataaug_runner import OnPolicyDARunner
 from harl.runners.on_policy_hepn_runner import OnPolicyHepnRunner
 from harl.runners.off_policy_hmf_runner import OffPolicyHMFRunner
 from harl.runners.on_policy_ma_eval_attack_runner import OnPolicyMAAttackRunner
+from harl.runners.on_policy_ma_eval_trainattack_runner import OnPolicyMATrainAttackRunner
 
 RUNNER_REGISTRY = {
     "happo": OnPolicyHARunner,
@@ -58,4 +59,10 @@ ATTACK_RUNNER_REGISTRY = {
     "egnnv2_mappo": OnPolicyMAAttackRunner,
     "egnn_mappo": OnPolicyMAAttackRunner,
     "egnn_mix_mappo": OnPolicyMAAttackRunner,
+}
+
+TRAINATTACK_RUNNER_REGISTRY = {
+    "egnnv2_mappo": OnPolicyMATrainAttackRunner,
+    "egnn_mappo": OnPolicyMATrainAttackRunner,
+    "egnn_mix_mappo": OnPolicyMATrainAttackRunner,
 }

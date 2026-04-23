@@ -1,0 +1,9 @@
+# MADDPG训练配置文件
+# Multi-Agent Deep Deterministic Policy Gradient
+
+
+ramdom_step : 50
+buffer_capacity : 10000
+batch_size : 10
+actor_lr : 0.02
+critic_lr : 0.02
