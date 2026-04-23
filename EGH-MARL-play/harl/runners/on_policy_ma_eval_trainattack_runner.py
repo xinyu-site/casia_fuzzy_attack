@@ -218,7 +218,7 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
         
 
     #@torch.no_grad()
-    def eval(self,episodes,attack_config, noise_level=0.1,noise_num=0.1):
+    def eval(self,episodes,attack_config, noise_level=0.1,noise_num=4.0):
         """Evaluate the model."""
         print("Evaluate the model.")   
         reward_episode_list = []  
@@ -298,9 +298,16 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
                     attack_obs[thread, :, :] = torch.randn(self.num_agents, 34).clamp(-1, 1)
                     maddpg_actions_list.append({f'agent_{agent_id}': attack_obs[thread, agent_id, :].numpy() for agent_id in range(self.num_agents)})
 
-            eval_obs = eval_obs + noise_level * attack_obs.numpy()
+            #eval_obs = eval_obs + noise_level * attack_obs.numpy()
+            attack_obs_np = attack_obs.numpy()
+            norm = np.linalg.norm(attack_obs_np)
+            if norm > 0:
+                attack_obs_normalized = attack_obs_np / norm * noise_num
+            else:
+                attack_obs_normalized = attack_obs_np
+            eval_obs = eval_obs + noise_level * attack_obs_normalized
             eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
-            
+            #print(attack_obs[0][0])
             #self.actor[0].actor.zero_grad()
             self.logger.episode_init(
                 eval_episode
@@ -396,6 +403,8 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
                     eval_rewards = np.sum(self.logger.one_episode_rewards[eval_i], axis=0)
                     #print('-')
                     print(f'episode {eval_episode} reward: {eval_rewards[0][0]}')
+                    #print(attack_obs[0][0])
+                    #print(torch.norm(attack_obs[0][0]))
                     reward_episode_list.append(eval_rewards[0][0])
                     total_rewards += eval_rewards[0][0]
                     self.logger.eval_thread_done(
