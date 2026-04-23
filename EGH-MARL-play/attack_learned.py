@@ -178,7 +178,7 @@ def main():
     parser.add_argument(
         "--episode",
         type = int,
-        default = 100,
+        default = 500,
         help = "Number of episodes to evaluate."
     )
 

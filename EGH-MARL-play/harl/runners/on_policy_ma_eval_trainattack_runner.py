@@ -300,11 +300,13 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
 
             #eval_obs = eval_obs + noise_level * attack_obs.numpy()
             attack_obs_np = attack_obs.numpy()
-            norm = np.linalg.norm(attack_obs_np)
-            if norm > 0:
-                attack_obs_normalized = attack_obs_np / norm * noise_num
-            else:
-                attack_obs_normalized = attack_obs_np
+            #print(attack_obs_np.shape)
+            # 计算最后一个维度的范数，形状为 (10, 10, 1)
+            norms = np.linalg.norm(attack_obs_np, axis=2, keepdims=True)
+            # 避免除零，将零范数设置为1
+            norms[norms == 0] = 1
+            # 对每个34维向量进行归一化，使其范数为noise_num
+            attack_obs_normalized = attack_obs_np / norms * noise_num
             eval_obs = eval_obs + noise_level * attack_obs_normalized
             eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
             #print(attack_obs[0][0])
@@ -404,7 +406,8 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
                     #print('-')
                     print(f'episode {eval_episode} reward: {eval_rewards[0][0]}')
                     #print(attack_obs[0][0])
-                    #print(torch.norm(attack_obs[0][0]))
+                    print(torch.norm(attack_obs[0][0]))
+                    print(np.linalg.norm(attack_obs_normalized[0][0]))
                     reward_episode_list.append(eval_rewards[0][0])
                     total_rewards += eval_rewards[0][0]
                     self.logger.eval_thread_done(
