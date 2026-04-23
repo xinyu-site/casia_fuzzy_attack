@@ -220,7 +220,8 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
     #@torch.no_grad()
     def eval(self,episodes,attack_config, noise_level=0.1,noise_num=0.1):
         """Evaluate the model."""
-        print("Evaluate the model.")     
+        print("Evaluate the model.")   
+        reward_episode_list = []  
         path = self.model_path
         if self.flag:
             load_name = path + 'actor_agent' + str(0) + '.pt'
@@ -395,6 +396,7 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
                     eval_rewards = np.sum(self.logger.one_episode_rewards[eval_i], axis=0)
                     #print('-')
                     print(f'episode {eval_episode} reward: {eval_rewards[0][0]}')
+                    reward_episode_list.append(eval_rewards[0][0])
                     total_rewards += eval_rewards[0][0]
                     self.logger.eval_thread_done(
                         eval_i
@@ -420,4 +422,4 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
                     eval_episode
                 )  # logger callback at the end of evaluation
                 break
-        return total_rewards / episodes
+        return total_rewards / episodes , reward_episode_list

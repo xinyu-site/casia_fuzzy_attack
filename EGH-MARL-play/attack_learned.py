@@ -5,6 +5,47 @@ from harl.utils.configs_tools import get_defaults_yaml_args, update_args
 import matplotlib.pyplot as plt
 import os
 import re
+import numpy as np
+
+def plot_rewards(reward_episode_list, title="Episode Rewards", save_path=None):
+    """
+    绘制每个episode的奖励曲线
+    
+    Args:
+        reward_episode_list: list, 每个episode的奖励列表
+        title: str, 图表标题
+        save_path: str, 保存图片的路径，如果为None则不保存
+    """
+    plt.figure(figsize=(10, 6))
+    
+    episodes = range(1, len(reward_episode_list) + 1)
+    plt.plot(episodes, reward_episode_list, marker='o', linestyle='-', linewidth=2, markersize=4)
+    
+    plt.xlabel('Episode', fontsize=12)
+    plt.ylabel('Reward', fontsize=12)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.grid(True, alpha=0.3)
+    
+    # 添加平均线
+    avg_reward = np.mean(reward_episode_list)
+    plt.axhline(y=avg_reward, color='r', linestyle='--', linewidth=2, label=f'Average: {avg_reward:.2f}')
+    
+    # 添加最大值和最小值标注
+    max_reward = max(reward_episode_list)
+    min_reward = min(reward_episode_list)
+    max_episode = reward_episode_list.index(max_reward) + 1
+    min_episode = reward_episode_list.index(min_reward) + 1
+    
+    plt.scatter([max_episode], [max_reward], color='green', s=100, zorder=5, label=f'Max: {max_reward:.2f}')
+    plt.scatter([min_episode], [min_reward], color='orange', s=100, zorder=5, label=f'Min: {min_reward:.2f}')
+    
+    plt.legend(fontsize=10)
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Plot saved to: {save_path}")
+    
 
 def main():
     """Main function."""
@@ -137,7 +178,7 @@ def main():
     parser.add_argument(
         "--episode",
         type = int,
-        default = 1000,
+        default = 100,
         help = "Number of episodes to evaluate."
     )
 
@@ -242,17 +283,26 @@ def main():
     trainattack_config = {
         "ramdom_step" : 100,
         "buffer_capacity" : 100000,
-        "batch_size" : 10,
-        "actor_lr" : 0.002,
-        "critic_lr" : 0.002,
+        "batch_size" : 30,
+        "actor_lr" : 0.0005,
+        "critic_lr" : 0.0005,
         "learn_interval" : 20,
-        "gamma" : 0.95,
-        "tau" : 0.1,
+        "gamma" : 0.98,
+        "tau" : 0.01,
     }
     
-    if algo_args["train"]["train_flag"]:
-        aver_reward = runner.eval(episodes, trainattack_config, noise_level=noise_level, noise_num=noise_num)  
+    aver_reward,reward_episode_list = runner.eval(episodes, trainattack_config, noise_level=noise_level, noise_num=noise_num)  
+    
+    print(f"\nAverage reward over {episodes} episodes: {aver_reward:.4f}")
+    
+    # 绘制奖励曲线
+    plot_title = f"Episode Rewards - {args['algo']} on {args['env']}\nAttack: {attack_method}, Noise Level: {noise_level}, Noise Num: {noise_num}"
+    save_path = f"reward_plot_{args['algo']}_{args['env']}_{attack_method}_noise{noise_level}_{noise_num}.png"
+    plot_rewards(reward_episode_list, title=plot_title, save_path=save_path)
+    
     runner.close()
+
+    
 
 
 if __name__ == "__main__":
