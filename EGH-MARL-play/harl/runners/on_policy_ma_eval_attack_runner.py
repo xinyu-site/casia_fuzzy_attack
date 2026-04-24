@@ -366,7 +366,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
             #print(len(eval_obs_list))
             #print(np.stack(eval_obs_list, axis=0).transpose(1, 0, 2).shape)  #10*10*34
             if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':
-                eval_actions, temp_rnn_state = self.actor[0].act_grd(
+                eval_actions, temp_rnn_state = self.actor[0].act(
                     obs_tensor,
                     np.stack(eval_rnn_states_list, axis=0),
                     np.stack(eval_masks_list, axis=0),
@@ -385,12 +385,13 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     else None, 
                     deterministic=True,
                 )
-
+            #print(eval_actions.shape)
             if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':
                 if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_all_percp':
                     target_actions = eval_actions
                 elif attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp':
-                    target_actions = eval_actions[:,0:1,:]  # only the first robot is attacked
+                    eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 2)
+                    target_actions = eval_actions[:,0,:]  # only the first robot is attacked
                 action_loss = -torch.norm(target_actions, p=2)  # maximize the L2 norm of the action
                 #action_loss = target_actions.mean()  # maximize the sum of the action values
                 action_loss.backward()
@@ -399,7 +400,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     obs_grad[:,1:,:] = 0.0  # only the first robot is attacked
 
                 #print(f'obs_tensor: {obs_tensor[3][3][0:4]}')
-                perturbation = 0.2 * noise_level * obs_grad.sign()  # FGSM attack 
+                perturbation = noise_level * obs_grad.sign()  # FGSM attack 
                 if attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':     
                     obs_perturbed = obs_tensor.clone()
                     obs_perturbed[:,:,4:] = obs_tensor[:,:,4:] + perturbation[:,:,4:]
@@ -410,7 +411,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_obs_list = []
                 for agent_id in range(self.num_agents):
                     eval_obs_list.append(obs_perturbed[:, agent_id])
-                eval_actions, temp_rnn_state = self.actor[0].act_grd(
+                eval_actions, temp_rnn_state = self.actor[0].act(
                     obs_perturbed,
                     np.stack(eval_rnn_states_list, axis=0),
                     np.stack(eval_masks_list, axis=0),

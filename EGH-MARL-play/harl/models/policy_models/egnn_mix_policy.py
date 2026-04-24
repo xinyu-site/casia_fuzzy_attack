@@ -191,6 +191,92 @@ class EgnnMixPolicy(nn.Module):
         action_log_probs = action_log_probs.reshape(self.n_threads, self.n_nodes, -1)
         return actions, action_log_probs, rnn_states
 
+    def forward(
+        self, obs, rnn_states, masks, available_actions=None, deterministic=False
+    ):
+        """Compute actions from the given inputs.
+        Args:
+            obs: (np.ndarray / torch.Tensor) observation inputs into network.
+            rnn_states: (np.ndarray / torch.Tensor) if RNN network, hidden states for RNN.
+            masks: (np.ndarray / torch.Tensor) mask tensor denoting if hidden states should be reinitialized to zeros.
+            available_actions: (np.ndarray / torch.Tensor) denotes which actions are available to agent
+                                                              (if None, all actions available)
+            deterministic: (bool) whether to sample from action distribution or return the mode.
+        Returns:
+            actions: (torch.Tensor) actions to take.
+            action_log_probs: (torch.Tensor) log probabilities of taken actions.
+            rnn_states: (torch.Tensor) updated RNN hidden states.
+        """
+        # 打印 obs 的维度，便于调试（可能是 numpy 或 torch.Tensor）
+        # try:
+        #     print(f"obs shape: {obs.shape}")
+        # except Exception:
+        #     print(f"obs type: {type(obs)}, value: {obs}")
+        # obs (10,10,34) 10个机器人 10个并行环境 每个智能体34维观测值
+
+        obs = self.local_tool.trans_info2local_actor(obs)
+        
+        if self.use_history:
+            obs = obs.reshape(-1, (self.local_tool.inv_nf_old + self.local_tool.equ_nf) * self.windows_size)
+            obs = check(obs).to(**self.tpdv)
+            obs = obs.reshape(-1, self.windows_size, (self.local_tool.inv_nf_old + self.local_tool.equ_nf))
+            obs = torch.transpose(obs, 1, 2)
+            obs = self.history_weight(obs)
+        else:
+            obs = obs.reshape(-1, self.local_tool.inv_nf_old + self.local_tool.equ_nf)
+        
+        obs = check(obs).to(**self.tpdv)
+        rnn_states = check(rnn_states).to(**self.tpdv)
+        masks = check(masks).to(**self.tpdv)
+        
+        obs = self.local_tool.local_info_process(obs, self.local_module)
+        
+        equ_fea = obs[:, :self.local_tool.equ_nf]
+        h = obs[:, self.local_tool.equ_nf:]
+        loc = equ_fea[:, :2]
+        vel = equ_fea[:, 2:]
+        #print(loc.shape)
+        rows, cols = self.local_tool.forward_edges
+
+        # print('------------')
+        # print(f"obs shape: {obs.shape}")
+        # print(f"equ_fea shape: {equ_fea.shape}")
+        # print(f"h shape: {h.shape}")
+        # print(f"loc shape: {loc.shape}")
+        # print(f"vel shape: {vel.shape}")
+        # print(f"rows shape: {rows.shape}")
+        # print(f"cols shape: {cols.shape}")
+        # print('------------')
+        '''
+            10个机器人 10个并行环境 
+            obs shape: torch.Size([100, 34])
+            equ_fea shape: torch.Size([100, 4])
+            h shape: torch.Size([100, 30])
+            loc shape: torch.Size([100, 2])
+            vel shape: torch.Size([100, 2])
+            rows shape: torch.Size([900])
+            cols shape: torch.Size([900])
+        '''
+
+        if self.in_edge_nf == 0:
+            edge_attr = None
+        else:
+            edge_attr = torch.sum((loc[rows] - loc[cols])**2, 1).unsqueeze(1).detach()
+        loc_pred, vel_pred, _ = self.egnn_model(loc, h, self.local_tool.forward_edges, edge_attr, v=vel)
+        # xyMLP 构造时的 input_dim = inv_nf_new + equ_nf = h_dim + (loc+vel)
+        # 这里需要拼接 loc_pred(2) + vel(2) + h(h_dim) 以匹配期望的输入维度
+        #print(vel_pred[0])
+        vel_pred_mlp = self.egnn_mlp(torch.cat([loc, vel, h], dim=-1))
+        #print(f'vel_pred before add: {vel_pred[0]}  vel_pred_mlp: {vel_pred_mlp[0]}')
+        # print(f'vel_pred shape: {vel_pred.shape}')
+        # vel_pred shape: torch.Size([100, 2])
+        vel_pred = vel_pred + vel_pred_mlp
+        
+        #print('add!')
+
+        
+        return vel_pred, rnn_states
+
     def evaluate_actions(
         self, obs, rnn_states, action, masks, available_actions=None, active_masks=None
     ):
