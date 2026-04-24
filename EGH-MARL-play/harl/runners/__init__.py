@@ -59,10 +59,18 @@ ATTACK_RUNNER_REGISTRY = {
     "egnnv2_mappo": OnPolicyMAAttackRunner,
     "egnn_mappo": OnPolicyMAAttackRunner,
     "egnn_mix_mappo": OnPolicyMAAttackRunner,
+    "gat_mappo": OnPolicyMAAttackRunner,
+    "gcn_mappo": OnPolicyMAAttackRunner,
+    "graphsage_mappo": OnPolicyMAAttackRunner,
+    "mappo": OnPolicyMAAttackRunner,
 }
 
 TRAINATTACK_RUNNER_REGISTRY = {
     "egnnv2_mappo": OnPolicyMATrainAttackRunner,
     "egnn_mappo": OnPolicyMATrainAttackRunner,
     "egnn_mix_mappo": OnPolicyMATrainAttackRunner,
+    "gat_mappo": OnPolicyMATrainAttackRunner,
+    "gcn_mappo": OnPolicyMATrainAttackRunner,
+    "mappo" : OnPolicyMATrainAttackRunner,
+    "graphsage_mappo": OnPolicyMATrainAttackRunner,
 }

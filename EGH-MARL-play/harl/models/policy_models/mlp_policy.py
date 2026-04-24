@@ -84,6 +84,32 @@ class MlpPolicy(nn.Module):
         actions = policy.sample()
         action_log_probs = policy.log_prob(actions)
         return actions, action_log_probs, rnn_states
+    
+    def forward(
+        self, obs, rnn_states, masks, available_actions=None, deterministic=False
+    ):
+        """Compute actions from the given inputs.
+        Args:
+            obs: (np.ndarray / torch.Tensor) observation inputs into network.
+            rnn_states: (np.ndarray / torch.Tensor) if RNN network, hidden states for RNN.
+            masks: (np.ndarray / torch.Tensor) mask tensor denoting if hidden states should be reinitialized to zeros.
+            available_actions: (np.ndarray / torch.Tensor) denotes which actions are available to agent
+                                                              (if None, all actions available)
+            deterministic: (bool) whether to sample from action distribution or return the mode.
+        Returns:
+            actions: (torch.Tensor) actions to take.
+            action_log_probs: (torch.Tensor) log probabilities of taken actions.
+            rnn_states: (torch.Tensor) updated RNN hidden states.
+        """
+        obs = check(obs).to(**self.tpdv)
+        rnn_states = check(rnn_states).to(**self.tpdv)
+        masks = check(masks).to(**self.tpdv)
+        
+        
+        x = torch.tanh(self.actor_fc1(obs))
+        mu = self.actor_fc2(x)
+
+        return mu, rnn_states
 
     def evaluate_actions(
         self, obs, rnn_states, action, masks, available_actions=None, active_masks=None

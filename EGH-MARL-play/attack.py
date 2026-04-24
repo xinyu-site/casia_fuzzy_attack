@@ -5,6 +5,7 @@ from harl.utils.configs_tools import get_defaults_yaml_args, update_args
 import matplotlib.pyplot as plt
 import os
 import re
+import datetime
 
 def main():
     """Main function."""
@@ -94,9 +95,13 @@ def main():
         choices=[
             "none",
             "obs_grd_single",
-            "obs_noise_single",
             "obs_grd_all",
+            "obs_grd_single_percp",
+            "obs_grd_all_percp",
+            "obs_noise_single",
+            "obs_noise_single_percp",
             "obs_noise_all",
+            "obs_noise_all_percp",
             "act_rotation_single",
             "act_noise_single",
             "act_rotation_all",
@@ -242,6 +247,23 @@ def main():
     if algo_args["train"]["train_flag"]:
         aver_reward = runner.eval(episodes, attack_method=attack_method, noise_level=noise_level, noise_num=noise_num)
     runner.close()
+    
+    # 记录评估结果到文件
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    result_line = f"{timestamp},{args['algo']},{attack_method},{noise_level},{noise_num},{aver_reward:.4f}\n"
+    
+    with open("eval_result.txt", "a", encoding="utf-8") as f:
+        f.write(result_line)
+    
+    print(f"\n评估结果已记录到 eval_result.txt:")
+    print(f"时间戳: {timestamp}")
+    print(f"算法: {args['algo']}")
+    print(f"攻击方式: {attack_method}")
+    print(f"噪声强度: {noise_level}")
+    print(f"噪声数值: {noise_num}")
+    print(f"平均奖励: {aver_reward:.4f}")
+
+    
 
 
 if __name__ == "__main__":

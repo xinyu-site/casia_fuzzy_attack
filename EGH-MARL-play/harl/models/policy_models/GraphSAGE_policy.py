@@ -177,6 +177,85 @@ class GraphSAGEPolicy(nn.Module):
         actions = actions.reshape(self.n_threads, self.n_nodes, -1)
         action_log_probs = action_log_probs.reshape(self.n_threads, self.n_nodes, -1)
         return actions, action_log_probs, rnn_states
+    
+    def forward_decided(
+        self, obs, rnn_states, masks, available_actions=None, deterministic=False
+    ):
+        """Compute actions from the given inputs.
+        Args:
+            obs: (np.ndarray / torch.Tensor) observation inputs into network.
+            rnn_states: (np.ndarray / torch.Tensor) if RNN network, hidden states for RNN.
+            masks: (np.ndarray / torch.Tensor) mask tensor denoting if hidden states should be reinitialized to zeros.
+            available_actions: (np.ndarray / torch.Tensor) denotes which actions are available to agent
+                                                              (if None, all actions available)
+            deterministic: (bool) whether to sample from action distribution or return the mode.
+        Returns:
+            actions: (torch.Tensor) actions to take.
+            action_log_probs: (torch.Tensor) log probabilities of taken actions.
+            rnn_states: (torch.Tensor) updated RNN hidden states.
+        """
+        obs = self.local_tool.trans_info2local_actor(obs)
+        if self.use_eqc_flag:
+            angle_increment = 2 * np.pi / self.subgroup_num
+            rotated_obs_list = []
+            for i in range(self.subgroup_num):
+                angle = i * angle_increment
+                if i == 0:
+                    rotated_obs = obs.copy()
+                else:
+                    rotated_obs = rotation_obs3d(obs.copy(), angle, self.local_tool.equ_nf)
+                rotated_obs_list.append(rotated_obs)
+            obs = np.concatenate(rotated_obs_list, axis=0)
+            
+        obs = obs.reshape(-1, self.local_tool.inv_nf_old + self.local_tool.equ_nf)
+        obs = check(obs).to(**self.tpdv)
+        rnn_states = check(rnn_states).to(**self.tpdv)
+        masks = check(masks).to(**self.tpdv)
+        if available_actions is not None:
+            available_actions = available_actions.reshape(-1, available_actions.shape[-1])
+            available_actions = check(available_actions).to(**self.tpdv)
+        
+        obs = self.local_tool.local_info_process(obs, self.local_module)
+        
+        x = self.embedding_in(obs)
+        for j in range(0, self.n_layers):
+            x_res = x  # 保留原始输入
+            x = self._modules["actor_graphsage_%d" % j](x, self.local_tool.forward_edges)
+            if self.use_res:
+                x = x + x_res  # 应用残差连接
+            x = torch.tanh(x)
+
+        if self.env_name == 'smacv2':
+            actions, action_log_probs = self.act(
+                x, available_actions, deterministic
+            )
+            actions = actions.reshape(self.n_threads, self.n_nodes, -1)
+            action_log_probs = action_log_probs.reshape(self.n_threads, self.n_nodes, -1)
+            return actions, action_log_probs, rnn_states
+
+        mu = self.actor_fc1(x)
+        if self.use_eqc_flag:
+            parael_num = mu.shape[0]//self.subgroup_num
+            angle_increment = 2 * np.pi / self.subgroup_num
+            rotated_actions_list = []
+            for i in range(self.subgroup_num):
+                start_idx = parael_num * i
+                end_idx = parael_num * (i + 1)
+                if len(mu.shape) == 3:
+                    actions = mu[start_idx:end_idx, :, :]
+                else:
+                    actions = mu[start_idx:end_idx, :]
+                rotated_angle = 2 * np.pi - i * angle_increment
+                if i == 0:
+                    rotated_actions = actions
+                else:
+                    rotated_actions = rotation_action(actions, rotated_angle)
+                rotated_actions_list.append(rotated_actions)
+            mu = sum(rotated_actions_list) / self.subgroup_num
+            
+        
+        
+        return mu,  rnn_states
 
     def evaluate_actions(
         self, obs, rnn_states, action, masks, available_actions=None, active_masks=None

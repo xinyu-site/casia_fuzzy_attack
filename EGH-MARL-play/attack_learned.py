@@ -283,9 +283,9 @@ def main():
     trainattack_config = {
         "ramdom_step" : 100,
         "buffer_capacity" : 100000,
-        "batch_size" : 30,
-        "actor_lr" : 0.0005,
-        "critic_lr" : 0.0005,
+        "batch_size" : 50,
+        "actor_lr" : 0.001,    
+        "critic_lr" : 0.001,   
         "learn_interval" : 20,
         "gamma" : 0.98,
         "tau" : 0.01,

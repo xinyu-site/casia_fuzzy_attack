@@ -343,7 +343,8 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
         while True:
             #print(eval_episode)
             self.actor[0].actor.zero_grad()
-            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single':
+            #print(eval_obs.shape)
+            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':
                 obs_tensor = torch.from_numpy(eval_obs).float().to(self.actor[0].device).requires_grad_(True)
 
             #self.actor[0].actor.zero_grad()
@@ -364,7 +365,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     eval_available_actions_list.append(eval_available_actions[:, agent_id])
             #print(len(eval_obs_list))
             #print(np.stack(eval_obs_list, axis=0).transpose(1, 0, 2).shape)  #10*10*34
-            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single':
+            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':
                 eval_actions, temp_rnn_state = self.actor[0].act_grd(
                     obs_tensor,
                     np.stack(eval_rnn_states_list, axis=0),
@@ -385,21 +386,25 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     deterministic=True,
                 )
 
-            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single':
-                if attack_method == 'obs_grd_all':
+            if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':
+                if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_all_percp':
                     target_actions = eval_actions
-                elif attack_method == 'obs_grd_single':
+                elif attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp':
                     target_actions = eval_actions[:,0:1,:]  # only the first robot is attacked
                 action_loss = -torch.norm(target_actions, p=2)  # maximize the L2 norm of the action
                 #action_loss = target_actions.mean()  # maximize the sum of the action values
                 action_loss.backward()
                 obs_grad = obs_tensor.grad.data
-                if attack_method == 'obs_grd_single':
+                if attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp':
                     obs_grad[:,1:,:] = 0.0  # only the first robot is attacked
 
                 #print(f'obs_tensor: {obs_tensor[3][3][0:4]}')
-                perturbation = 0.2 * noise_level * obs_grad.sign()  # FGSM attack      
-                obs_perturbed = obs_tensor + perturbation
+                perturbation = 0.2 * noise_level * obs_grad.sign()  # FGSM attack 
+                if attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':     
+                    obs_perturbed = obs_tensor.clone()
+                    obs_perturbed[:,:,4:] = obs_tensor[:,:,4:] + perturbation[:,:,4:]
+                else:
+                    obs_perturbed = obs_tensor + perturbation
                 #print(f'obs_perturbed: {obs_perturbed[3][3][0:4]}')
                 obs_perturbed = torch.clamp(obs_perturbed, -1.0, 1.0) 
                 eval_obs_list = []
@@ -453,14 +458,24 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_available_actions,
             ) = self.eval_envs.step(eval_actions)
             #print(eval_obs[0][0])
+            if attack_method == 'obs_noise_all_percp':
+                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,:,4:].shape)
+                eval_obs[:,:,4:] += noise
+                eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
+
             if attack_method == 'obs_noise_all':
-                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,:,0:34].shape)
-                eval_obs[:,:,0:34] += noise
+                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs.shape)
+                eval_obs += noise
+                eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
+            
+            if attack_method == 'obs_noise_single':
+                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,0,0:].shape)
+                eval_obs[:,0,0:] += noise
                 eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
                 
-            if attack_method == 'obs_noise_single':
-                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,0,0:34].shape)
-                eval_obs[:,0,0:34] += noise
+            if attack_method == 'obs_noise_single_percp':
+                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,0,4:].shape)
+                eval_obs[:,0,4:] += noise
                 eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
             # if attack_method == 'obs_rotation_all':
             #     eval_obs[:,:,0:4] = add_rotation_to_obs(eval_obs[:,:,0:4], noise_num)
