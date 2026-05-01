@@ -302,6 +302,9 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
     def eval(self,episodes,attack_method='none', noise_level=0.1,noise_num=0.1):
         """Evaluate the model."""
         print("Evaluate the model.")
+        device_id = 7  # 想用第2张卡就写1，第8张卡写7，以此类推
+        device = f"cuda:{device_id}"
+        torch.cuda.set_device(device)
         
         path = self.model_path
         if self.flag:
@@ -312,12 +315,17 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
         else:
             for agent_id in range(self.num_agents):
                 load_name = path + 'actor_agent' + str(agent_id) + '.pt'
-                self.actor[agent_id].actor = torch.load(load_name)
+                self.actor[agent_id].actor = torch.load(load_name,weights_only=False)
         value_normalizer_state_dict = torch.load(path+'value_normalizer.pt',weights_only=False)
         self.value_normalizer.load_state_dict(value_normalizer_state_dict)
         #print(f'type of critic: {type(self.critic)}')
         critic_state_dict = torch.load(path+'critic_agent.pt',weights_only=False)
-        self.critic.critic.load_state_dict(critic_state_dict)
+        # 使用 strict=False 来处理模型结构不匹配的问题
+        missing_keys, unexpected_keys = self.critic.critic.load_state_dict(critic_state_dict, strict=False)
+        if missing_keys:
+            print(f"Warning: Missing keys in state_dict: {missing_keys}")
+        if unexpected_keys:
+            print(f"Warning: Unexpected keys in state_dict: {unexpected_keys}")
         
           # logger callback at the beginning of evaluation
         eval_episode = 0
@@ -396,6 +404,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 #action_loss = target_actions.mean()  # maximize the sum of the action values
                 action_loss.backward()
                 obs_grad = obs_tensor.grad.data
+                #print(obs_grad[0][0])  
                 if attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp':
                     obs_grad[:,1:,:] = 0.0  # only the first robot is attacked
 
@@ -406,8 +415,10 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     obs_perturbed[:,:,4:] = obs_tensor[:,:,4:] + perturbation[:,:,4:]
                 else:
                     obs_perturbed = obs_tensor + perturbation
+                #print(f'{obs_tensor[0,0]} \n {obs_perturbed[0,0]}')
                 #print(f'obs_perturbed: {obs_perturbed[3][3][0:4]}')
                 obs_perturbed = torch.clamp(obs_perturbed, -1.0, 1.0) 
+                #print(f'{obs_tensor[0,0]} \n {obs_perturbed[0,0]}')
                 eval_obs_list = []
                 for agent_id in range(self.num_agents):
                     eval_obs_list.append(obs_perturbed[:, agent_id])
@@ -458,24 +469,25 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_infos,
                 eval_available_actions,
             ) = self.eval_envs.step(eval_actions)
-            #print(eval_obs[0][0])
+            
             if attack_method == 'obs_noise_all_percp':
-                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,:,4:].shape)
+                #noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,:,4:].shape)
+                noise = np.random.normal(0, 3*noise_level, size=eval_obs[:,:,4:].shape)
                 eval_obs[:,:,4:] += noise
                 eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
 
             if attack_method == 'obs_noise_all':
-                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs.shape)
+                noise = np.random.normal(0, 3*noise_level, size=eval_obs.shape)
                 eval_obs += noise
                 eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
             
             if attack_method == 'obs_noise_single':
-                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,0,0:].shape)
+                noise = np.random.normal(0, 3*noise_level, size=eval_obs[:,0,0:].shape)
                 eval_obs[:,0,0:] += noise
                 eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
                 
             if attack_method == 'obs_noise_single_percp':
-                noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,0,4:].shape)
+                noise = np.random.normal(0, 3*noise_level, size=eval_obs[:,0,4:].shape)
                 eval_obs[:,0,4:] += noise
                 eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
             # if attack_method == 'obs_rotation_all':

@@ -167,12 +167,13 @@ class EgnnV2Policy(nn.Module):
             obs = self.history_weight(obs)
         else:
             obs = obs.reshape(-1, self.local_tool.inv_nf_old + self.local_tool.equ_nf)
-        
+        #print(obs.shape)
         obs = check(obs).to(**self.tpdv)
         rnn_states = check(rnn_states).to(**self.tpdv)
         masks = check(masks).to(**self.tpdv)
         
         obs = self.local_tool.local_info_process(obs, self.local_module)
+        #print(obs.shape)
         
         equ_fea = obs[:, :self.local_tool.equ_nf]
         h = obs[:, self.local_tool.equ_nf:]

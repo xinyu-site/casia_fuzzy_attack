@@ -216,7 +216,7 @@ class GraphSAGEPolicy(nn.Module):
             available_actions = check(available_actions).to(**self.tpdv)
         
         obs = self.local_tool.local_info_process(obs, self.local_module)
-        
+        #print(obs.shape)
         x = self.embedding_in(obs)
         for j in range(0, self.n_layers):
             x_res = x  # 保留原始输入

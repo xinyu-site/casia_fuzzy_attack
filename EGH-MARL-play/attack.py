@@ -188,6 +188,8 @@ def main():
     # algo_args["seed"]["seed"] = args["my_seed"]
     model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
     #print(f"Model path: {model_path}")
+    if args["env"] == "pursuit":
+        model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}-tac/{args["algo"]}/{args["exp_name"]}'
     # runner = EVAL_RUNNER_REGISTRY[args["algo"]](args, algo_args, env_args,model_path)
     # if algo_args["train"]["train_flag"]:
     #     runner.run()
@@ -248,11 +250,13 @@ def main():
         aver_reward = runner.eval(episodes, attack_method=attack_method, noise_level=noise_level, noise_num=noise_num)
     runner.close()
     
-    # 记录评估结果到文件
+    #记录评估结果到文件
+    
+
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     result_line = f"{timestamp},{args['algo']},{attack_method},{noise_level},{noise_num},{aver_reward:.4f}\n"
     
-    with open("eval_result.txt", "a", encoding="utf-8") as f:
+    with open("eval_result_pursuit.txt", "a", encoding="utf-8") as f:
         f.write(result_line)
     
     print(f"\n评估结果已记录到 eval_result.txt:")

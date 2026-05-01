@@ -1,0 +1,5 @@
+CUDA_VISIBLE_DEVICES=0 python train.py --algo egnnv2_mappo --seed 10 --env pursuit --exp_name test --obs_mode hepn_local --local_mode True --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 8000000 --structural_entropy False --use_eval False --dynamics direct
+
+CUDA_VISIBLE_DEVICES=5 python train.py --algo egnnv2_mappo --seed 10 --env pursuit --exp_name test1 --obs_mode hepn_local --local_mode True --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 8000000 --structural_entropy False --use_eval False --dynamics direct
+
+CUDA_VISIBLE_DEVICES=5 python train.py --algo egnnv2_mappo --seed 15 --env pursuit --exp_name test --obs_mode hepn_local --local_mode True --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 10000000 --structural_entropy False --use_eval False --dynamics direct

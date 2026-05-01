@@ -365,9 +365,14 @@ class local_tool():
             temp2 = t_obs[
                 :, :, self.equ_nf + (n_agents - 1) * 3 : self.equ_nf + (n_agents - 1) * 3 + 3
             ].clone().reshape(batch_size, n_agents, 1, 3)
+            #print(temp2.shape)
+            mask = torch.ones_like(temp2) * torch.tensor([1., 0., 0.]).to(temp2.device)
             temp2 = torch.where(temp2 == mask, torch.zeros_like(temp2), temp2)
-            temp2 = temp2.reshape(batch_size, n_agents, -1)
+            #print(temp2.shape)
             
+            temp2 = temp2.reshape(batch_size, n_agents, -1)
+            #print(temp2.shape)
+            #print(self.equ_nf,n_agents)
             t_obs[:, :, self.equ_nf:self.equ_nf + (n_agents - 1) * 3] = temp1
             t_obs[:, :, self.equ_nf + (n_agents - 1) * 3 : self.equ_nf + (n_agents - 1) * 3 + 3] = temp2
             return t_obs
@@ -387,7 +392,7 @@ class local_tool():
             ].copy().reshape(batch_size, n_agents, 1, 3)
             temp2 = np.where(temp2 == np.array([1., 0., 0.]), np.array([0., 0., 0.]), temp2)
             temp2 = temp2.reshape(batch_size, n_agents, -1)
-            
+           
             t_obs[:, :, self.equ_nf:self.equ_nf + (n_agents - 1) * 3] = temp1
             t_obs[:, :, self.equ_nf + (n_agents - 1) * 3 : self.equ_nf + (n_agents - 1) * 3 + 3] = temp2
             return t_obs

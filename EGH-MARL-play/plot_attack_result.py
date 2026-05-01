@@ -9,8 +9,8 @@ df = pd.read_csv('eval_result.txt', header=None,
 df['x_label'] = df['attack'] + '_' + df['strength'].astype(str)
 x_order = df['x_label'].unique()
 
-# 整理数据
-pivot = df.pivot(index='algo', columns='x_label', values='reward')
+# 整理数据 - 先聚合重复值
+pivot = df.groupby(['algo', 'x_label'])['reward'].mean().unstack()
 pivot = pivot.reindex(columns=x_order)
 
 # --------------------- 核心：去掉中文，不报错 ---------------------
@@ -18,7 +18,7 @@ plt.rcParams['font.family'] = ['DejaVu Sans']  # 通用字体
 plt.figure(figsize=(18, 7))
 
 # 画4条算法折线
-colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728' ,'#9467bd' , '#8c564b']
 for i, algo in enumerate(pivot.index):
     plt.plot(pivot.columns, pivot.loc[algo], marker='o', linewidth=2.5, label=algo, color=colors[i])
 

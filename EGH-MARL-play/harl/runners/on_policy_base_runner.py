@@ -273,6 +273,7 @@ class OnPolicyBaseRunner:
                         infos,
                         available_actions,
                     ) = self.envs.step(actions)
+                #print(obs.shape)
                 # obs: (n_threads, n_agents, obs_dim)
                 # share_obs: (n_threads, n_agents, share_obs_dim)
                 # rewards: (n_threads, n_agents, 1)

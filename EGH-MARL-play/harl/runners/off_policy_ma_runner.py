@@ -30,6 +30,7 @@ class OffPolicyMARunner(OffPolicyBaseRunner):
             sp_next_available_actions,  # (n_agents, batch_size, dim)
             sp_gamma,  # EP: (batch_size, 1), FP: (n_agents * batch_size, 1)
         ) = data
+        #print(sp_obs.shape)
         # train critic
         self.critic.turn_on_grad()
         if self.flag:

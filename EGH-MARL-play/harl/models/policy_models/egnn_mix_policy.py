@@ -191,7 +191,7 @@ class EgnnMixPolicy(nn.Module):
         action_log_probs = action_log_probs.reshape(self.n_threads, self.n_nodes, -1)
         return actions, action_log_probs, rnn_states
 
-    def forward(
+    def forward_decided(
         self, obs, rnn_states, masks, available_actions=None, deterministic=False
     ):
         """Compute actions from the given inputs.
