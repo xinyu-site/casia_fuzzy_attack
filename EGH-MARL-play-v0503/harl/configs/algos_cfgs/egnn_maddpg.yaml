@@ -1,0 +1,95 @@
+# This is the configuration file for the MADDPG algorithm.
+seed:
+  # whether to use the specified seed
+  seed_specify: True
+  # seed
+  seed: 5
+device:
+  # whether to use CUDA
+  cuda: True
+  # whether to set CUDA deterministic
+  cuda_deterministic: True
+  # arg to torch.set_num_threads
+  torch_threads: 4
+train:
+  train_flag: True
+  # number of parallel environments for training data collection
+  n_rollout_threads: 10
+  # number of total steps
+  num_env_steps: 10000000
+  episode_length: 512
+  # number of warmup steps
+  warmup_steps: 5120
+  # number of steps per train
+  train_interval: 50
+  # ratio of training iterations to train_interval
+  update_per_train: 25
+  # logging interval (currently unused)
+  log_interval: 1
+  # evaluation interval
+  eval_interval: 25
+  # ways of learning rate decay:["~","linear","exponential","polynomial","cosine","step","customized"]
+  use_linear_lr_decay: True
+  # whether to consider the case of truncation when an episode is done
+  use_proper_time_limits: True
+  # if set, load models from this directory; otherwise, randomly initialise the models
+  model_dir: ~
+  # model_dir: /home/tyk/EGH-MARL/results/rendezvous/rendezvous/maddpg/EP_eghnacc_direct/seed-00005-2023-10-29-01-46-45/models
+eval:
+  # whether to use evaluation
+  use_eval: False
+  # number of parallel environments for evaluation
+  n_eval_rollout_threads: 10
+  # number of episodes per evaluation
+  eval_episodes: 20
+render:
+  # whether to use render
+  use_render: False
+  # number of episodes to render
+  render_episodes: 10
+model:
+  # network parameters
+  # hidden sizes for mlp module in the network
+  hidden_sizes: [128, 128]
+  # activation function, choose from sigmoid, tanh, relu, leaky_relu, selu
+  activation_func: relu
+  # final activation function, choose from sigmoid, tanh, relu, leaky_relu, selu
+  final_activation_func: tanh
+  # optimizer parameters
+  # actor learning rate
+  lr: 0.0002
+  # critic learning rate
+  critic_lr: 0.0002
+  # args for egnn
+  in_edge_nf: 1
+  flat: False
+  n_layers: 3
+  attention: False
+algo:
+  # discount factor
+  gamma: 0.99
+  # off-policy buffer size
+  buffer_size: 10000
+  # training batch size
+  batch_size: 4000
+  # coefficient for target model soft update
+  polyak: 0.005
+  # exploration noise
+  expl_noise: 0.1
+  # the number of steps to look ahead
+  n_step: 1
+  # whether to share parameter among actors
+  share_param: True
+  # whether to use a fixed optimisation order
+  fixed_order: True
+  # whether to use single actor
+  single_actor: True
+  # coefficient for lp loss
+  lp_coef: 0
+  # whether to clip gradient norm
+  use_max_grad_norm: True
+  # max gradient norm
+  max_grad_norm: 10.0
+logger:
+  # logging directory
+  log_dir: "./results"

@@ -157,8 +157,9 @@ class EgnnV2Policy(nn.Module):
             action_log_probs: (torch.Tensor) log probabilities of taken actions.
             rnn_states: (torch.Tensor) updated RNN hidden states.
         """
-        
+        #print(obs.shape) 10*10*44 
         obs = self.local_tool.trans_info2local_actor(obs)
+        #print(obs.shape) 10*10*34
         if self.use_history:
             obs = obs.reshape(-1, (self.local_tool.inv_nf_old + self.local_tool.equ_nf) * self.windows_size)
             obs = check(obs).to(**self.tpdv)
@@ -171,12 +172,13 @@ class EgnnV2Policy(nn.Module):
         obs = check(obs).to(**self.tpdv)
         rnn_states = check(rnn_states).to(**self.tpdv)
         masks = check(masks).to(**self.tpdv)
-        
+        # print(obs.shape) 10*34
         obs = self.local_tool.local_info_process(obs, self.local_module)
         #print(obs.shape)
         
         equ_fea = obs[:, :self.local_tool.equ_nf]
         h = obs[:, self.local_tool.equ_nf:]
+        #print(h.shape) 100*19
         loc = equ_fea[:, :2]
         vel = equ_fea[:, 2:]
         rows, cols = self.local_tool.forward_edges

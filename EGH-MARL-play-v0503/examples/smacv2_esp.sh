@@ -1,0 +1,24 @@
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 3 --use_eval True --eval_episodes 50 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 3 --use_eval True --eval_episodes 50 --map_name terran_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 3 --use_eval True --eval_episodes 50 --map_name zerg_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 4 --use_eval True --eval_episodes 50 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 4 --use_eval True --eval_episodes 50 --map_name terran_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 4 --use_eval True --eval_episodes 50 --map_name zerg_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 5 --use_eval True --eval_episodes 50 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 5 --use_eval True --eval_episodes 50 --map_name terran_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 5 --use_eval True --eval_episodes 50 --map_name zerg_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 6 --use_eval True --eval_episodes 50 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 6 --use_eval True --eval_episodes 40 --map_name terran_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 6 --use_eval True --eval_episodes 40 --map_name zerg_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+
+
+# python train.py --algo mappo_data_aug --env smacv2 --exp_name test --seed 0 --use_eval True --eval_episodes 40 --map_name zerg_10_vs_10 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 20000000 --episode_length 200
+
+CUDA_VISIBLE_DEVICES=4 python train.py --algo mappo_data_aug --env smacv2 --exp_name tase --seed 110 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+CUDA_VISIBLE_DEVICES=4 python train.py --algo mappo_data_aug --env smacv2 --exp_name tase --seed 111 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+CUDA_VISIBLE_DEVICES=3 python train.py --algo mappo_data_aug --env smacv2 --exp_name tase --seed 112 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+CUDA_VISIBLE_DEVICES=2 python train.py --algo mappo_data_aug --env smacv2 --exp_name tase --seed 113 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200
+CUDA_VISIBLE_DEVICES=4 python train.py --algo mappo_data_aug --env smacv2 --exp_name tase --seed 114 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 200

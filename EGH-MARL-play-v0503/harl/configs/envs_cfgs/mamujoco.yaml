@@ -1,0 +1,25 @@
+scenario: Reacher-v2
+# Walker2d-v2
+agent_conf: 2x1
+agent_obsk: 0 # We use the fully observable setting, so this argument is not useful. But we still keep it.
+episode_limit: 1000
+
+int_points_num: 0
+comm_radius: 282  # 282  智能体通讯范围，影响奖励函数，设为地图尺寸的根号2倍
+world_size: 200   # 200
+distance_bins: 8
+bearing_bins: 8
+torus: False
+state_type: EP
+equ_nf: 4
+dimension: 2
+structural_entropy: False
+windows_size: 2
+use_history: False
+local_mode: False
+use_hpn: False  # True时使用HPN网络模块
+hpn_hidden: [16]
+critic_use_local_module: False  # True时使用模块，否则不使用（local_mode=True时才生效）
+obs_radius: 100  # 智能体可见范围
+local_info_input: [3]
+local_info_output: [8]

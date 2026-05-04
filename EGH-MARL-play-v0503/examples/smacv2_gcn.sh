@@ -1,0 +1,23 @@
+# CUDA_VISIBLE_DEVICES=6 python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 11 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --num_env_steps 10000000
+# CUDA_VISIBLE_DEVICES=6 python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 9 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --num_env_steps 10000000
+# CUDA_VISIBLE_DEVICES=6 python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 10 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --num_env_steps 10000000
+
+# python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 6 --use_eval True --eval_episodes 50 --map_name protoss_5_vs_5 --n_rollout_threads 10 --num_env_steps 10000000
+# python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 6 --use_eval True --eval_episodes 50 --map_name zerg_5_vs_5 --n_rollout_threads 10 --num_env_steps 10000000
+# python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 6 --use_eval True --eval_episodes 50 --map_name terran_5_vs_5 --n_rollout_threads 10 --num_env_steps 10000000
+
+# CUDA_VISIBLE_DEVICES=5 python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 0 --use_eval True --eval_episodes 40 --map_name protoss_10_vs_10 --n_rollout_threads 10 --num_env_steps 20000000
+# CUDA_VISIBLE_DEVICES=5 python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 0 --use_eval True --eval_episodes 40 --map_name terran_10_vs_10 --n_rollout_threads 10 --num_env_steps 20000000
+# CUDA_VISIBLE_DEVICES=4 python train.py --algo gcn_mappo --env smacv2 --exp_name test --seed 0 --use_eval True --eval_episodes 40 --map_name zerg_10_vs_10 --n_rollout_threads 10 --num_env_steps 20000000
+
+# CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 110 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+# CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 111 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+# CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 112 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+# CUDA_VISIBLE_DEVICES=5 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 113 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+# CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 114 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+
+CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 110 --use_eval True --eval_episodes 40 --map_name zerg_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 111 --use_eval True --eval_episodes 40 --map_name zerg_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 112 --use_eval True --eval_episodes 40 --map_name zerg_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 113 --use_eval True --eval_episodes 40 --map_name zerg_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000
+CUDA_VISIBLE_DEVICES=2 python train.py --algo gcn_mappo --env smacv2 --exp_name tase --seed 114 --use_eval True --eval_episodes 40 --map_name zerg_5_vs_5 --n_rollout_threads 20 --n_eval_rollout_threads 20 --episode_length 160 --clip_param 0.05 --num_env_steps 10000000

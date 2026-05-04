@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=2 python train.py --algo mappo_data_aug --seed 20 --env pursuit --exp_name test --obs_mode hepn_local --local_mode False --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 8000000 --structural_entropy False --use_eval False --dynamics direct

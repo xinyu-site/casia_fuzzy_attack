@@ -1,0 +1,28 @@
+# python train.py --algo mappo --env mujoco3d --exp_name test --n_rollout_threads 10 --local_mode False --seed 0
+# python train.py --algo eghnv2_mappo --env mujoco3d --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0002 --critic_lr 0.0002 --seed 6
+
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_7_right_arm.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0002 --critic_lr 0.0002 --seed 100 --num_env_steps 10000000 --use_eval True 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_7_right_leg.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0002 --critic_lr 0.0002 --seed 11 --num_env_steps 10000000
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_8_left_knee.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0002 --critic_lr 0.0002 --seed 12 --num_env_steps 10000000
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_7_left_arm.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0004 --critic_lr 0.0004 --seed 101 --num_env_steps 10000000
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_9_full.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0002 --critic_lr 0.0002 --seed 14 --num_env_steps 10000000
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_7_lower_arms.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 7 --lr 0.0003 --critic_lr 0.0003 --seed 37 --num_env_steps 10000000 --use_eval False 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_7_lower_arms.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 7 --lr 0.0003 --critic_lr 0.0003 --seed 38 --num_env_steps 10000000 --use_eval False 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_7_lower_arms.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 7 --lr 0.0003 --critic_lr 0.0003 --seed 39 --num_env_steps 10000000 --use_eval False 
+
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_hoppers --custom_xml 3d_hopper_3_shin.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0005 --critic_lr 0.0005 --seed 101 --num_env_steps 10000000 --use_eval True 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_hoppers --custom_xml 3d_hopper_3_shin.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0004 --critic_lr 0.0004 --seed 19 --num_env_steps 10000000 --use_eval True 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_hoppers --custom_xml 3d_hopper_3_shin.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0004 --critic_lr 0.0004 --seed 20 --num_env_steps 10000000 --use_eval True 
+# python train.py --algo gat_mappo --env mujoco3d --exp_name test --n_rollout_threads 10 --local_mode False
+
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_walkers --custom_xml 3d_walker_3_left_leg_right_foot.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0005 --critic_lr 0.0005 --seed 101 --num_env_steps 10000000 --use_eval True 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_walkers --custom_xml 3d_walker_3_left_leg_right_foot.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0004 --critic_lr 0.0004 --seed 21 --num_env_steps 10000000 --use_eval True 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_walkers --custom_xml 3d_walker_3_left_leg_right_foot.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0004 --critic_lr 0.0004 --seed 22 --num_env_steps 10000000 --use_eval True 
+
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_cheetahs --custom_xml 3d_cheetah_10_tail_leftbleg.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0004 --critic_lr 0.0004 --seed 100 --num_env_steps 10000000 --use_eval True 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_cheetahs --custom_xml 3d_cheetah_10_tail_leftbleg.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0004 --critic_lr 0.0004 --seed 21 --num_env_steps 10000000 --use_eval True 
+# python train.py --algo eghnv2_mappo --env mujoco3d --scenario 3d_cheetahs --custom_xml 3d_cheetah_10_tail_leftbleg.xml --exp_name test --n_rollout_threads 10 --local_mode False --n_cluster 3 --lr 0.0004 --critic_lr 0.0004 --seed 22 --num_env_steps 10000000 --use_eval True 
+
+python train.py --algo egnnv3_mappo --env mujoco3d --scenario 3d_humanoids --custom_xml 3d_humanoid_7_lower_arms.xml --exp_name test --n_rollout_threads 10 --local_mode False --lr 0.0003 --critic_lr 0.0003 --seed 0 --num_env_steps 10000000 --use_eval False 
+python train.py --algo egnnv3_mappo --env mujoco3d --scenario 3d_hoppers --custom_xml 3d_hopper_3_shin.xml --exp_name test --n_rollout_threads 10 --local_mode False --lr 0.0005 --critic_lr 0.0005 --seed 0 --num_env_steps 10000000 --use_eval False
+python train.py --algo egnnv3_mappo --env mujoco3d --scenario 3d_walkers --custom_xml 3d_walker_3_left_leg_right_foot.xml --exp_name test --n_rollout_threads 10 --local_mode False --lr 0.0005 --critic_lr 0.0005 --seed 0 --num_env_steps 10000000 --use_eval False 

@@ -1,0 +1,23 @@
+scenario: 3d_hoppers
+# Walker2d-v2
+episode_limit: 1000
+custom_xml: 3d_hopper_3_shin.xml # 3d_hopper_5_full.xml # 
+observation_graph_type: morphology
+equ_nf: 21
+dimension: 3
+local_mode: False
+
+
+int_points_num: 0
+comm_radius: 282  # 282  智能体通讯范围，影响奖励函数，设为地图尺寸的根号2倍
+torus: False
+structural_entropy: False
+windows_size: 2
+use_history: False
+
+use_hpn: False  # True时使用HPN网络模块
+hpn_hidden: [16]
+critic_use_local_module: False  # True时使用模块，否则不使用（local_mode=True时才生效）
+obs_radius: 100  # 智能体可见范围
+local_info_input: [3]
+local_info_output: [8]
