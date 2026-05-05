@@ -381,7 +381,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
                     if len(eval_available_actions_list) > 0
                     else None, 
-                    deterministic=True,
+                    deterministic=False,
                 )
             else:
                 eval_actions, temp_rnn_state = self.actor[0].act(
@@ -391,7 +391,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
                     if len(eval_available_actions_list) > 0
                     else None, 
-                    deterministic=True,
+                    deterministic=False,
                 )
             #print(eval_actions.shape)
             if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':
@@ -429,7 +429,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
                     if len(eval_available_actions_list) > 0
                     else None, 
-                    deterministic=True,
+                    deterministic=False,
                 )
             
             self.actor[0].actor.zero_grad()
