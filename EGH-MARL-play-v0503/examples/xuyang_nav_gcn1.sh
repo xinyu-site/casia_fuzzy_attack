@@ -1,5 +1,5 @@
 
-for SEED in 20 21 
+for SEED in 20 
 do
     CUDA_VISIBLE_DEVICES=0 python train.py \
         --algo gcn_mappo \
@@ -14,7 +14,7 @@ do
         --torus True \
         --dynamics direct \
         --env_num1 0.0\
-        --env_num2 5.0\
+        --env_num2 0.0\
         --use_recurrent_policy False \
         --seed $SEED \
         --num_env_steps 2000000 \

@@ -381,7 +381,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
                     if len(eval_available_actions_list) > 0
                     else None, 
-                    deterministic=False,
+                    deterministic=True,
                 )
             else:
                 eval_actions, temp_rnn_state = self.actor[0].act(
@@ -429,7 +429,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
                     if len(eval_available_actions_list) > 0
                     else None, 
-                    deterministic=False,
+                    deterministic=True,
                 )
             
             self.actor[0].actor.zero_grad()

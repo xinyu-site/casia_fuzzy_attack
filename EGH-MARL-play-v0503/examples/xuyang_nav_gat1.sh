@@ -1,7 +1,7 @@
 
 for SEED in 20 
 do
-    CUDA_VISIBLE_DEVICES=0 python attack_learned.py \
+    CUDA_VISIBLE_DEVICES=0 python train.py \
         --algo gat_mappo \
         --exp_name test \
         --env navigation \
@@ -25,8 +25,8 @@ do
         --critic_epoch 5 \
         --n_rollout_threads 10 \
         --use_eval False \
-        --noise_level 0.1 \
-        --noise_num 4.0 \
+        --noise_level 0.0 \
+        --noise_num 0.0 \
         --log_dir "./results" \ 
 
 done
