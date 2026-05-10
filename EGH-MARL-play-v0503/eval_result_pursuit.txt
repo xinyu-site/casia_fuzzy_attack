@@ -73,3 +73,7 @@
 2026-05-10 13:18:18,mappo_data_aug,obs_noise_all_percp,0.05,0.1,-71.0469
 2026-05-10 13:20:32,egnnv2_mappo,obs_noise_all_percp,0.05,0.2,-45.7516
 2026-05-10 13:23:02,gat_mappo,obs_noise_all_percp,0.05,0.2,-71.9082
+2026-05-10 13:25:14,graphsage_mappo,obs_noise_all_percp,0.05,0.2,-56.0967
+2026-05-10 13:27:23,mappo,obs_noise_all_percp,0.05,0.2,-59.9942
+2026-05-10 13:29:49,gcn_mappo,obs_noise_all_percp,0.05,0.2,-61.9443
+2026-05-10 13:31:58,mappo_data_aug,obs_noise_all_percp,0.05,0.2,-80.9530
