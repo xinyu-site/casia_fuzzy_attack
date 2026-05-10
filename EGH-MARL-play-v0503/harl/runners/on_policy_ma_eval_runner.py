@@ -489,7 +489,7 @@ class OnPolicyMAEvalRunner(OnPolicyBaseRunner):
                 #print(eval_actions[0,0,0:2])
                 #f.write(f'plus_x: {plus_x}, plus_y: {plus_y}, actions_x: {eval_actions[0,0,0]} actions_y: {eval_actions[0,0,1]}\n')
                 #log_list.append(f'x:{-1.0+plus_x} y:{-1.0+plus_y} ax:{eval_actions[0,0,0]} ay:{eval_actions[0,0,1]}\n')
-                log_list.append(f'{-1.0+plus_x:.2f} {-1.0+plus_y:.2f} {abs(eval_actions[0,0,0]):.2f} {abs(eval_actions[0,0,1]):.2f}\n')
+                log_list.append(f'{-1.0+plus_x:.2f} {-1.0+plus_y:.2f} {eval_actions[0,0,0]:.2f} {eval_actions[0,0,1]:.2f}\n')
             
         return log_list
     

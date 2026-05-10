@@ -4,7 +4,7 @@ from collections import defaultdict
 # 读取数据文件
 data = defaultdict(list)  # key: 算法名, value: list of (攻击强度, 平均奖励)
 
-with open('eval_result_pursuit.txt', 'r') as f:
+with open('eval_result_pursuit_0510.txt', 'r') as f:
     for line in f:
         line = line.strip()
         if not line:
@@ -12,7 +12,7 @@ with open('eval_result_pursuit.txt', 'r') as f:
         parts = line.split(',')
         # 列索引：0-时间戳, 1-算法, 2-环境, 3-攻击强度, 4-额外参数, 5-平均奖励
         algo = parts[1]
-        attack = float(parts[3])
+        attack = float(parts[4])
         reward = float(parts[5])
         data[algo].append((attack, reward))
 
