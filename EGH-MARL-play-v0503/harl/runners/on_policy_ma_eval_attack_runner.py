@@ -422,15 +422,16 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_obs_list = []
                 for agent_id in range(self.num_agents):
                     eval_obs_list.append(obs_perturbed[:, agent_id])
-                eval_actions, temp_rnn_state = self.actor[0].act(
-                    obs_perturbed,
-                    np.stack(eval_rnn_states_list, axis=0),
-                    np.stack(eval_masks_list, axis=0),
-                    np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
-                    if len(eval_available_actions_list) > 0
-                    else None, 
-                    deterministic=True,
-                )
+                with torch.no_grad():
+                    eval_actions, temp_rnn_state = self.actor[0].act(
+                        obs_perturbed,
+                        np.stack(eval_rnn_states_list, axis=0),
+                        np.stack(eval_masks_list, axis=0),
+                        np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
+                        if len(eval_available_actions_list) > 0
+                        else None, 
+                        deterministic=False,
+                    )
             
             self.actor[0].actor.zero_grad()
             #eval_actions.backward()

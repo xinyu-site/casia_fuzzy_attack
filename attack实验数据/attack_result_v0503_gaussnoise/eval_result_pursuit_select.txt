@@ -1,0 +1,39 @@
+2026-05-04 14:09:36,egnnv2_mappo,obs_noise_all_percp,0.0,0.0,-45.7069
+2026-05-04 14:10:18,gat_mappo,obs_noise_all_percp,0.0,0.0,-68.8745
+2026-05-04 14:10:57,graphsage_mappo,obs_noise_all_percp,0.0,0.0,-55.4306
+2026-05-04 14:11:32,mappo,obs_noise_all_percp,0.0,0.0,-59.5428
+2026-05-04 14:12:13,gcn_mappo,obs_noise_all_percp,0.0,0.0,-60.5383
+2026-05-04 14:12:48,mappo_data_aug,obs_noise_all_percp,0.0,0.0,-62.8329
+
+2026-05-04 14:17:32,egnnv2_mappo,obs_noise_all_percp,0.2,0.0,-46.2347
+2026-05-04 14:18:15,gat_mappo,obs_noise_all_percp,0.2,0.0,-69.8137
+2026-05-04 14:18:53,graphsage_mappo,obs_noise_all_percp,0.2,0.0,-56.0781
+2026-05-04 14:19:28,mappo,obs_noise_all_percp,0.2,0.0,-59.9455
+2026-05-04 14:20:09,gcn_mappo,obs_noise_all_percp,0.2,0.0,-61.8231
+2026-05-04 14:20:44,mappo_data_aug,obs_noise_all_percp,0.2,0.0,-63.8731
+
+2026-05-04 14:25:24,egnnv2_mappo,obs_noise_all_percp,0.4,0.0,-50.1518
+2026-05-04 14:26:06,gat_mappo,obs_noise_all_percp,0.4,0.0,-71.9566
+2026-05-04 14:26:44,graphsage_mappo,obs_noise_all_percp,0.4,0.0,-60.0408
+2026-05-04 14:27:20,mappo,obs_noise_all_percp,0.4,0.0,-60.7755
+2026-05-04 14:28:01,gcn_mappo,obs_noise_all_percp,0.4,0.0,-63.6127
+2026-05-04 14:28:36,mappo_data_aug,obs_noise_all_percp,0.4,0.0,-68.6846
+
+2026-05-04 14:34:15,egnnv2_mappo,obs_noise_all_percp,0.6,0.0,-54.9222
+2026-05-04 14:34:58,gat_mappo,obs_noise_all_percp,0.6,0.0,-73.7284
+2026-05-04 14:35:36,graphsage_mappo,obs_noise_all_percp,0.6,0.0,-64.6924
+2026-05-04 14:36:10,mappo,obs_noise_all_percp,0.6,0.0,-63.9377
+2026-05-04 14:36:52,gcn_mappo,obs_noise_all_percp,0.6,0.0,-66.7533
+2026-05-04 14:37:27,mappo_data_aug,obs_noise_all_percp,0.6,0.0,-69.9511
+2026-05-04 14:38:09,egnnv2_mappo,obs_noise_all_percp,0.8,0.0,-59.4960
+2026-05-04 14:38:53,gat_mappo,obs_noise_all_percp,0.8,0.0,-76.9878
+2026-05-04 14:39:31,graphsage_mappo,obs_noise_all_percp,0.8,0.0,-68.8287
+2026-05-04 14:40:06,mappo,obs_noise_all_percp,0.8,0.0,-68.0817
+2026-05-04 14:40:46,gcn_mappo,obs_noise_all_percp,0.8,0.0,-69.6324
+2026-05-04 14:41:21,mappo_data_aug,obs_noise_all_percp,0.8,0.0,-73.1569
+2026-05-04 14:42:04,egnnv2_mappo,obs_noise_all_percp,1.0,0.0,-64.1609
+2026-05-04 14:42:48,gat_mappo,obs_noise_all_percp,1.0,0.0,-80.8174
+2026-05-04 14:43:28,graphsage_mappo,obs_noise_all_percp,1.0,0.0,-72.5470
+2026-05-04 14:44:03,mappo,obs_noise_all_percp,1.0,0.0,-70.8646
+2026-05-04 14:44:44,gcn_mappo,obs_noise_all_percp,1.0,0.0,-74.0440
+2026-05-04 14:45:20,mappo_data_aug,obs_noise_all_percp,1.0,0.0,-76.2547
