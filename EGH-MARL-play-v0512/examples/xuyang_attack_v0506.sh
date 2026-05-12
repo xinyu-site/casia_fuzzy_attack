@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# 遍历 noise_level 从 0.0 到 1.0，步长 0.1
+for noise in $(seq 0.0 0.1 1.0); do
+    echo "Running with noise_level = $noise"
+    
+    python attack.py --seed 20 --algo egnnv2_mappo --env pursuit --exp_name test --obs_mode hepn_local --local_mode False --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 1000000 --structural_entropy False --use_eval False --dynamics direct --results_dir results_eswa --attack_method obs_noise_all_percp --noise_level $noise --noise_num 0.0
+    
+    python attack.py --seed 20 --algo gat_mappo --env pursuit --exp_name test --obs_mode hepn_local --local_mode False --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 1000000 --structural_entropy False --use_eval False --dynamics direct --results_dir results_eswa --attack_method obs_noise_all_percp --noise_level $noise --noise_num 0.0
+    
+    python attack.py --seed 20 --algo graphsage_mappo --env pursuit --exp_name test --obs_mode hepn_local --local_mode False --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 1000000 --structural_entropy False --use_eval False --dynamics direct --results_dir results_eswa --attack_method obs_noise_all_percp --noise_level $noise --noise_num 0.0
+    
+    python attack.py --seed 20 --algo mappo --env pursuit --exp_name test --obs_mode hepn_local --local_mode False --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 1000000 --structural_entropy False --use_eval False --dynamics direct --results_dir results_eswa --attack_method obs_noise_all_percp --noise_level $noise --noise_num 0.0
+    
+    python attack.py --seed 20 --algo gcn_mappo --env pursuit --exp_name test --obs_mode hepn_local --local_mode False --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 1000000 --structural_entropy False --use_eval False --dynamics direct --results_dir results --attack_method obs_noise_all_percp --noise_level $noise --noise_num 0.0
+    
+    python attack.py --seed 20 --algo mappo_data_aug --env pursuit --exp_name test --obs_mode hepn_local --local_mode False --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 1000000 --structural_entropy False --use_eval False --dynamics direct --results_dir results_eswa --attack_method obs_noise_all_percp --noise_level $noise --noise_num 0.0
+    
+    echo "Finished noise_level = $noise"
+    echo "----------------------------------------"
+done

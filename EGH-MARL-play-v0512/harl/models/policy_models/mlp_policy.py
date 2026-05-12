@@ -85,7 +85,7 @@ class MlpPolicy(nn.Module):
         action_log_probs = policy.log_prob(actions)
         return actions, action_log_probs, rnn_states
     
-    def forward(
+    def forward_decided(
         self, obs, rnn_states, masks, available_actions=None, deterministic=False
     ):
         """Compute actions from the given inputs.

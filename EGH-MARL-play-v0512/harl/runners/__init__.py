@@ -63,6 +63,7 @@ ATTACK_RUNNER_REGISTRY = {
     "gcn_mappo": OnPolicyMAAttackRunner,
     "graphsage_mappo": OnPolicyMAAttackRunner,
     "mappo": OnPolicyMAAttackRunner,
+    "mappo_data_aug": OnPolicyMAAttackRunner,
 }
 
 TRAINATTACK_RUNNER_REGISTRY = {

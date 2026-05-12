@@ -146,6 +146,8 @@ def main():
     from harl.runners import EVAL_RUNNER_REGISTRY
     # algo_args["seed"]["seed"] = args["my_seed"]
     model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
+    if args["env"] == "pursuit":
+        model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}-tac/{args["algo"]}/{args["exp_name"]}'
     #print(f"Model path: {model_path}")
     # runner = EVAL_RUNNER_REGISTRY[args["algo"]](args, algo_args, env_args,model_path)
     # if algo_args["train"]["train_flag"]:
@@ -204,9 +206,9 @@ def main():
     episodes = args["episode"]
     
     if algo_args["train"]["train_flag"]:
-        log_list=runner.model_rotation(0.1)
+        log_list=runner.model_test(0.1)
     runner.close()
-    with open('test_log.txt', 'w') as f:
+    with open('model_test_log.txt', 'w') as f:
         for log in log_list:
             f.write(log)
 

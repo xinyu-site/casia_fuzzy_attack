@@ -160,6 +160,7 @@ class EgnnV2Policy(nn.Module):
         #print(obs.shape) 10*10*44 
         obs = self.local_tool.trans_info2local_actor(obs)
         #print(obs.shape) 10*10*34
+        #print(obs.shape)
         if self.use_history:
             obs = obs.reshape(-1, (self.local_tool.inv_nf_old + self.local_tool.equ_nf) * self.windows_size)
             obs = check(obs).to(**self.tpdv)

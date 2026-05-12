@@ -33,3 +33,5 @@ CUDA_VISIBLE_DEVICES=5 python train.py --algo mappo --env smacv2 --exp_name tase
 CUDA_VISIBLE_DEVICES=5 python train.py --algo mappo --env smacv2 --exp_name tase_rnn --seed 112 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --single_actor False --use_recurrent_policy True
 CUDA_VISIBLE_DEVICES=5 python train.py --algo mappo --env smacv2 --exp_name tase_rnn --seed 113 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --single_actor False --use_recurrent_policy True
 CUDA_VISIBLE_DEVICES=5 python train.py --algo mappo --env smacv2 --exp_name tase_rnn --seed 114 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --single_actor False --use_recurrent_policy True
+
+CUDA_VISIBLE_DEVICES=5 python train.py --algo mappo --env smacv2 --exp_name tase_rnn --seed 110 --use_eval True --eval_episodes 40 --map_name protoss_5_vs_5 --n_rollout_threads 10 --single_actor False --use_recurrent_policy 

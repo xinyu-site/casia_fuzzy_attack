@@ -391,7 +391,7 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
                     if len(eval_available_actions_list) > 0
                     else None, 
-                    deterministic=True,
+                    deterministic=False,
                 )
             #print(eval_actions.shape)
             if attack_method == 'obs_grd_all' or attack_method == 'obs_grd_single' or attack_method == 'obs_grd_single_percp' or attack_method == 'obs_grd_all_percp':
@@ -422,15 +422,16 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_obs_list = []
                 for agent_id in range(self.num_agents):
                     eval_obs_list.append(obs_perturbed[:, agent_id])
-                eval_actions, temp_rnn_state = self.actor[0].act(
-                    obs_perturbed,
-                    np.stack(eval_rnn_states_list, axis=0),
-                    np.stack(eval_masks_list, axis=0),
-                    np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
-                    if len(eval_available_actions_list) > 0
-                    else None, 
-                    deterministic=True,
-                )
+                with torch.no_grad():
+                    eval_actions, temp_rnn_state = self.actor[0].act(
+                        obs_perturbed,
+                        np.stack(eval_rnn_states_list, axis=0),
+                        np.stack(eval_masks_list, axis=0),
+                        np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
+                        if len(eval_available_actions_list) > 0
+                        else None, 
+                        deterministic=False,
+                    )
             
             self.actor[0].actor.zero_grad()
             #eval_actions.backward()
@@ -541,20 +542,20 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                         eval_i
                     )  # logger callback when an episode is done
                     #重置环境：
-                    # eval_obs, eval_share_obs, eval_available_actions = self.eval_envs.reset()
-                    # eval_rnn_states = np.zeros(
-                    #     (
-                    #         self.algo_args["eval"]["n_eval_rollout_threads"],
-                    #         self.num_agents,
-                    #         self.recurrent_n,
-                    #         self.rnn_hidden_size,
-                    #     ),
-                    #     dtype=np.float32,
-                    # )
-                    # eval_masks = np.ones(
-                    #     (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
-                    #     dtype=np.float32,
-                    # )
+                    eval_obs, eval_share_obs, eval_available_actions = self.eval_envs.reset()
+                    eval_rnn_states = np.zeros(
+                        (
+                            self.algo_args["eval"]["n_eval_rollout_threads"],
+                            self.num_agents,
+                            self.recurrent_n,
+                            self.rnn_hidden_size,
+                        ),
+                        dtype=np.float32,
+                    )
+                    eval_masks = np.ones(
+                        (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
+                        dtype=np.float32,
+                    )
 
 
             
