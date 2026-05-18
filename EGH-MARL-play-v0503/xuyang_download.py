@@ -4,7 +4,7 @@ import re
 import csv
 
 # ===================== 核心配置：只需要改这一个根路径 =====================
-ROOT_DIR = '/home/yuxin/fuzzymarl/casia_fuzzy_attack/EGH-MARL-play-v0503/results/pursuit/hepnlocal-direct-tac'
+ROOT_DIR = '/home/yuxin/fuzzymarl/casia_fuzzy_attack/EGH-MARL-play-v0503/results/navigation/hepnlocal-direct'
 
 def convert_tb_to_csv(seed_dir):
     """

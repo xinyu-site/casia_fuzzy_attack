@@ -1,4 +1,4 @@
-for SEED in 20 
+for SEED in 21 22 23 24
 do
     CUDA_VISIBLE_DEVICES=0 python train.py \
         --algo egnnv2_mappo \
@@ -29,7 +29,7 @@ do
         --log_dir "./results" \ 
 done
 
-for SEED in 20 
+for SEED in 21 22 23 24
 do
     CUDA_VISIBLE_DEVICES=0 python train.py \
         --algo mappo \
