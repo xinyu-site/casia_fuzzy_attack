@@ -175,39 +175,6 @@ def main():
     else:  # load config from corresponding yaml file
         algo_args, env_args = get_defaults_yaml_args(args["algo"], args["env"])
     update_args(unparsed_dict, algo_args, env_args)  # update args from command line
-    
-    # 自动加载训练时保存的配置文件（如果存在）
-    if args["env"] == "smacv2":
-        config_path = f'{args["results_dir"]}/{args["env"]}/{args["map_name"]}/{args["algo"]}/{args["exp_name"]}'
-    elif args["env"] == "pursuit":
-        config_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}-tac/{args["algo"]}/{args["exp_name"]}'
-    else:
-        config_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
-    print(f'config_path: {config_path}')
-    if os.path.exists(config_path):
-        print('finding config file')
-        sub_folders = [f for f in os.listdir(config_path) if os.path.isdir(os.path.join(config_path, f))]
-        pattern = r'seed-(\d+)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})'
-        matched_results = []
-        for folder_name in sub_folders:
-            match = re.search(pattern, folder_name)
-            if match:
-                seed = match.group(1)
-                timestamp = match.group(2)
-                if int(seed) == int(algo_args["seed"]['seed']):
-                    matched_results.append((folder_name, seed, timestamp))
-        if matched_results:
-            matched_results.sort(key=lambda x: x[2], reverse=False)
-            selected_folder = matched_results[0][0]
-            saved_config_path = os.path.join(config_path, selected_folder, "config.json")
-            if os.path.exists(saved_config_path):
-                print(f"Loading saved config from: {saved_config_path}")
-                with open(saved_config_path, encoding="utf-8") as file:
-                    saved_config = json.load(file)
-                algo_args = saved_config["algo_args"]
-                env_args = saved_config["env_args"]
-                update_args(unparsed_dict, algo_args, env_args)
-    
     env_args["env_num1"] = args["env_num1"]
     env_args["env_num2"] = args["env_num2"]
     attack_method = args["attack_method"]
@@ -279,7 +246,6 @@ def main():
     else:
         print("No matching folders found based on seed.")
         return
-    
     model_path = os.path.join(full_path, selected_folder, "models/")
     print(f"Final model path: {model_path}")
     runner = ATTACK_RUNNER_REGISTRY[args["algo"]](args, algo_args, env_args, model_path)
