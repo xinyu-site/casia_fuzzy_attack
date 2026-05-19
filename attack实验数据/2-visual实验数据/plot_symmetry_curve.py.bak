@@ -21,34 +21,17 @@ ax = fig.add_subplot(111, projection='3d')
 ax.plot(x, y, z1, label='Curve 1 (Column 2)', color='blue', linewidth=2)
 ax.plot(x, y, z2, label='Curve 2 (Column 3)', color='red', linewidth=2)
 
-# 绘制投影曲线（投影到z=0平面）
-ax.plot(x, y, np.zeros_like(z1), label='Projection 1', color='blue', linestyle='--', alpha=0.5, linewidth=1.5)
-ax.plot(x, y, np.zeros_like(z2), label='Projection 2', color='red', linestyle='--', alpha=0.5, linewidth=1.5)
-
-# 绘制铅垂面（从原曲线到投影曲线）
-# 为曲线1创建铅垂面
-X1_surf = np.vstack([x, x])
-Y1_surf = np.vstack([y, y])
-Z1_surf = np.vstack([z1, np.zeros_like(z1)])
-ax.plot_surface(X1_surf, Y1_surf, Z1_surf, color='blue', alpha=0.15, label='Vertical Surface 1')
-
-# 为曲线2创建铅垂面
-X2_surf = np.vstack([x, x])
-Y2_surf = np.vstack([y, y])
-Z2_surf = np.vstack([z2, np.zeros_like(z2)])
-ax.plot_surface(X2_surf, Y2_surf, Z2_surf, color='red', alpha=0.15, label='Vertical Surface 2')
-
 # 设置标签
-ax.set_xlabel('X', fontsize=12)
-ax.set_ylabel('Y', fontsize=12)
-ax.set_zlabel('Velocity Value', fontsize=12)
-ax.set_title('3D Curves with Projections and Vertical Surfaces', fontsize=14)
+ax.set_xlabel('X = cos(rad)', fontsize=12)
+ax.set_ylabel('Y = sin(rad)', fontsize=12)
+ax.set_zlabel('Z Value', fontsize=12)
+ax.set_title('3D Curves on Cylindrical Surface', fontsize=14)
 
 # 设置 z 轴范围
 ax.set_zlim(-4, 4)
 
 # 添加图例
-# ax.legend(fontsize=10)
+ax.legend(fontsize=10)
 
 # 设置坐标轴等比例
 ax.set_box_aspect([1, 1, 0.8])
