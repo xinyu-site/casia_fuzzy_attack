@@ -493,7 +493,7 @@ class OnPolicyMAEvalRunner(OnPolicyBaseRunner):
             
         return log_list
     
-    def model_rotation(self,plus=0.1):
+    def model_test_rotation(self,plus=0.1):
         print("test the model.")
         # with open('test_log.txt', 'w') as f:
         #     pass
@@ -541,11 +541,17 @@ class OnPolicyMAEvalRunner(OnPolicyBaseRunner):
             (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
             dtype=np.float32,
         )
-        #print(eval_obs.shape)
-        init_loc = eval_obs[:, :, :4].copy()  # 形状 (10, 10, 4)
 
-        for plus_i in np.arange(0, 2.0+plus, plus):
-            eval_obs = add_rotation_to_obs(eval_obs, plus_i)  # 将旋转角度转换为弧度
+        eval_obs[0, 0, 0] = 1.0
+        eval_obs[0, 0, 1] = 0.0
+        eval_obs[0, :, 2:4] = 0.0  # 所有时间步的速度设为0
+        #print(eval_obs.shape)
+        init_loc = eval_obs[:, :, :2].copy()  # 形状 (1, 10, 2)
+
+        for theta in np.arange(0, 2*np.pi, plus):
+            eval_obs[0, :, 0] = init_loc[0, :, 0]*np.cos(theta) - init_loc[0, :, 1]*np.sin(theta)
+            eval_obs[0, :, 1] = init_loc[0, :, 0]*np.sin(theta) + init_loc[0, :, 1]*np.cos(theta)
+        
             #print(eval_obs[0, 0, :4])
             eval_obs_list = []
             eval_rnn_states_list = []
@@ -571,7 +577,7 @@ class OnPolicyMAEvalRunner(OnPolicyBaseRunner):
             #print(eval_actions[0,0,0:2])
             #f.write(f'plus_x: {plus_x}, plus_y: {plus_y}, actions_x: {eval_actions[0,0,0]} actions_y: {eval_actions[0,0,1]}\n')
             #log_list.append(f'x:{-1.0+plus_x} y:{-1.0+plus_y} ax:{eval_actions[0,0,0]} ay:{eval_actions[0,0,1]}\n')
-            log_list.append(f'{-1.0+plus_i:.2f} {abs(eval_actions[0,0,0]):.2f} {abs(eval_actions[0,0,1]):.2f}\n')
-            
-        return log_list
+            #log_list.append(f'{np.cos(theta):.3f} {np.sin(theta):.3f} {eval_actions[0,0,0]:.2f} {eval_actions[0,0,1]:.2f}\n')
+            log_list.append(f'{theta:.2f} {eval_actions[0,0,0]:.2f} {eval_actions[0,0,1]:.2f}\n')
 
+        return log_list
