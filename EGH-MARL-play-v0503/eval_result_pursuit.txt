@@ -25,3 +25,5 @@
 2026-05-10 21:02:40,mappo,obs_noise_all_percp,0.05,0.3,-61.2306
 2026-05-10 21:04:58,gcn_mappo,obs_noise_all_percp,0.05,0.3,-63.0420
 2026-05-10 21:06:56,mappo_data_aug,obs_noise_all_percp,0.05,0.3,-89.0755
+
+2026-05-19 13:52:17,mappo,none,0.0,0.0,32.1076

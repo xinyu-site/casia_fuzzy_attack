@@ -298,6 +298,9 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
         self.logger.episode_init(eval_episode)
         self.logger.eval_init()
         eval_obs, eval_share_obs, eval_available_actions = self.eval_envs.reset()
+        #print(f'obs shape: {eval_obs.shape}')
+        #print(f'share_obs shape: {eval_share_obs.shape}')
+        #print(f'available_actions shape: {eval_available_actions.shape}')
         #print(eval_available_actions) #None
 
         eval_rnn_states = np.zeros(
@@ -403,7 +406,11 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
             #eval_actions.backward()
             #print(f'eval_actions shape0: {eval_actions.shape}')  
             #print(self.algo_args["eval"]["n_eval_rollout_threads"])
-            eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 2)
+            #print(f'eval_actions shape: {eval_actions.shape}')
+            if self.args['env'] == "smacv2":
+                eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1)
+            else:
+                eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 2)
             #print(f'eval_actions shape1: {eval_actions.shape}')  
             eval_rnn_states = _t2n(temp_rnn_state).transpose(1, 0, 2, 3)
             #print(f'orin eval_actions: {eval_actions[3][3]}')

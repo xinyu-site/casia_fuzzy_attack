@@ -234,11 +234,13 @@ def main():
     if args['env'] == "smacv2":
         model_path = f'{args["results_dir"]}/{args["env"]}/{args["map_name"]}/{args["algo"]}/{args["exp_name"]}'
     else:
-         model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
+        model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
     # runner = EVAL_RUNNER_REGISTRY[args["algo"]](args, algo_args, env_args,model_path)
     # if algo_args["train"]["train_flag"]:
     #     runner.run()
     # 获取当前工作目录的绝对路径
+    print(f'model_path: {model_path}')
+
     current_dir = os.getcwd()
 
     # 合成完整路径（在当前文件夹下）
@@ -302,10 +304,10 @@ def main():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     result_line = f"{timestamp},{args['algo']},{attack_method},{noise_level},{noise_num},{aver_reward:.4f}\n"
     
-    with open("eval_result_pursuit.txt", "a", encoding="utf-8") as f:
+    with open(f"eval_result_{args['env']}.txt", "a", encoding="utf-8") as f:
         f.write(result_line)
     
-    print(f"\n评估结果已记录到 eval_result.txt:")
+    print(f"\n评估结果已记录到 eval_result_{args['env']}.txt:")
     print(f"时间戳: {timestamp}")
     print(f"算法: {args['algo']}")
     print(f"攻击方式: {attack_method}")
