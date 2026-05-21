@@ -231,7 +231,7 @@ def main():
     #     model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}-tac/{args["algo"]}/{args["exp_name"]}'
     if args["env"] == "pursuit":
         model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}-tac/{args["algo"]}/{args["exp_name"]}'
-    if args['env'] == "smacv2":
+    elif args['env'] == "smacv2":
         model_path = f'{args["results_dir"]}/{args["env"]}/{args["map_name"]}/{args["algo"]}/{args["exp_name"]}'
     else:
         model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
