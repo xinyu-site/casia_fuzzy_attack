@@ -36,11 +36,11 @@ for x, y in zip(x_coords, y_coords):
     x_idx = np.argmin(np.abs(xi[0, :] - x))
     y_idx = np.argmin(np.abs(yi[:, 0] - y))
     if zi_a[y_idx, x_idx] > 0: 
-        z_a_points.append(zi_a[y_idx, x_idx]+0.02)
+        z_a_points.append(zi_a[y_idx, x_idx]+0.023)
     else:
         z_a_points.append(zi_a[y_idx, x_idx]-0.015)
     if zi_b[y_idx, x_idx] > 0: 
-        z_b_points.append(zi_b[y_idx, x_idx]+0.02)
+        z_b_points.append(zi_b[y_idx, x_idx]+0.023)
     else:
         z_b_points.append(zi_b[y_idx, x_idx]-0.015)
 print("z_a_points:", z_a_points)
@@ -67,10 +67,10 @@ for i in range(len(x_coords)):
     ax.text(x, y, z_bottom, annotation_text, fontsize=10, color='black', zorder=20)
 
 # Plot points on surfaces (highest zorder to ensure visibility)
-ax.scatter(x_coords, y_coords, z_a_points, color='gray', s=50, marker='^', label='Surface A Points', zorder=100, alpha=1.0)
+ax.scatter(x_coords, y_coords, z_a_points, color='black', s=50, marker='^', label='Surface A Points', zorder=100, alpha=1.0)
 ax.plot(x_coords, y_coords, z_a_points, color='gray', linewidth=1, linestyle='--', zorder=50)
 
-ax.scatter(x_coords, y_coords, z_b_points, color='gray', s=50, marker='^', label='Surface B Points', zorder=100, alpha=1.0)
+ax.scatter(x_coords, y_coords, z_b_points, color='black', s=50, marker='^', label='Surface B Points', zorder=100, alpha=1.0)
 ax.plot(x_coords, y_coords, z_b_points, color='gray', linewidth=1, linestyle='--', zorder=50)
 
 # Add data value annotations for points on surfaces
