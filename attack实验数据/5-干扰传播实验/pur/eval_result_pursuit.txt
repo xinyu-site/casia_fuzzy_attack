@@ -1,6 +1,5 @@
-
-2026-05-22 14:31:42,mappo,obs_noise_single_percp,0.0,0.0,-59.5428
 2026-05-22 14:32:44,egnnv2_mappo,obs_noise_single_percp,0.0,0.0,-45.6602
+2026-05-22 14:31:42,mappo,obs_noise_single_percp,0.0,0.0,-59.5428
 2026-05-22 14:33:44,gcn_mappo,obs_noise_single_percp,0.0,0.0,-60.6767
 2026-05-22 14:34:49,gat_mappo,obs_noise_single_percp,0.0,0.0,-68.5397
 2026-05-22 14:35:49,graphsage_mappo,obs_noise_single_percp,0.0,0.0,-55.3370
