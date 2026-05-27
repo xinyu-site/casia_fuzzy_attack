@@ -132,7 +132,7 @@ def generate_html_table(result_df, algorithms, attack_levels):
     # 添加列标题
     for level in attack_levels:
         html += f"<th colspan='2'>{level}</th>"
-    html += "</tr><tr><th></th>"
+    html += "</tr>\n<th></th>"
     
     for level in attack_levels:
         html += "<th>平均奖励</th><th>下降率 (%)</th>"
@@ -250,8 +250,24 @@ def main():
     data = parse_data('eval_result_ren.txt')
     df = pd.DataFrame(data)
     
-    # 获取所有算法和攻击强度
-    algorithms = df['algorithm'].unique()
+    # 获取所有算法
+    all_algorithms = df['algorithm'].unique().tolist()
+    
+    # 确保 egnnv2_mappo 在第一列
+    target_algo = 'egnnv2_mappo'
+    algorithms = []
+    if target_algo in all_algorithms:
+        algorithms.append(target_algo)
+        # 添加其他算法（排除目标算法）
+        for algo in all_algorithms:
+            if algo != target_algo:
+                algorithms.append(algo)
+    else:
+        # 如果目标算法不存在，使用默认排序
+        algorithms = sorted(all_algorithms)
+        print(f"⚠️ 警告: 未找到算法 '{target_algo}'，使用默认排序")
+    
+    # 获取所有攻击强度并排序
     attack_levels = sorted(df['noise_intensity'].unique(), key=lambda x: (x[0], x[1]))
     
     print(f"发现 {len(algorithms)} 个算法: {list(algorithms)}")
@@ -348,7 +364,7 @@ def main():
         f.write(html_table)
     print("\n✅ HTML报告已生成: performance_report.html")
     
-    # 生成Drop Rate柱状图
+    # 生成Drop Rate柱状图（使用排序后的算法列表）
     plot_drop_rates(df, algorithms, attack_levels)
     
     # 打印详细统计信息
