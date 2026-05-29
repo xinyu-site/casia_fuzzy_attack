@@ -446,9 +446,14 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
             
             if attack_method == 'obs_noise_all_percp':
                 #noise = np.random.uniform(low=-noise_level, high=noise_level, size=eval_obs[:,:,4:].shape)
-                noise = np.random.normal(noise_num, noise_level, size=eval_obs[:,:,4:34].shape)
-                eval_obs[:,:,4:34] += noise
-                eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
+                if self.args['env'] == "smacv2":
+                    noise = np.random.normal(noise_num, noise_level, size=eval_obs[:,:,:-5].shape)
+                    eval_obs[:,:,:-5] += noise
+                    eval_obs = np.clip(eval_obs, -1.0, 1.0) 
+                else:
+                    noise = np.random.normal(noise_num, noise_level, size=eval_obs[:,:,4:].shape)
+                    eval_obs[:,:,4:] += noise
+                    eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
 
             if attack_method == 'obs_noise_all':
                 noise = np.random.normal(noise_num, noise_level, size=eval_obs.shape)
@@ -461,9 +466,14 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
                 
             if attack_method == 'obs_noise_single_percp':
-                noise = np.random.normal(noise_num, noise_level, size=eval_obs[:,0,4:34].shape)
-                eval_obs[:,0,4:34] += noise
-                eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
+                if self.args['env'] == "smacv2":
+                    noise = np.random.normal(noise_num, noise_level, size=eval_obs[:,0,:-5].shape)
+                    eval_obs[:,0,:-5] += noise
+                    eval_obs = np.clip(eval_obs, -1.0, 1.0) 
+                else:
+                    noise = np.random.normal(noise_num, noise_level, size=eval_obs[:,0,4:].shape)
+                    eval_obs[:,0,4:] += noise
+                    eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
             # if attack_method == 'obs_rotation_all':
             #     eval_obs[:,:,0:4] = add_rotation_to_obs(eval_obs[:,:,0:4], noise_num)
             #     noise = np.random.normal(0, noise_level, size=eval_obs[:,0,0:31].shape)
