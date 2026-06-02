@@ -1,0 +1,4 @@
+AVG,graphsage_mappo,obs_noise_all_percp,0.05,0.0,27.1974
+AVG,graphsage_mappo,obs_noise_all_percp,0.05,0.2,27.3917
+AVG,graphsage_mappo,obs_noise_all_percp,0.05,0.3,25.0590
+AVG,graphsage_mappo,obs_noise_all_percp,0.05,0.4,26.0074

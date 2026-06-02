@@ -1,0 +1,4 @@
+AVG,gcn_mappo,obs_noise_all_percp,0.05,0.0,30.3552
+AVG,gcn_mappo,obs_noise_all_percp,0.05,0.2,27.5363
+AVG,gcn_mappo,obs_noise_all_percp,0.05,0.3,28.9656
+AVG,gcn_mappo,obs_noise_all_percp,0.05,0.4,26.7104
