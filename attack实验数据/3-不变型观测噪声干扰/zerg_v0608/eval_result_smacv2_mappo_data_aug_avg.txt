@@ -1,0 +1,4 @@
+AVG,mappo_data_aug,obs_noise_all_percp,0.05,0.0,20.9062
+AVG,mappo_data_aug,obs_noise_all_percp,0.05,0.2,20.7033
+AVG,mappo_data_aug,obs_noise_all_percp,0.05,0.3,19.2005
+AVG,mappo_data_aug,obs_noise_all_percp,0.05,0.4,19.3550

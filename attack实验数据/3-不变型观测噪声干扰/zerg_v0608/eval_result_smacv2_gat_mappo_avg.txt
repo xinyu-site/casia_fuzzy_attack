@@ -1,0 +1,4 @@
+AVG,gat_mappo,obs_noise_all_percp,0.05,0.0,16.0130
+AVG,gat_mappo,obs_noise_all_percp,0.05,0.2,15.9837
+AVG,gat_mappo,obs_noise_all_percp,0.05,0.3,16.7415
+AVG,gat_mappo,obs_noise_all_percp,0.05,0.4,15.6904
