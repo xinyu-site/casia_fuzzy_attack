@@ -1,0 +1,3 @@
+2026-06-20 17:11:12,egnnv2_mappo,attack_learned,0.0,0.0,-45.5449
+2026-06-20 17:30:46,egnnv2_mappo,attack_learned,0.1,0.0,-45.3921
+2026-06-20 17:50:46,egnnv2_mappo,attack_learned,0.2,0.0,-45.8906
