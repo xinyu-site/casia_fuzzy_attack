@@ -1,0 +1,1 @@
+python attack_learned.py --seed 20 --algo mappo --env pursuit --exp_name test --obs_mode hepn_local --local_mode False --nr_agents 10 --world_size 100 --obs_radius 141.4 --use_recurrent_policy False --lr 0.0002 --critic_lr 0.0002 --num_env_steps 2000000 --structural_entropy False --use_eval False --dynamics direct --results_dir results_eswa --noise_level 0.2 --noise_num 4.0

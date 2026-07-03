@@ -453,17 +453,22 @@ class OnPolicyMAEvalRunner(OnPolicyBaseRunner):
             dtype=np.float32,
         )
 
-        eval_obs[0, 0, 0] = -1.0
-        eval_obs[0, 0, 1] = -1.0
-        eval_obs[0, :, 2:4] = 0.0  # 所有时间步的速度设为0
+        #eval_obs[0, 0, 0] = -1.0
+        #eval_obs[0, 0, 1] = -1.0
+        eval_obs[0, 0, 2] = -1.0
+        eval_obs[0, 0, 3] = -1.0
+        #eval_obs[0, :, 2:4] = 0.0  # 所有时间步的速度设为0
         #print(eval_obs.shape)
-        init_loc = eval_obs[:, :, :2].copy()  # 形状 (1, 10, 2)
+        #init_loc = eval_obs[:, :, :2].copy()  # 形状 (1, 10, 2)
+        init_vec = eval_obs[:, :, 2:4].copy()  # 形状 (1, 10, 2)
 
         for plus_x in np.arange(0, 2.0+plus, plus):
             for plus_y in np.arange(0, 2.0+plus, plus):
                 # 正确的方式：修改所有时间步的x坐标
-                eval_obs[0, :, 0] = init_loc[0, :, 0] - plus_x * init_loc[0, :, 0]
-                eval_obs[0, :, 1] = init_loc[0, :, 1] - plus_y * init_loc[0, :, 1]
+                #eval_obs[0, :, 0] = init_loc[0, :, 0] - plus_x * init_loc[0, :, 0]
+                #eval_obs[0, :, 1] = init_loc[0, :, 1] - plus_y * init_loc[0, :, 1]
+                eval_obs[0, :, 2] = init_vec[0, :, 0] - plus_x * init_vec[0, :, 0]
+                eval_obs[0, :, 3] = init_vec[0, :, 1] - plus_y * init_vec[0, :, 1]
                 #print(eval_obs[0, 0, :4])
                 eval_obs_list = []
                 eval_rnn_states_list = []
@@ -489,7 +494,7 @@ class OnPolicyMAEvalRunner(OnPolicyBaseRunner):
                 #print(eval_actions[0,0,0:2])
                 #f.write(f'plus_x: {plus_x}, plus_y: {plus_y}, actions_x: {eval_actions[0,0,0]} actions_y: {eval_actions[0,0,1]}\n')
                 #log_list.append(f'x:{-1.0+plus_x} y:{-1.0+plus_y} ax:{eval_actions[0,0,0]} ay:{eval_actions[0,0,1]}\n')
-                log_list.append(f'{-1.0+plus_x:.2f} {-1.0+plus_y:.2f} {eval_actions[0,0,0]:.2f} {eval_actions[0,0,1]:.2f}\n')
+                log_list.append(f'{-1.0+plus_x:.2f} {-1.0+plus_y:.2f} {(eval_actions[0,0,0]/10.0):.3f} {(eval_actions[0,0,1]/10.0):.3f}\n')
             
         return log_list
     

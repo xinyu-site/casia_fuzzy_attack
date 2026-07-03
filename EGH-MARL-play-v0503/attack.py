@@ -231,7 +231,8 @@ def main():
     #     model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}-tac/{args["algo"]}/{args["exp_name"]}'
     if args["env"] == "pursuit":
         model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}-tac/{args["algo"]}/{args["exp_name"]}'
-    if args['env'] == "smacv2":
+    elif args['env'] == "smacv2":
+        #if args['algo'] == "mappo_data_aug":
         model_path = f'{args["results_dir"]}/{args["env"]}/{args["map_name"]}/{args["algo"]}/{args["exp_name"]}'
     else:
         model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
@@ -284,6 +285,7 @@ def main():
     
     model_path = os.path.join(full_path, selected_folder, "models/")
     print(f"Final model path: {model_path}")
+    #print(f'env:{env_args["dynamics"]}')
     runner = ATTACK_RUNNER_REGISTRY[args["algo"]](args, algo_args, env_args, model_path)
     
     # episodes = (
@@ -291,7 +293,7 @@ def main():
     #     // algo_args["train"]["episode_length"]
     #     // algo_args["train"]["n_rollout_threads"]
     # )
-
+    
     episodes = args["episode"]
     
     if algo_args["train"]["train_flag"]:
@@ -304,7 +306,7 @@ def main():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     result_line = f"{timestamp},{args['algo']},{attack_method},{noise_level},{noise_num},{aver_reward:.4f}\n"
     
-    with open(f"eval_result_{args['env']}.txt", "a", encoding="utf-8") as f:
+    with open(f"eval_result_{args['env']}_{args['algo']}.txt", "a", encoding="utf-8") as f:
         f.write(result_line)
     
     print(f"\n评估结果已记录到 eval_result_{args['env']}.txt:")

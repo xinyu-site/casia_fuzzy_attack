@@ -57,6 +57,7 @@ EVAL_RUNNER_REGISTRY = {
 
 ATTACK_RUNNER_REGISTRY = {
     "egnnv2_mappo": OnPolicyMAAttackRunner,
+    "egnn_critic_mappo": OnPolicyMAAttackRunner,
     "egnn_mappo": OnPolicyMAAttackRunner,
     "egnn_mix_mappo": OnPolicyMAAttackRunner,
     "gat_mappo": OnPolicyMAAttackRunner,
@@ -74,4 +75,5 @@ TRAINATTACK_RUNNER_REGISTRY = {
     "gcn_mappo": OnPolicyMATrainAttackRunner,
     "mappo" : OnPolicyMATrainAttackRunner,
     "graphsage_mappo": OnPolicyMATrainAttackRunner,
+    "mappo_data_aug": OnPolicyMATrainAttackRunner,
 }

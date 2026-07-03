@@ -48,7 +48,7 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
         self.env_args = env_args
         
         self.model_path = model_path
-
+        #print()
         # 使用时序数据
         self.use_history = env_args['use_history']
         self.windows_size = env_args['windows_size']
@@ -269,54 +269,27 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
         dim_info = {}
         for agent_id in range(self.num_agents):
             dim_info[f'agent_{agent_id}'] = []  # [obs_dim, act_dim]
-            dim_info[f'agent_{agent_id}'].append(obs_dim)
-            dim_info[f'agent_{agent_id}'].append(obs_dim)
+            if self.args['env'] == "smacv2":
+                dim_info[f'agent_{agent_id}'].append(obs_dim) 
+            else:
+                dim_info[f'agent_{agent_id}'].append(obs_dim + 2)  # 观测维度：obs + action
+            dim_info[f'agent_{agent_id}'].append(obs_dim)  # 动作维度：attack_obs的维度
         
         maddpg = MADDPG(dim_info, attack_config["buffer_capacity"], attack_config["batch_size"], attack_config["actor_lr"], attack_config["critic_lr"])
         #print(f'obs_dim: {obs_dim}')
-
+        ddpg_step=0
         eval_step = 0
         while True:
             eval_step += 1
-            self.actor[0].actor.zero_grad()
+            ddpg_step += 1
+            #print(f'eval_step {eval_step}')
             maddpg_actions_list = []
             maddpg_obs_list = []
             maddpg_next_obs_list = []
             maddpg_reward_list = []
             maddpg_done_list = []
-            attack_obs = torch.zeros((self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, obs_dim), dtype=torch.float32)
-            for thread in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
-                obsforattack = {f'agent_{agent_id}': eval_obs[thread, agent_id] for agent_id in range(self.num_agents)}
-                maddpg_obs_list.append(obsforattack)
-                if eval_step > attack_config["ramdom_step"]:
-                    attack_actions = maddpg.select_action(obsforattack)
-                    #print('ok')
-                    maddpg_actions_list.append(attack_actions)
-                    for agent_id in range(self.num_agents):
-                        attack_obs[thread, agent_id, :] = attack_actions[f'agent_{agent_id}']
-                else:
-                    attack_obs[thread, :, :] = torch.randn(self.num_agents, 34).clamp(-1, 1)
-                    maddpg_actions_list.append({f'agent_{agent_id}': attack_obs[thread, agent_id, :].numpy() for agent_id in range(self.num_agents)})
 
-            #eval_obs = eval_obs + noise_level * attack_obs.numpy()
-            attack_obs_np = attack_obs.numpy()
-            #print(attack_obs_np.shape)
-            # 计算最后一个维度的范数，形状为 (10, 10, 1)
-            norms = np.linalg.norm(attack_obs_np, axis=2, keepdims=True)
-            # 避免除零，将零范数设置为1
-            norms[norms == 0] = 1
-            # 对每个34维向量进行归一化，使其范数为noise_num
-            attack_obs_normalized = attack_obs_np / norms * noise_num
-            #eval_obs = eval_obs + noise_level * attack_obs_normalized
-            eval_obs[:,:,4:34] = eval_obs[:,:,4:34] + noise_level * attack_obs_normalized[:,:,4:34]
-            eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
-            #print(attack_obs[0][0])
-            #self.actor[0].actor.zero_grad()
-            self.logger.episode_init(
-                eval_episode
-            )  # logger callback at the beginning of each evaluation episode
-            #eval_actions_collector = []
-            
+            ##攻击前获得原始输入
             eval_obs_list = []
             eval_rnn_states_list = []
             eval_masks_list = []
@@ -328,18 +301,83 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
                 if eval_available_actions[0] is not None:
                     eval_available_actions_list.append(eval_available_actions[:, agent_id])
            
-            eval_actions, temp_rnn_state = self.actor[0].act(
-                np.stack(eval_obs_list, axis=0).transpose(1, 0, 2),
-                np.stack(eval_rnn_states_list, axis=0),
-                np.stack(eval_masks_list, axis=0),
-                np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
-                if len(eval_available_actions_list) > 0
-                else None, 
-                deterministic=True,
-            )
+            with torch.no_grad():
+                orin_eval_actions, temp_rnn_state = self.actor[0].act(
+                    np.stack(eval_obs_list, axis=0).transpose(1, 0, 2),
+                    np.stack(eval_rnn_states_list, axis=0),
+                    np.stack(eval_masks_list, axis=0),
+                    np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
+                    if len(eval_available_actions_list) > 0
+                    else None, 
+                    deterministic=False,
+                )
+            if self.args["env"] == "smacv2":
+                orin_eval_actions = orin_eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1)
+            else:
+                orin_eval_actions = orin_eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 2)
+            orin_eval_actions = _t2n(orin_eval_actions)
 
-            self.actor[0].actor.zero_grad()
-            eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 2)
+            ##准备攻击向量
+            attack_obs = torch.zeros((self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, obs_dim), dtype=torch.float32)
+            
+            for thread in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
+                # 将orin_eval_actions拼接到观测中
+                #obs_with_action = np.concatenate([eval_obs[thread, agent_id], orin_eval_actions[thread, agent_id]] for agent_id in range(self.num_agents))
+                if self.args["env"] == "smacv2":
+                    obsforattack = {f'agent_{agent_id}': eval_obs[thread, agent_id] for agent_id in range(self.num_agents)}
+                else:
+                    obsforattack = {f'agent_{agent_id}': np.concatenate([eval_obs[thread, agent_id], orin_eval_actions[thread, agent_id]]) for agent_id in range(self.num_agents)}
+                maddpg_obs_list.append(obsforattack)
+                if ddpg_step > attack_config["ramdom_step"]:
+                    attack_actions = maddpg.select_action(obsforattack)
+                    #print('ok')
+                    maddpg_actions_list.append(attack_actions)
+                    for agent_id in range(self.num_agents):
+                        attack_obs[thread, agent_id, :] = attack_actions[f'agent_{agent_id}']
+                else:
+                    attack_obs[thread, :, :] = torch.randn(self.num_agents, obs_dim).clamp(-1, 1)
+                    #attack_obs[thread, :, :] = torch.zeros_like(attack_obs[thread, :, :])
+                    maddpg_actions_list.append({f'agent_{agent_id}': attack_obs[thread, agent_id, :].numpy() for agent_id in range(self.num_agents)})
+
+            #eval_obs = eval_obs + noise_level * attack_obs.numpy()
+            attack_obs_np = attack_obs.numpy()
+            if self.args["env"] == "smacv2":
+                eval_obs = eval_obs + noise_level * attack_obs_np
+            else:
+                eval_obs[:,:,4:] = eval_obs[:,:,4:] + noise_level * attack_obs_np[:,:,4:]
+            #eval_obs[:,:,4:34] = eval_obs[:,:,4:34] + noise_level * attack_obs_normalized[:,:,4:34]
+            eval_obs = np.clip(eval_obs, -1.0, 1.0)  # clip the observation to a reasonable range
+            #print(attack_obs[0][0])
+            #self.actor[0].actor.zero_grad()
+            self.logger.episode_init(
+                eval_episode
+            )  # logger callback at the beginning of each evaluation episode
+            #eval_actions_collector = []
+            eval_obs_list = []
+            eval_rnn_states_list = []
+            eval_masks_list = []
+            eval_available_actions_list = []
+            for agent_id in range(self.num_agents):
+                eval_obs_list.append(eval_obs[:, agent_id])
+                eval_rnn_states_list.append(eval_rnn_states[:, agent_id])
+                eval_masks_list.append(eval_masks[:, agent_id])
+                if eval_available_actions[0] is not None:
+                    eval_available_actions_list.append(eval_available_actions[:, agent_id])
+            
+            with torch.no_grad():
+                eval_actions, temp_rnn_state = self.actor[0].act(
+                    np.stack(eval_obs_list, axis=0).transpose(1, 0, 2),
+                    np.stack(eval_rnn_states_list, axis=0),
+                    np.stack(eval_masks_list, axis=0),
+                    np.stack(eval_available_actions_list, axis=0).transpose(1, 0, 2) 
+                    if len(eval_available_actions_list) > 0
+                    else None, 
+                    deterministic=False,
+                )
+            if self.args["env"] == "smacv2":
+                eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1)
+            else:
+                eval_actions = eval_actions.reshape(self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 2)
             eval_rnn_states = _t2n(temp_rnn_state).transpose(1, 0, 2, 3)
             eval_actions = _t2n(eval_actions)
                             
@@ -354,7 +392,11 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
             ) = self.eval_envs.step(eval_actions)
             #print(eval_obs[0][0])
             for thread in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
-                obsforattack = {f'agent_{agent_id}': eval_obs[thread, agent_id] for agent_id in range(self.num_agents)}
+                # 将eval_actions拼接到next_obs中
+                if self.args["env"] == "smacv2":
+                    obsforattack = {f'agent_{agent_id}': eval_obs[thread, agent_id] for agent_id in range(self.num_agents)}
+                else:
+                    obsforattack = {f'agent_{agent_id}': np.concatenate([eval_obs[thread, agent_id], eval_actions[thread, agent_id]]) for agent_id in range(self.num_agents)}
                 maddpg_next_obs_list.append(obsforattack)
                 #maddpg_reward_list.append(-eval_rewards[thread][0])
                 maddpg_reward_list.append( {f'agent_{agent_id}': -eval_rewards[thread, agent_id] for agent_id in range(self.num_agents)} )
@@ -365,6 +407,7 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
 
             if eval_step >= attack_config["ramdom_step"] and eval_step % attack_config["learn_interval"] == 0:  # learn every few steps
                 maddpg.learn(attack_config["batch_size"],attack_config["gamma"])
+                #print(f'attack step {eval_step}')
                 maddpg.update_target(attack_config["tau"])
 
             eval_data = (
@@ -402,6 +445,7 @@ class OnPolicyMATrainAttackRunner(OnPolicyBaseRunner):
             for eval_i in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
                 if eval_dones_env[eval_i]:
                     eval_episode += 1
+                    #print(f'eval_step {eval_step}')
                     eval_step = 0
                     eval_rewards = np.sum(self.logger.one_episode_rewards[eval_i], axis=0)
                     #print('-')

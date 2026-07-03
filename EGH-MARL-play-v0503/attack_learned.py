@@ -6,45 +6,58 @@ import matplotlib.pyplot as plt
 import os
 import re
 import numpy as np
+import datetime
 
-def plot_rewards(reward_episode_list, title="Episode Rewards", save_path=None):
+def plot_rewards(reward_episode_list, title="Episode Rewards", save_path=None, group_size=10):
     """
-    绘制每个episode的奖励曲线
-    
+    绘制每个episode的奖励曲线，并叠加每group_size个episode的分组平均。
+
     Args:
         reward_episode_list: list, 每个episode的奖励列表
         title: str, 图表标题
         save_path: str, 保存图片的路径，如果为None则不保存
+        group_size: int, 分组的episode数量，默认10
     """
-    plt.figure(figsize=(10, 6))
-    
+    plt.figure(figsize=(12, 6))
+
     episodes = range(1, len(reward_episode_list) + 1)
-    plt.plot(episodes, reward_episode_list, marker='o', linestyle='-', linewidth=2, markersize=4)
-    
+    plt.plot(episodes, reward_episode_list, marker='o', linestyle='-', linewidth=1.5, markersize=3, alpha=0.6, label='Per Episode')
+
+    # 按 group_size 分组统计
+    group_means = []
+    group_x = []
+    for i in range(0, len(reward_episode_list), group_size):
+        chunk = reward_episode_list[i:i + group_size]
+        group_means.append(np.mean(chunk))
+        group_x.append(i + group_size / 2 + 0.5)  # 组中心位置
+
+    plt.plot(group_x, group_means, 'r-s', linewidth=2.5, markersize=6, label=f'Group Mean (每{group_size}轮)')
+
     plt.xlabel('Episode', fontsize=12)
     plt.ylabel('Reward', fontsize=12)
     plt.title(title, fontsize=14, fontweight='bold')
     plt.grid(True, alpha=0.3)
-    
-    # 添加平均线
+
+    # 添加总体平均线
     avg_reward = np.mean(reward_episode_list)
-    plt.axhline(y=avg_reward, color='r', linestyle='--', linewidth=2, label=f'Average: {avg_reward:.2f}')
-    
-    # 添加最大值和最小值标注
+    plt.axhline(y=avg_reward, color='g', linestyle='--', linewidth=2, label=f'Overall Average: {avg_reward:.2f}')
+
     max_reward = max(reward_episode_list)
     min_reward = min(reward_episode_list)
     max_episode = reward_episode_list.index(max_reward) + 1
     min_episode = reward_episode_list.index(min_reward) + 1
-    
+
     plt.scatter([max_episode], [max_reward], color='green', s=100, zorder=5, label=f'Max: {max_reward:.2f}')
     plt.scatter([min_episode], [min_reward], color='orange', s=100, zorder=5, label=f'Min: {min_reward:.2f}')
-    
-    plt.legend(fontsize=10)
+
+    plt.legend(fontsize=9)
     plt.tight_layout()
-    
+
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"Plot saved to: {save_path}")
+    else:
+        plt.show()
     
 
 def main():
@@ -116,6 +129,9 @@ def main():
         "--exp_name", type=str, default="installtest", help="Experiment name."
     )
     parser.add_argument(
+        "--map_name", type=str, default="zerg_5_vs_5", help="Map name."
+    )
+    parser.add_argument(
         "--load_config",
         type=str,
         default="",
@@ -178,8 +194,15 @@ def main():
     parser.add_argument(
         "--episode",
         type = int,
-        default = 500,
+        default = 200,
         help = "Number of episodes to evaluate."
+    )
+
+    parser.add_argument(
+        "--plot",
+        type = bool,
+        default = False     ,
+        
     )
 
     args, unparsed_args = parser.parse_known_args()
@@ -222,7 +245,13 @@ def main():
     # start evaluation
     from harl.runners import TRAINATTACK_RUNNER_REGISTRY
     # algo_args["seed"]["seed"] = args["my_seed"]
-    model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
+    if args["env"] == "pursuit":
+        model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}-tac/{args["algo"]}/{args["exp_name"]}'
+    elif args["env"] == "smacv2":
+        model_path = f'{args["results_dir"]}/{args["env"]}/{args["map_name"]}/{args["algo"]}/{args["exp_name"]}'
+    else:
+        model_path = f'{args["results_dir"]}/{args["env"]}/{env_args["obs_mode"].replace("_", "")}-{env_args["dynamics"].replace("_", "")}/{args["algo"]}/{args["exp_name"]}'
+    
     #print(f"Model path: {model_path}")
     # runner = EVAL_RUNNER_REGISTRY[args["algo"]](args, algo_args, env_args,model_path)
     # if algo_args["train"]["train_flag"]:
@@ -281,12 +310,12 @@ def main():
     episodes = args["episode"]
 
     trainattack_config = {
-        "ramdom_step" : 100,
+        "ramdom_step" : 1000,
         "buffer_capacity" : 100000,
         "batch_size" : 50,
-        "actor_lr" : 0.001,    
-        "critic_lr" : 0.001,   
-        "learn_interval" : 20,
+        "actor_lr" : 0.0001,    
+        "critic_lr" : 0.0001,   
+        "learn_interval" : 50,
         "gamma" : 0.98,
         "tau" : 0.01,
     }
@@ -295,10 +324,21 @@ def main():
     
     print(f"\nAverage reward over {episodes} episodes: {aver_reward:.4f}")
     
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    result_line = f"{timestamp},{args['algo']},{'attack_learned'},{noise_level},{noise_num},{aver_reward:.4f}\n"
+    
+    with open(f"eval_result_{args['env']}_{args['algo']}.txt", "a", encoding="utf-8") as f:
+        f.write(result_line)
+        for i,reward in enumerate(reward_episode_list):
+            f.write(f"episode: {i}, reward: {reward:.4f}\n")
+
+    
+
+    if args["plot"]:
     # 绘制奖励曲线
-    plot_title = f"Episode Rewards - {args['algo']} on {args['env']}\nAttack: {attack_method}, Noise Level: {noise_level}, Noise Num: {noise_num}"
-    save_path = f"reward_plot_{args['algo']}_{args['env']}_{attack_method}_noise{noise_level}_{noise_num}.png"
-    plot_rewards(reward_episode_list, title=plot_title, save_path=save_path)
+        plot_title = f"Episode Rewards - {args['algo']} on {args['env']}\nAttack: {attack_method}, Noise Level: {noise_level}, Noise Num: {noise_num}"
+        save_path = f"reward_plot_{args['algo']}_{args['env']}_{attack_method}_noise{noise_level}_{noise_num}.png"
+        plot_rewards(reward_episode_list, title=plot_title, save_path=save_path, group_size=10)
     
     runner.close()
 

@@ -125,7 +125,9 @@ class World(object):
         # world is square
         self.world_size = world_size
         # dynamics of agents
+        #print(agent_dynamic)
         assert agent_dynamic in dynamics
+        #print(agent_dynamic)
         self.agent_dynamic = agent_dynamic
         # periodic or closed world
         self.torus = torus
