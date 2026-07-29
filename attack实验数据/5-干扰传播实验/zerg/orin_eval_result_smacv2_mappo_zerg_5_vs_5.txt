@@ -1,0 +1,26 @@
+2026-07-07 23:42:18,mappo,obs_noise_single_percp,0.05,0.0,21.6728
+2026-07-07 23:45:13,mappo,obs_noise_single_percp,0.05,0.0,20.3179
+2026-07-07 23:47:41,mappo,obs_noise_single_percp,0.05,0.0,21.2832
+2026-07-07 23:51:25,mappo,obs_noise_single_percp,0.05,0.0,19.3484
+2026-07-07 23:53:57,mappo,obs_noise_single_percp,0.05,0.0,20.0810
+2026-07-08 00:48:43,mappo,obs_noise_single_percp,0.05,0.1,18.3322
+2026-07-08 00:51:51,mappo,obs_noise_single_percp,0.05,0.1,18.0434
+2026-07-08 00:56:21,mappo,obs_noise_single_percp,0.05,0.1,20.9237
+2026-07-08 00:59:12,mappo,obs_noise_single_percp,0.05,0.1,19.5600
+2026-07-08 01:01:46,mappo,obs_noise_single_percp,0.05,0.1,17.7548
+2026-07-07 23:56:12,mappo,obs_noise_single_percp,0.05,0.2,19.6026
+2026-07-07 23:58:44,mappo,obs_noise_single_percp,0.05,0.2,22.7953
+2026-07-08 00:03:06,mappo,obs_noise_single_percp,0.05,0.2,16.2334
+2026-07-08 00:06:32,mappo,obs_noise_single_percp,0.05,0.2,21.0579
+2026-07-08 00:09:34,mappo,obs_noise_single_percp,0.05,0.2,21.6466
+2026-07-08 00:12:48,mappo,obs_noise_single_percp,0.05,0.3,20.8036
+2026-07-08 00:17:26,mappo,obs_noise_single_percp,0.05,0.3,17.6364
+2026-07-08 00:20:10,mappo,obs_noise_single_percp,0.05,0.3,17.1756
+2026-07-08 00:23:41,mappo,obs_noise_single_percp,0.05,0.3,19.6876
+2026-07-08 00:27:46,mappo,obs_noise_single_percp,0.05,0.3,17.5251
+2026-07-08 00:32:34,mappo,obs_noise_single_percp,0.05,0.4,20.8642
+2026-07-08 00:36:16,mappo,obs_noise_single_percp,0.05,0.4,19.8394
+2026-07-08 00:38:38,mappo,obs_noise_single_percp,0.05,0.4,17.3166
+2026-07-08 00:43:09,mappo,obs_noise_single_percp,0.05,0.4,21.4425
+2026-07-08 00:45:09,mappo,obs_noise_single_percp,0.05,0.4,21.4215
+
