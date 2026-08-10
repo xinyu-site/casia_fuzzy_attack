@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=6 python attack.py --algo mappo_data_aug --env smacv2 --exp_name rnn --seed 10 --use_eval True --eval_episodes 50 --map_name zerg_5_vs_5 --n_rollout_threads 10 --use_recurrent_policy False --lr 0.0005 --critic_lr 0.0005 --num_env_steps 10000000 --episode_length 400 --results_dir results  --attack_method obs_noise_all_percp --noise_level 0.05 --noise_num 0.4
