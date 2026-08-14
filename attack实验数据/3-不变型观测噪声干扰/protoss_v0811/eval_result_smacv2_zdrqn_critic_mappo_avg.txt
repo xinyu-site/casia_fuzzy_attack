@@ -1,0 +1,4 @@
+AVG,drqn_critic_mappo,obs_noise_all_percp,0.05,0.0,34.3086
+AVG,drqn_critic_mappo,obs_noise_all_percp,0.05,0.2,31.9622
+AVG,drqn_critic_mappo,obs_noise_all_percp,0.05,0.3,32.9004
+AVG,drqn_critic_mappo,obs_noise_all_percp,0.05,0.4,33.4078

@@ -1,0 +1,105 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>算法性能对比分析报告</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 40px;
+                background-color: #f5f5f5;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            h1 {
+                color: #2c3e50;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            .subtitle {
+                text-align: center;
+                color: #7f8c8d;
+                margin-bottom: 30px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                font-size: 14px;
+            }
+            th {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 12px;
+                text-align: center;
+                font-weight: bold;
+                border: 1px solid #ddd;
+            }
+            td {
+                padding: 10px;
+                text-align: center;
+                border: 1px solid #ddd;
+            }
+            tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            tr:hover {
+                background-color: #e3f2fd;
+                transition: 0.3s;
+            }
+            .algo-name {
+                font-weight: bold;
+                background-color: #e8eaf6;
+                color: #283593;
+            }
+            .drop-positive {
+                color: #e74c3c;
+                font-weight: bold;
+            }
+            .drop-negative {
+                color: #27ae60;
+                font-weight: bold;
+            }
+            .reward-high {
+                color: #27ae60;
+                font-weight: bold;
+            }
+            .caption {
+                margin-top: 20px;
+                padding: 10px;
+                background-color: #f0f0f0;
+                border-radius: 5px;
+                font-size: 12px;
+                color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🤖 强化学习算法对抗攻击性能分析</h1>
+            <div class="subtitle">不同攻击强度下的平均奖励与性能下降率对比</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>算法</th>
+    <th colspan='2'>(0.05, 0.0)</th><th colspan='2'>(0.05, 0.2)</th><th colspan='2'>(0.05, 0.3)</th><th colspan='2'>(0.05, 0.4)</th></tr><tr><th></th><th>平均奖励</th><th>下降率 (%)</th><th>平均奖励</th><th>下降率 (%)</th><th>平均奖励</th><th>下降率 (%)</th><th>平均奖励</th><th>下降率 (%)</th></tr></thead><tbody><tr><td class='algo-name'>egnn_critic_mappo</td><td>24.39</td><td>-</td><td>25.37</td><td class='drop-negative'>-4.03%</td><td>23.30</td><td class='drop-positive'>+4.49%</td><td>21.98</td><td class='drop-positive'>+9.89%</td></tr><tr><td class='algo-name'>gat_mappo</td><td>21.39</td><td>-</td><td>17.01</td><td class='drop-positive'>+20.48%</td><td>18.53</td><td class='drop-positive'>+13.38%</td><td>17.24</td><td class='drop-positive'>+19.42%</td></tr><tr><td class='algo-name'>gcn_mappo</td><td>20.43</td><td>-</td><td>15.72</td><td class='drop-positive'>+23.08%</td><td>16.40</td><td class='drop-positive'>+19.72%</td><td>15.20</td><td class='drop-positive'>+25.60%</td></tr><tr><td class='algo-name'>graphsage_mappo</td><td>21.28</td><td>-</td><td>19.55</td><td class='drop-positive'>+8.15%</td><td>18.75</td><td class='drop-positive'>+11.87%</td><td>18.23</td><td class='drop-positive'>+14.32%</td></tr><tr><td class='algo-name'>mappo</td><td>24.15</td><td>-</td><td>23.49</td><td class='drop-positive'>+2.74%</td><td>22.52</td><td class='drop-positive'>+6.72%</td><td>21.63</td><td class='drop-positive'>+10.44%</td></tr><tr><td class='algo-name'>mappo_data_aug</td><td>23.02</td><td>-</td><td>23.45</td><td class='drop-negative'>-1.84%</td><td>22.41</td><td class='drop-positive'>+2.68%</td><td>20.77</td><td class='drop-positive'>+9.77%</td></tr><tr><td class='algo-name'>drqn_critic_mappo</td><td>23.11</td><td>-</td><td>23.90</td><td class='drop-negative'>-3.43%</td><td>23.36</td><td class='drop-negative'>-1.12%</td><td>22.96</td><td class='drop-positive'>+0.63%</td></tr><tr><td class='algo-name'>mir_mappo</td><td>25.02</td><td>-</td><td>23.63</td><td class='drop-positive'>+5.56%</td><td>24.09</td><td class='drop-positive'>+3.69%</td><td>22.70</td><td class='drop-positive'>+9.25%</td></tr>
+            </tbody>
+        </table>
+        <div class="caption">
+            <strong>📊 说明：</strong><br>
+            • 下降率为正值表示性能下降，负值表示性能提升<br>
+            • 红色数字表示性能下降，绿色数字表示性能提升<br>
+            • 基线为无攻击状态<br>
+            • 下降率计算公式: (基线奖励 - 攻击后奖励) / |基线奖励| × 100%
+        </div>
+        </div>
+    </body>
+    </html>
+    

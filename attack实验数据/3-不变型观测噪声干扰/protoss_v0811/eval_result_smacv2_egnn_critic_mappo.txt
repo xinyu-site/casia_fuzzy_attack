@@ -1,0 +1,15 @@
+2026-05-29 15:12:30,egnn_critic_mappo,obs_noise_all_percp,0.05,0.0,37.7106
+2026-05-29 15:15:52,egnn_critic_mappo,obs_noise_all_percp,0.05,0.0,33.3819
+2026-05-29 15:20:17,egnn_critic_mappo,obs_noise_all_percp,0.05,0.0,28.8733
+2026-05-29 16:33:41,egnn_critic_mappo,obs_noise_all_percp,0.05,0.2,34.8421
+2026-05-29 15:27:45,egnn_critic_mappo,obs_noise_all_percp,0.05,0.2,33.2014
+2026-05-29 15:33:01,egnn_critic_mappo,obs_noise_all_percp,0.05,0.2,32.4391
+2026-05-29 15:36:51,egnn_critic_mappo,obs_noise_all_percp,0.05,0.3,32.1404
+2026-05-29 15:40:16,egnn_critic_mappo,obs_noise_all_percp,0.05,0.3,36.7284
+2026-05-29 15:43:59,egnn_critic_mappo,obs_noise_all_percp,0.05,0.3,30.6304
+2026-05-29 16:03:40,egnn_critic_mappo,obs_noise_all_percp,0.05,0.4,32.2337
+2026-05-29 16:08:12,egnn_critic_mappo,obs_noise_all_percp,0.05,0.4,33.5201
+2026-05-29 16:11:15,egnn_critic_mappo,obs_noise_all_percp,0.05,0.4,33.3990
+
+
+

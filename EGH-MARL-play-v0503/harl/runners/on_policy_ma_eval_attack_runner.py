@@ -316,6 +316,8 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
             (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
             dtype=np.float32,
         )
+        total_count = 0.0
+        win_count = 0.0
         total_rewards = 0.0
         while True:
             #print(eval_episode)
@@ -489,8 +491,13 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                 eval_available_actions,
             )
             self.logger.eval_per_step(eval_data) # logger callback at each step of evaluation                        
-
             eval_dones_env = np.all(eval_dones, axis=1)
+            if self.args["env"] == "smacv2":     
+                for eval_i in range(self.algo_args["eval"]["n_eval_rollout_threads"]):
+                    if eval_dones_env[eval_i]:
+                        if eval_infos[eval_i][0]['battle_won']==True:
+                            win_count += 1.0
+                        total_count += 1.0
 
             eval_rnn_states[
                 eval_dones_env == True
@@ -539,8 +546,6 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                         (self.algo_args["eval"]["n_eval_rollout_threads"], self.num_agents, 1),
                         dtype=np.float32,
                     )
-
-
             
 
             if eval_episode >= episodes:
@@ -548,4 +553,8 @@ class OnPolicyMAAttackRunner(OnPolicyBaseRunner):
                     eval_episode
                 )  # logger callback at the end of evaluation
                 break
-        return total_rewards / episodes
+
+        if self.args["env"] == "smacv2":     
+            return total_rewards / episodes , win_count / total_count
+        else:
+            return total_rewards / episodes

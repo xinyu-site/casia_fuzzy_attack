@@ -295,7 +295,10 @@ def main():
     episodes = args["episode"]
     
     if algo_args["train"]["train_flag"]:
-        aver_reward = runner.eval(episodes, attack_method=attack_method, noise_level=noise_level, noise_num=noise_num)
+        if args['env'] == 'smacv2':
+            aver_reward , win_rate = runner.eval(episodes, attack_method=attack_method, noise_level=noise_level, noise_num=noise_num)
+        else:
+            aver_reward = runner.eval(episodes, attack_method=attack_method, noise_level=noise_level, noise_num=noise_num)
     runner.close()
     
     #记录评估结果到文件
@@ -304,8 +307,12 @@ def main():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     result_line = f"{timestamp},{args['algo']},{attack_method},{noise_level},{noise_num},{aver_reward:.4f}\n"
     
-    with open(f"eval_result_{args['env']}.txt", "a", encoding="utf-8") as f:
-        f.write(result_line)
+    if args['env'] == "smacv2":
+        with open(f"eval_result_{args['env']}_{args['map_name']}.txt", "a", encoding="utf-8") as f:
+            f.write(result_line.replace("\n", f",{win_rate:.4f}\n"))
+    else:
+        with open(f"eval_result_{args['env']}.txt", "a", encoding="utf-8") as f:
+            f.write(result_line)
     
     print(f"\n评估结果已记录到 eval_result_{args['env']}.txt:")
     print(f"时间戳: {timestamp}")

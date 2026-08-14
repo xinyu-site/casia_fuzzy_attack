@@ -1,0 +1,4 @@
+AVG,mir_mappo,obs_noise_all_percp,0.05,0.0,25.0156,6
+AVG,mir_mappo,obs_noise_all_percp,0.05,0.2,23.6255,6
+AVG,mir_mappo,obs_noise_all_percp,0.05,0.3,24.0922,6
+AVG,mir_mappo,obs_noise_all_percp,0.05,0.4,22.7010,6

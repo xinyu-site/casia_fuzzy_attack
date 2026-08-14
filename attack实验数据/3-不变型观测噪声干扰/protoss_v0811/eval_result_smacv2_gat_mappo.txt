@@ -1,0 +1,16 @@
+2026-05-29 16:55:45,gat_mappo,obs_noise_all_percp,0.05,0.0,26.7357
+2026-05-29 16:58:13,gat_mappo,obs_noise_all_percp,0.05,0.0,27.0355
+2026-05-29 17:04:22,gat_mappo,obs_noise_all_percp,0.05,0.0,24.8124
+2026-05-29 17:06:40,gat_mappo,obs_noise_all_percp,0.05,0.0,31.6692
+2026-05-29 17:10:07,gat_mappo,obs_noise_all_percp,0.05,0.2,26.3241
+2026-05-29 17:14:57,gat_mappo,obs_noise_all_percp,0.05,0.2,24.5020
+2026-05-29 17:19:10,gat_mappo,obs_noise_all_percp,0.05,0.2,24.8693
+2026-05-29 17:24:16,gat_mappo,obs_noise_all_percp,0.05,0.2,26.5520
+2026-05-29 17:29:34,gat_mappo,obs_noise_all_percp,0.05,0.3,23.2456
+2026-05-29 17:32:48,gat_mappo,obs_noise_all_percp,0.05,0.3,27.7200
+2026-05-29 17:36:40,gat_mappo,obs_noise_all_percp,0.05,0.3,25.4465
+2026-05-29 17:39:24,gat_mappo,obs_noise_all_percp,0.05,0.3,25.9145
+2026-05-29 17:43:43,gat_mappo,obs_noise_all_percp,0.05,0.4,23.1745
+2026-05-29 17:47:02,gat_mappo,obs_noise_all_percp,0.05,0.4,26.2960
+2026-05-29 17:50:26,gat_mappo,obs_noise_all_percp,0.05,0.4,24.9430
+2026-05-29 17:54:41,gat_mappo,obs_noise_all_percp,0.05,0.4,21.7101
