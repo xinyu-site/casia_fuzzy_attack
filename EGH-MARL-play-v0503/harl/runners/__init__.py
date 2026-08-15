@@ -53,6 +53,9 @@ EVAL_RUNNER_REGISTRY = {
     "egnnv2_mappo": OnPolicyMAEvalRunner,
     "egnn_mappo": OnPolicyMAEvalRunner,
     "egnn_mix_mappo": OnPolicyMAEvalRunner,
+    "mappo": OnPolicyMAEvalRunner,
+    "gcn_mappo": OnPolicyMAEvalRunner,
+    "graphsage_mappo": OnPolicyMAEvalRunner,
 }
 
 ATTACK_RUNNER_REGISTRY = {
