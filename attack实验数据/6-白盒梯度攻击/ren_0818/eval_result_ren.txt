@@ -1,0 +1,36 @@
+2026-08-17 00:05:45,egnnv2_mappo,obs_grd_all_percp,0.0,0.0,-17.4289
+2026-08-17 00:11:22,mappo,obs_grd_all_percp,0.0,0.0,-36.5061
+2026-08-17 00:17:07,gcn_mappo,obs_grd_all_percp,0.0,0.0,-36.1343
+2026-08-17 00:22:21,graphsage_mappo,obs_grd_all_percp,0.0,0.0,-34.3097
+2026-08-17 00:28:09,gat_mappo,obs_grd_all_percp,0.0,0.0,-43.7205
+2026-08-17 00:33:37,mappo_data_aug,obs_grd_all_percp,0.0,0.0,-62.6816
+2026-08-17 00:38:38,mir_mappo,obs_grd_all_percp,0.0,0.0,-56.8296
+2026-08-17 00:44:05,drqn_critic_mappo,obs_grd_all_percp,0.0,0.0,-55.9234
+
+2026-08-17 11:13:45,egnnv2_mappo,obs_grd_all_percp,0.04,0.0,-17.2074
+2026-08-17 11:16:39,mappo,obs_grd_all_percp,0.04,0.0,-37.3965
+2026-08-17 11:19:50,gcn_mappo,obs_grd_all_percp,0.04,0.0,-36.2320
+2026-08-17 11:22:44,graphsage_mappo,obs_grd_all_percp,0.04,0.0,-34.4341
+2026-08-17 11:26:23,gat_mappo,obs_grd_all_percp,0.04,0.0,-43.5073
+2026-08-17 11:29:17,mappo_data_aug,obs_grd_all_percp,0.04,0.0,-70.7720
+2026-08-17 11:32:22,mir_mappo,obs_grd_all_percp,0.04,0.0,-59.7136
+2026-08-17 11:35:10,drqn_critic_mappo,obs_grd_all_percp,0.04,0.0,-58.4599
+
+2026-08-17 20:01:31,egnnv2_mappo,obs_grd_all_percp,0.06,0.0,-17.2566
+2026-08-17 20:05:41,mappo,obs_grd_all_percp,0.06,0.0,-37.9338
+2026-08-17 20:09:59,gcn_mappo,obs_grd_all_percp,0.06,0.0,-36.3101
+2026-08-17 20:13:57,graphsage_mappo,obs_grd_all_percp,0.06,0.0,-34.5378
+2026-08-17 20:18:39,gat_mappo,obs_grd_all_percp,0.06,0.0,-43.6885
+2026-08-17 20:22:42,mappo_data_aug,obs_grd_all_percp,0.06,0.0,-75.8256
+2026-08-17 20:27:00,mir_mappo,obs_grd_all_percp,0.06,0.0,-60.7643
+2026-08-17 20:31:51,drqn_critic_mappo,obs_grd_all_percp,0.06,0.0,-60.5845
+
+2026-08-17 12:03:58,egnnv2_mappo,obs_grd_all_percp,0.08,0.0,-17.4579
+2026-08-17 12:06:56,mappo,obs_grd_all_percp,0.08,0.0,-38.6816
+2026-08-17 12:10:17,gcn_mappo,obs_grd_all_percp,0.08,0.0,-36.4171
+2026-08-17 12:13:23,graphsage_mappo,obs_grd_all_percp,0.08,0.0,-34.6639
+2026-08-17 12:16:58,gat_mappo,obs_grd_all_percp,0.08,0.0,-44.4987
+2026-08-17 12:19:59,mappo_data_aug,obs_grd_all_percp,0.08,0.0,-81.4810
+2026-08-17 12:23:08,mir_mappo,obs_grd_all_percp,0.08,0.0,-61.3208
+2026-08-17 12:25:37,drqn_critic_mappo,obs_grd_all_percp,0.08,0.0,-62.7851
+
