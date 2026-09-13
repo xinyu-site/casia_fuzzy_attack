@@ -1,0 +1,44 @@
+2026-08-24 13:38:47,egnnv2_mappo,obs_grd_single_percp,0.0,0.0,-17.4289
+2026-08-24 13:39:59,mappo,obs_grd_single_percp,0.0,0.0,-36.5061
+2026-08-24 13:41:26,gcn_mappo,obs_grd_single_percp,0.0,0.0,-36.1343
+2026-08-24 13:42:48,graphsage_mappo,obs_grd_single_percp,0.0,0.0,-34.3097
+2026-08-24 13:44:33,gat_mappo,obs_grd_single_percp,0.0,0.0,-43.7205
+2026-08-24 13:45:42,mappo_data_aug,obs_grd_single_percp,0.0,0.0,-62.6816
+2026-08-24 13:46:58,mir_mappo,obs_grd_single_percp,0.0,0.0,-56.8296
+2026-08-24 13:48:08,drqn_critic_mappo,obs_grd_single_percp,0.0,0.0,-55.9234
+
+2026-08-24 13:49:59,egnnv2_mappo,obs_grd_single_percp,0.04,0.0,-17.4143
+2026-08-24 13:51:15,mappo,obs_grd_single_percp,0.04,0.0,-36.6310
+2026-08-24 13:52:46,gcn_mappo,obs_grd_single_percp,0.04,0.0,-36.1546
+2026-08-24 13:54:11,graphsage_mappo,obs_grd_single_percp,0.04,0.0,-34.3421
+2026-08-24 13:56:16,gat_mappo,obs_grd_single_percp,0.04,0.0,-43.7058
+2026-08-24 13:57:28,mappo_data_aug,obs_grd_single_percp,0.04,0.0,-63.3127
+2026-08-24 13:58:36,mir_mappo,obs_grd_single_percp,0.04,0.0,-56.9974
+2026-08-24 13:59:45,drqn_critic_mappo,obs_grd_single_percp,0.04,0.0,-56.4044
+
+2026-08-24 14:01:36,egnnv2_mappo,obs_grd_single_percp,0.06,0.0,-17.4303
+2026-08-24 14:02:46,mappo,obs_grd_single_percp,0.06,0.0,-36.7133
+2026-08-24 14:04:16,gcn_mappo,obs_grd_single_percp,0.06,0.0,-36.1713
+2026-08-24 14:05:36,graphsage_mappo,obs_grd_single_percp,0.06,0.0,-34.3601
+2026-08-24 14:07:24,gat_mappo,obs_grd_single_percp,0.06,0.0,-43.6989
+2026-08-24 14:08:33,mappo_data_aug,obs_grd_single_percp,0.06,0.0,-63.8804
+2026-08-24 14:09:43,mir_mappo,obs_grd_single_percp,0.06,0.0,-57.0317
+2026-08-24 14:10:53,drqn_critic_mappo,obs_grd_single_percp,0.06,0.0,-56.7124
+
+2026-08-24 14:12:40,egnnv2_mappo,obs_grd_single_percp,0.08,0.0,-17.4641
+2026-08-24 14:13:50,mappo,obs_grd_single_percp,0.08,0.0,-36.7957
+2026-08-24 14:15:25,gcn_mappo,obs_grd_single_percp,0.08,0.0,-36.1913
+2026-08-24 14:16:44,graphsage_mappo,obs_grd_single_percp,0.08,0.0,-34.3846
+2026-08-24 14:18:53,gat_mappo,obs_grd_single_percp,0.08,0.0,-43.6821
+2026-08-24 14:20:04,mappo_data_aug,obs_grd_single_percp,0.08,0.0,-64.4402
+2026-08-24 14:21:14,mir_mappo,obs_grd_single_percp,0.08,0.0,-57.0153
+2026-08-24 14:22:22,drqn_critic_mappo,obs_grd_single_percp,0.08,0.0,-56.9975
+
+2026-08-24 14:24:36,egnnv2_mappo,obs_grd_single_percp,0.12,0.0,-17.5600
+2026-08-24 14:25:53,mappo,obs_grd_single_percp,0.12,0.0,-37.0456
+2026-08-24 14:27:24,gcn_mappo,obs_grd_single_percp,0.12,0.0,-36.2471
+2026-08-24 14:28:42,graphsage_mappo,obs_grd_single_percp,0.12,0.0,-34.4359
+2026-08-24 14:30:29,gat_mappo,obs_grd_single_percp,0.12,0.0,-43.6781
+2026-08-24 14:31:39,mappo_data_aug,obs_grd_single_percp,0.12,0.0,-65.8132
+2026-08-24 14:32:57,mir_mappo,obs_grd_single_percp,0.12,0.0,-57.0309
+2026-08-24 14:34:08,drqn_critic_mappo,obs_grd_single_percp,0.12,0.0,-57.5105

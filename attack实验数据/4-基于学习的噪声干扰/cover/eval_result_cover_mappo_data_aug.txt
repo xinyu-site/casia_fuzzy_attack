@@ -1,0 +1,12 @@
+2026-09-11 19:37:56,mappo_data_aug,attack_learned,0.0,3.0,564.9199
+2026-09-11 19:44:00,mappo_data_aug,attack_learned,0.0,3.0,557.4587
+2026-09-11 19:51:17,mappo_data_aug,attack_learned,0.0,3.0,574.9293
+2026-09-11 19:57:23,mappo_data_aug,attack_learned,0.0,3.0,574.2651
+2026-09-11 20:04:30,mappo_data_aug,attack_learned,0.1,3.0,553.7954
+2026-09-11 20:10:25,mappo_data_aug,attack_learned,0.1,3.0,567.1923
+2026-09-11 20:17:33,mappo_data_aug,attack_learned,0.1,3.0,559.2668
+2026-09-11 20:23:54,mappo_data_aug,attack_learned,0.1,3.0,567.2092
+2026-09-11 20:30:34,mappo_data_aug,attack_learned,0.2,3.0,545.0505
+2026-09-11 20:37:12,mappo_data_aug,attack_learned,0.2,3.0,542.8785
+2026-09-11 20:43:59,mappo_data_aug,attack_learned,0.2,3.0,539.5683
+2026-09-11 20:50:27,mappo_data_aug,attack_learned,0.2,3.0,543.1343

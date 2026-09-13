@@ -1,0 +1,5 @@
+2026-08-24 17:09:28,egnnv2_mappo,attack_learned,0.0,0.0,-17.4151
+2026-08-24 17:57:46,egnnv2_mappo,attack_learned,0.1,0.0,-17.4182
+2026-08-24 18:45:44,egnnv2_mappo,attack_learned,0.2,0.0,-17.4281
+2026-08-24 19:36:06,egnnv2_mappo,attack_learned,0.3,0.0,-17.4441
+2026-08-24 20:25:34,egnnv2_mappo,attack_learned,0.4,0.0,-17.4684
